@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## Example Summary
 
 Empty project using DriverLib.
@@ -83,4 +82,3 @@ Dette oppsettet er konfigurert via SysConfig for å matche EDUMKII:
 | **RGB LED** | Rød / Grønn / Blå | **PB26 / PB22 / PB27** |
 | **LCD** | SPI (CLK/MOSI) | **PB9 / PB8** |
 | **LCD** | Control (RS/CS
->>>>>>> c05fb7a19cb98a6730d0eb09a722c70b8a873413
