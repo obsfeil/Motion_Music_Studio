@@ -193,6 +193,7 @@ int main(void) {
     DL_ADC12_startConversion(ADC_MIC_JOY_INST);
     DL_ADC12_startConversion(ADC_ACCEL_INST);
 
+    g_synthState.audio_playing = true;
     // Turn on GREEN LED to show ready
     DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
 
