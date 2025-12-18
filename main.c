@@ -24,10 +24,9 @@
 #include <stdio.h>
 #include <string.h>
 
-// TI DriverLib
-#include "lcd/lcd_driver.h"
+#include "ti_msp_dl_config.h"  // ← FIRST!
 #include "main.h"
-#include "ti_msp_dl_config.h" // Project headers
+#include "lcd/lcd_driver.h"
 
 //=============================================================================
 // GLOBAL STATE
@@ -241,8 +240,7 @@ static void Process_Input(void) {
 
         // Turn off RGB LED when stopped
         if (!g_synthState.audio_playing) {
-            DL_GPIO_clearPins(GPIO_RGB_PORT, 
-                             GPIO_RGB_RED_PIN | GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
+            DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN | GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
         }
     }
     last_s2 = btn_s2_local;
