@@ -22,15 +22,7 @@
                     ]
                 }
             ],
-            "groupInfo": [
-                {
-                    "name": "group_0",
-                    "syncMode": false,
-                    "cores": [
-                        "Texas Instruments XDS110 USB Debug Probe/CORTEX_M0P"
-                    ]
-                }
-            ]
+            "groupInfo": []
         }
     ]
 }
