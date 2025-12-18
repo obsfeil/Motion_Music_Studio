@@ -7,7 +7,6 @@ Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User L
 16,PB19,SD,GPIO,Standard Output,BLUE
 2,PB14,SD,GPIO,Standard Output,RST
 1,PB13,SD,GPIO,Standard Output,DC
-46,PA6,SD,SYSCTL,"HFCLK In",
 5,PA12,HS,TIMG0,"Capture/Compare Pin 0",
 33,PA0,OD,I2C0,"I2C Serial Data line (SDA)",
 34,PA1,OD,I2C0,"I2C Serial Clock line (SCL)",

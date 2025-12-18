@@ -9,8 +9,7 @@
 	+ Standard Output: PB19
 	+ Standard Output: PB14
 	+ Standard Output: PB13
-- SYSCTL:
-	+ HFCLK In: PA6
+- SYSCTL
 - TIMG0:
 	+ Capture/Compare Pin 0: PA12
 - TIMG7
