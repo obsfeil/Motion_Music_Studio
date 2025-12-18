@@ -201,29 +201,7 @@ SPI1.cs0PinConfig.hideOutputInversion   = scripting.forceWrite(false);
 SPI1.cs0PinConfig.onlyInternalResistor  = scripting.forceWrite(false);
 SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite("Digital");
 
-SYSCTL.SYSPLL_CLK0En         = true;
-SYSCTL.powerPolicy           = "STANDBY0";
-SYSCTL.forceDefaultClkConfig = true;
-SYSCTL.MFPCLKEn              = true;
-SYSCTL.powerSysInterrupts    = ["FLASH_SEC"];
-SYSCTL.validateClkStatus     = true;
-SYSCTL.MFCLKEn               = true;
-SYSCTL.MCLKSource            = "HSCLK";
-SYSCTL.enableIntDone         = true;
-SYSCTL.clockInterrupts       = ["HFCLK_GOOD"];
-SYSCTL.SYSPLL_CLK0Div        = 1;
-SYSCTL.pmcuInterruptPriority = "0";
-SYSCTL.HFCLK4MFPCLKDIV       = "2";
-SYSCTL.EXCLKSource           = "LFCLK";
-SYSCTL.fccClkSrc             = "CLK_OUT";
-SYSCTL.useHFCLK_Manual       = true;
-SYSCTL.LFCLKSource           = "LFCLK_IN";
-SYSCTL.UDIV                  = "2";
-SYSCTL.SYSPLL_Pdiv           = 4;
-SYSCTL.SYSPLL_CLK2XDiv       = 1;
-SYSCTL.SYSPLL_CLK1Div        = 1;
-SYSCTL.HSCLKSource           = "HFCLK";
-SYSCTL.peripheral.$assign    = "SYSCTL";
+
 
 TIMER1.$name              = "TIMER_SAMPLE";
 TIMER1.timerPeriod        = "50 us";
