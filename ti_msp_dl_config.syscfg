@@ -121,6 +121,7 @@ PWM1.ccp1PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 
 SPI1.$name                              = "SPI_LCD";
 SPI1.targetBitRate                      = 10000000;
+SPI1.bitOrder                           = "LSB";
 SPI1.peripheral.$assign                 = "SPI1";
 SPI1.sclkPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric4";
 SPI1.sclkPinConfig.direction            = scripting.forceWrite("OUTPUT");
@@ -152,6 +153,8 @@ TIMER1.peripheral.$assign = "TIMG7";
 
 VREF.basicIntVolt           = "DL_VREF_BUFCONFIG_OUTPUT_2_5V";
 VREF.checkVREFReady         = true;
+VREF.advClockConfigEnable   = true;
+VREF.advClkSrc              = "DL_VREF_CLOCK_BUSCLK";
 VREF.peripheral.$assign     = "VREF";
 VREF.vrefPosPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric8";
 

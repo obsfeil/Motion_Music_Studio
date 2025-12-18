@@ -328,7 +328,7 @@ static const DL_SPI_Config gSPI_LCD_config = {
     .frameFormat = DL_SPI_FRAME_FORMAT_MOTO4_POL0_PHA0,
     .parity      = DL_SPI_PARITY_NONE,
     .dataSize    = DL_SPI_DATA_SIZE_8,
-    .bitOrder    = DL_SPI_BIT_ORDER_MSB_FIRST,
+    .bitOrder    = DL_SPI_BIT_ORDER_LSB_FIRST,
     .chipSelectPin = DL_SPI_CHIP_SELECT_0,
 };
 
@@ -424,6 +424,10 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_ACCEL_init(void)
 }
 
 
+static const DL_VREF_ClockConfig gVREFClockConfig = {
+    .clockSel = DL_VREF_CLOCK_BUSCLK,
+    .divideRatio = DL_VREF_CLOCK_DIVIDE_1,
+};
 static const DL_VREF_Config gVREFConfig = {
     .vrefEnable     = DL_VREF_ENABLE_ENABLE,
     .bufConfig      = DL_VREF_BUFCONFIG_OUTPUT_2_5V,
@@ -433,6 +437,8 @@ static const DL_VREF_Config gVREFConfig = {
 };
 
 SYSCONFIG_WEAK void SYSCFG_DL_VREF_init(void) {
+    DL_VREF_setClockConfig(VREF,
+        (DL_VREF_ClockConfig *) &gVREFClockConfig);
     DL_VREF_configReference(VREF,
         (DL_VREF_Config *) &gVREFConfig);
     delay_cycles(VREF_READY_DELAY);
