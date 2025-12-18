@@ -1,7 +1,7 @@
 /**
  * @file main.c
  * @brief MSPM0G3507 Synthesizer with LCD Display
- * @version 1.3.0
+ * @version 1.3.1
  * @date 2025-12-18
  */
 
@@ -15,33 +15,22 @@
 #include "main.h"
 #include "ti_msp_dl_config.h"
 
+//=============================================================================
+// STACK MONITORING
+//=============================================================================
+
 #define STACK_CANARY_VALUE 0xDEADBEEF
 volatile uint32_t stack_canary __attribute__((section(".stack"))) = STACK_CANARY_VALUE;
 
-// Forbedret HardFault handler
-void HardFault_Handler(void) {
-    // Disable alle interrupts
-    __disable_irq();
-    
-    // Prøv å vise feilinfo på LCD (hvis mulig)
-    LCD_Clear(COLOR_BLACK);
-    LCD_DrawString(10, 40, "HARD FAULT!", COLOR_RED);
-    LCD_DrawString(10, 60, "Stack overflow?", COLOR_YELLOW);
-    LCD_DrawString(10, 80, "Check stack size", COLOR_WHITE);
-    
-    // Blink rød LED for å signalisere feil
-    while(1) {
-        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
-        
-        // Software delay (siden timers kan være korrupte)
-        for(volatile uint32_t i = 0; i < 100000; i++);
-    }
-}
+// Forward declarations
+void check_stack_canary(void);
+void print_memory_usage(void);
+
 //=============================================================================
 // GLOBAL STATE
 //=============================================================================
 
-SynthState_t g_synthState = {.waveform = WAVE_SINE,
+volatile SynthState_t g_synthState = {.waveform = WAVE_SINE,
                              .mode = MODE_SYNTH,
                              .frequency = FREQ_DEFAULT,
                              .volume = VOLUME_DEFAULT,
@@ -102,7 +91,7 @@ static void Generate_Audio_Sample(void) {
   }
 
   uint8_t index = (uint8_t)((phase >> 24) & 0xFF);
-sample = sine_table[index];  
+  int16_t sample = 0;  // ← FIX: Deklarasjon lagt til!
 
   switch (g_synthState.waveform) {
   case WAVE_SINE:
@@ -316,36 +305,31 @@ void GPIOA_IRQHandler(void) {
   }
 }
 
+// Forbedret HardFault handler
+void HardFault_Handler(void) {
+    // Disable alle interrupts
+    __disable_irq();
+    
+    // Prøv å vise feilinfo på LCD (hvis mulig)
+    LCD_Clear(COLOR_BLACK);
+    LCD_DrawString(10, 40, "HARD FAULT!", COLOR_RED);
+    LCD_DrawString(10, 60, "Stack overflow?", COLOR_YELLOW);
+    LCD_DrawString(10, 80, "Check stack size", COLOR_WHITE);
+    
+    // Blink rød LED for å signalisere feil
+    while(1) {
+        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+        
+        // Software delay (siden timers kan være korrupte)
+        for(volatile uint32_t i = 0; i < 100000; i++);
+    }
+}
+
 //=============================================================================
-// MAIN
+// STACK MONITORING FUNCTIONS
 //=============================================================================
 
-int main(void) {
-  SYSCFG_DL_init();
-
-  DL_ADC12_enableConversions(ADC_MIC_JOY_INST); // Aktiver ADC-modulen
-  DL_ADC12_startConversion(ADC_MIC_JOY_INST);  // Start den første målingen
-
-  NVIC_EnableIRQ(TIMER_SAMPLE_INST_INT_IRQN);
-  NVIC_EnableIRQ(ADC_MIC_JOY_INST_INT_IRQN);
-  NVIC_EnableIRQ(ADC_ACCEL_INST_INT_IRQN); // ← Denne!
-  NVIC_EnableIRQ(GPIOA_INT_IRQn);
-
-  __enable_irq();
-
-  LCD_Init();
-  LCD_Clear(COLOR_BLACK);
-
-  LCD_DrawString(20, 50, "MSPM0G3507", COLOR_CYAN);
-  LCD_DrawString(15, 70, "Synthesizer", COLOR_WHITE);
-  LCD_DrawString(35, 90, "v1.3.0", COLOR_YELLOW);
-  delay_ms(2000);
-
-  Update_Phase_Increment();
-  DL_ADC12_startConversion(ADC_MIC_JOY_INST);
-  Update_Display();
-
-  void check_stack_canary(void) {
+void check_stack_canary(void) {
     if (stack_canary != STACK_CANARY_VALUE) {
         // Stack overflow detektert!
         LCD_Clear(COLOR_BLACK);
@@ -358,7 +342,6 @@ int main(void) {
     }
 }
 
-// Minne-rapport funksjon
 void print_memory_usage(void) {
     extern uint32_t __STACK_END;
     extern uint32_t __bss_start__;
@@ -372,7 +355,37 @@ void print_memory_usage(void) {
     LCD_DrawString(0, 0, str, COLOR_DARKGRAY);
 }
 
+//=============================================================================
+// MAIN
+//=============================================================================
+
+int main(void) {
+  SYSCFG_DL_init();
+
+  DL_ADC12_enableConversions(ADC_MIC_JOY_INST);
+  DL_ADC12_startConversion(ADC_MIC_JOY_INST);
+
+  NVIC_EnableIRQ(TIMER_SAMPLE_INST_INT_IRQN);
+  NVIC_EnableIRQ(ADC_MIC_JOY_INST_INT_IRQN);
+  NVIC_EnableIRQ(ADC_ACCEL_INST_INT_IRQN);
+  NVIC_EnableIRQ(GPIOA_INT_IRQn);
+
+  __enable_irq();
+
+  LCD_Init();
+  LCD_Clear(COLOR_BLACK);
+
+  LCD_DrawString(20, 50, "MSPM0G3507", COLOR_CYAN);
+  LCD_DrawString(15, 70, "Synthesizer", COLOR_WHITE);
+  LCD_DrawString(35, 90, "v1.3.1", COLOR_YELLOW);
+  delay_ms(2000);
+
+  Update_Phase_Increment();
+  DL_ADC12_startConversion(ADC_MIC_JOY_INST);
+  Update_Display();
+
   while (1) {
+    check_stack_canary();  // Sjekk stack health
     Process_Input();
 
     static uint32_t last_display = 0;
