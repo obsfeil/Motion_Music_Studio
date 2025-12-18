@@ -15,7 +15,7 @@ SHELL = cmd.exe
 build-1000533073: ../ti_msp_dl_config.syscfg
 	@echo 'Building file: "$<"'
 	@echo 'Invoking: SysConfig'
-	"C:/ti/sysconfig_1.25.0/sysconfig_cli.bat" -s "C:/ti/mspm0_sdk_2_08_00_04/.metadata/product.json" -d "MSPM0G350X" -p "LQFP-64(PM)" -r "Default" --script "C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti_msp_dl_config.syscfg" --context "system" -o "." --compiler ticlang
+	"C:/ti/sysconfig_1.25.0/sysconfig_cli.bat" -s "C:/ti/mspm0_sdk_2_08_00_04/.metadata/product.json" -b "/ti/boards/LP_MSPM0G3507" --script "C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti_msp_dl_config.syscfg" --context "system" -o "." --compiler ticlang
 	@echo 'Finished building: "$<"'
 	@echo ' '
 

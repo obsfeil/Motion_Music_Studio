@@ -18,6 +18,12 @@
                             "debuggerSettings": {
                                 "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues>\n\n  <property id=\"RestartOnSymbolLoad\">\n    <curValue>1</curValue>\n  </property>\n\n  <property id=\"FlashFiles\">\n    <curValue></curValue>\n  </property>\n\n</PropertyValues>\n"
                             }
+                        },
+                        {
+                            "name": "CS_DAP_0",
+                            "debuggerSettings": {
+                                "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues/>\n"
+                            }
                         }
                     ]
                 }

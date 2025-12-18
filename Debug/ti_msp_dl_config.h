@@ -34,14 +34,14 @@
  *  ============ ti_msp_dl_config.h =============
  *  Configured MSPM0 DriverLib module declarations
  *
- *  DO NOT EDIT - This file is generated for the MSPM0G350X
+ *  DO NOT EDIT - This file is generated for the LP_MSPM0G3507
  *  by the SysConfig tool.
  */
 #ifndef ti_msp_dl_config_h
 #define ti_msp_dl_config_h
 
-#define CONFIG_MSPM0G350X
-#define CONFIG_MSPM0G3505
+#define CONFIG_LP_MSPM0G3507
+#define CONFIG_MSPM0G3507
 
 #if defined(__ti_version__) || defined(__TI_COMPILER_VERSION__)
 #define SYSCONFIG_WEAK __attribute__((weak))
