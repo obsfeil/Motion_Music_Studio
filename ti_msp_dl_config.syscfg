@@ -32,6 +32,12 @@ const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 /**
  * Write custom configuration values to the imported modules.
  */
+const mux2       = system.clockTree["CANCLKMUX"];
+mux2.inputSelect = "CANCLKMUX_PLLCLK1_OUT";
+
+const pinFunction1                = system.clockTree["CLKOUT"];
+pinFunction1.ClkOutForceHighDrive = true;
+
 ADC121.$name                             = "ADC_MIC_JOY";
 ADC121.sampClkDiv                        = "DL_ADC12_CLOCK_DIVIDE_4";
 ADC121.sampleTime0                       = "125 us";
@@ -195,27 +201,25 @@ SPI1.cs0PinConfig.hideOutputInversion   = scripting.forceWrite(false);
 SPI1.cs0PinConfig.onlyInternalResistor  = scripting.forceWrite(false);
 SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite("Digital");
 
-SYSCTL.useHFCLK_Manual               = true;
-SYSCTL.SYSPLL_CLK0En                 = true;
-SYSCTL.SYSPLL_CLK1En                 = true;
-SYSCTL.powerPolicy                   = "STANDBY0";
-SYSCTL.forceDefaultClkConfig         = true;
-SYSCTL.MFPCLKEn                      = true;
-SYSCTL.powerSysInterrupts            = ["FLASH_SEC"];
-SYSCTL.validateClkStatus             = true;
-SYSCTL.MFCLKEn                       = true;
-SYSCTL.MCLKSource                    = "HSCLK";
-SYSCTL.enableEXCLK                   = true;
-SYSCTL.EXCLKSource                   = "SYSPLLOUT1";
-SYSCTL.pmcuInterruptPriority         = "0";
-SYSCTL.enableIntDone                 = true;
-SYSCTL.CANCLKSource                  = "SYSPLLCLK1";
-SYSCTL.fccClkSrc                     = "FCC_IN";
-SYSCTL.clockInterrupts               = ["HFCLK_GOOD"];
-SYSCTL.UDIV                          = "2";
-SYSCTL.peripheral.$assign            = "SYSCTL";
-SYSCTL.peripheral.hfclkInPin.$assign = "PA6";
-SYSCTL.peripheral.clkOutPin.$assign  = "PA7";
+SYSCTL.SYSPLL_CLK0En         = true;
+SYSCTL.powerPolicy           = "STANDBY0";
+SYSCTL.forceDefaultClkConfig = true;
+SYSCTL.MFPCLKEn              = true;
+SYSCTL.powerSysInterrupts    = ["FLASH_SEC"];
+SYSCTL.validateClkStatus     = true;
+SYSCTL.MFCLKEn               = true;
+SYSCTL.MCLKSource            = "HSCLK";
+SYSCTL.enableIntDone         = true;
+SYSCTL.clockInterrupts       = ["HFCLK_GOOD"];
+SYSCTL.SYSPLL_Pdiv           = 1;
+SYSCTL.SYSPLL_CLK0Div        = 1;
+SYSCTL.pmcuInterruptPriority = "0";
+SYSCTL.HFCLK4MFPCLKDIV       = "2";
+SYSCTL.EXCLKSource           = "LFCLK";
+SYSCTL.fccClkSrc             = "CLK_OUT";
+SYSCTL.MFPCLKSource          = "HFCLK";
+SYSCTL.useHFCLK_Manual       = true;
+SYSCTL.peripheral.$assign    = "SYSCTL";
 
 TIMER1.$name              = "TIMER_SAMPLE";
 TIMER1.timerPeriod        = "50 us";
@@ -234,3 +238,10 @@ VREF.vrefPosPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric13";
 ProjectConfig.genLibDrivers      = true;
 ProjectConfig.genLibCMSIS        = true;
 ProjectConfig.migrationCondition = true;
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+SYSCTL.peripheral.hfclkInPin.$suggestSolution = "PA6";

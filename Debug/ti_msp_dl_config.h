@@ -73,10 +73,10 @@ extern "C" {
 #define POWER_STARTUP_DELAY                                                (16)
 
 
-#define GPIO_CLKOUT_PORT                                                   GPIOA
-#define GPIO_CLKOUT_PIN                                            DL_GPIO_PIN_7
-#define GPIO_CLKOUT_IOMUX                                        (IOMUX_PINCM14)
-#define GPIO_CLKOUT_IOMUX_FUNC                   IOMUX_PINCM14_PF_SYSCTL_CLK_OUT
+#define GPIO_HFCLKIN_PORT                                                  GPIOA
+#define GPIO_HFCLKIN_PIN                                           DL_GPIO_PIN_6
+#define GPIO_HFCLKIN_IOMUX                                       (IOMUX_PINCM11)
+#define GPIO_HFCLKIN_IOMUX_FUNC                  IOMUX_PINCM11_PF_SYSCTL_HFCLKIN
 #define CPUCLK_FREQ                                                     80000000
 
 
@@ -85,7 +85,7 @@ extern "C" {
 #define PWM_AUDIO_INST                                                     TIMG0
 #define PWM_AUDIO_INST_IRQHandler                               TIMG0_IRQHandler
 #define PWM_AUDIO_INST_INT_IRQN                                 (TIMG0_INT_IRQn)
-#define PWM_AUDIO_INST_CLK_FREQ                                         40000000
+#define PWM_AUDIO_INST_CLK_FREQ                                         80000000
 /* GPIO defines for channel 0 */
 #define GPIO_PWM_AUDIO_C0_PORT                                             GPIOA
 #define GPIO_PWM_AUDIO_C0_PIN                                     DL_GPIO_PIN_12
