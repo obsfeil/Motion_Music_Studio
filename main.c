@@ -30,23 +30,8 @@ void print_memory_usage(void);
 // GLOBAL STATE
 //=============================================================================
 
-volatile SynthState_t g_synthState = {.waveform = WAVE_SINE,
-                             .mode = MODE_SYNTH,
-                             .frequency = FREQ_DEFAULT,
-                             .volume = VOLUME_DEFAULT,
-                             .pitchBend = 0,
-                             .audio_playing = false,
-                             .display_update_needed = false,
-                             .joy_x = JOY_ADC_CENTER,
-                             .joy_y = JOY_ADC_CENTER,
-                             .joy_pressed = false,
-                             .btn_s1 = false,
-                             .btn_s2 = false,
-                             .accel_x = ACCEL_ZERO_G,
-                             .accel_y = ACCEL_ZERO_G,
-                             .accel_z = ACCEL_ZERO_G,
-                             .mic_level = 0,
-                             .light_lux = 0.0f};
+// Declare without initialization - will be initialized in main()
+volatile SynthState_t g_synthState;
 
 //=============================================================================
 // AUDIO SYNTHESIS
@@ -351,7 +336,7 @@ void print_memory_usage(void) {
     uint32_t bss_size = (uint32_t)&__bss_end__ - (uint32_t)&__bss_start__;
     
     char str[32];
-    snprintf(str, sizeof(str), "Stk:%lu BSS:%lu", stack_size, bss_size);
+    snprintf(str, sizeof(str), "Stk:%u BSS:%u", stack_size, bss_size);
     LCD_DrawString(0, 0, str, COLOR_DARKGRAY);
 }
 
@@ -360,7 +345,28 @@ void print_memory_usage(void) {
 //=============================================================================
 
 int main(void) {
+  // Initialize system
   SYSCFG_DL_init();
+
+  // CRITICAL: Initialize g_synthState explicitly in main()
+  // (static initialization may not work properly with this toolchain)
+  g_synthState.waveform = WAVE_SINE;
+  g_synthState.mode = MODE_SYNTH;
+  g_synthState.frequency = FREQ_DEFAULT;
+  g_synthState.volume = VOLUME_DEFAULT;
+  g_synthState.pitchBend = 0;
+  g_synthState.audio_playing = false;
+  g_synthState.display_update_needed = false;
+  g_synthState.joy_x = JOY_ADC_CENTER;
+  g_synthState.joy_y = JOY_ADC_CENTER;
+  g_synthState.joy_pressed = false;
+  g_synthState.btn_s1 = false;
+  g_synthState.btn_s2 = false;
+  g_synthState.accel_x = ACCEL_ZERO_G;
+  g_synthState.accel_y = ACCEL_ZERO_G;
+  g_synthState.accel_z = ACCEL_ZERO_G;
+  g_synthState.mic_level = 0;
+  g_synthState.light_lux = 0.0f;
 
   DL_ADC12_enableConversions(ADC_MIC_JOY_INST);
   DL_ADC12_startConversion(ADC_MIC_JOY_INST);
@@ -375,9 +381,19 @@ int main(void) {
   LCD_Init();
   LCD_Clear(COLOR_BLACK);
 
+  // DEBUG: Vis initialiseringsverdier
+  char debug_str[32];
+  snprintf(debug_str, sizeof(debug_str), "F:%.1f V:%u", 
+           g_synthState.frequency, g_synthState.volume);
+  LCD_DrawString(5, 20, debug_str, COLOR_WHITE);
+  snprintf(debug_str, sizeof(debug_str), "JX:%u JY:%u", 
+           g_synthState.joy_x, g_synthState.joy_y);
+  LCD_DrawString(5, 35, debug_str, COLOR_WHITE);
+  delay_ms(3000);  // Gi tid til å lese debug-info
+
   LCD_DrawString(20, 50, "MSPM0G3507", COLOR_CYAN);
   LCD_DrawString(15, 70, "Synthesizer", COLOR_WHITE);
-  LCD_DrawString(35, 90, "v1.3.1", COLOR_YELLOW);
+  LCD_DrawString(35, 90, "v1.3.2", COLOR_YELLOW);
   delay_ms(2000);
 
   Update_Phase_Increment();
