@@ -19,8 +19,8 @@
 // SYSTEM CONSTANTS
 //=============================================================================
 
-#define SYSCLK_FREQUENCY    80000000UL  // 80 MHz
-#define SAMPLE_RATE         20000       // 20 kHz audio (actual hardware config)
+#define SYSCLK_FREQUENCY    32000000UL  // 32 MHz (simplified clock)
+#define SAMPLE_RATE         8000        // 8 kHz audio sample rate
 #define SENSOR_UPDATE_HZ    20          // 20 Hz sensor polling
 
 //=============================================================================

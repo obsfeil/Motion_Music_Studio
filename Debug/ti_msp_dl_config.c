@@ -120,15 +120,11 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
 {
     const uint8_t unusedPinIndexes[] =
     {
-        IOMUX_PINCM30, IOMUX_PINCM31, IOMUX_PINCM35, IOMUX_PINCM47,
-        IOMUX_PINCM48, IOMUX_PINCM49, IOMUX_PINCM50, IOMUX_PINCM51,
-        IOMUX_PINCM52, IOMUX_PINCM54, IOMUX_PINCM56, IOMUX_PINCM57,
-        IOMUX_PINCM58, IOMUX_PINCM3, IOMUX_PINCM4, IOMUX_PINCM5,
-        IOMUX_PINCM6, IOMUX_PINCM7, IOMUX_PINCM8, IOMUX_PINCM9,
-        IOMUX_PINCM12, IOMUX_PINCM13, IOMUX_PINCM14, IOMUX_PINCM15,
-        IOMUX_PINCM16, IOMUX_PINCM17, IOMUX_PINCM18, IOMUX_PINCM19,
-        IOMUX_PINCM20, IOMUX_PINCM22, IOMUX_PINCM27, IOMUX_PINCM28,
-        IOMUX_PINCM29
+        IOMUX_PINCM3, IOMUX_PINCM6, IOMUX_PINCM7, IOMUX_PINCM8,
+        IOMUX_PINCM9, IOMUX_PINCM14, IOMUX_PINCM15, IOMUX_PINCM16,
+        IOMUX_PINCM19, IOMUX_PINCM20, IOMUX_PINCM21, IOMUX_PINCM22,
+        IOMUX_PINCM31, IOMUX_PINCM35, IOMUX_PINCM47, IOMUX_PINCM48,
+        IOMUX_PINCM52, IOMUX_PINCM54
     };
 
     for(int i = 0; i < sizeof(unusedPinIndexes)/sizeof(unusedPinIndexes[0]); i++)
@@ -137,38 +133,23 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
     }
 
     DL_GPIO_clearPins(GPIOA,
-        (DL_GPIO_PIN_13 | DL_GPIO_PIN_22 | DL_GPIO_PIN_24 | DL_GPIO_PIN_28 |
-        DL_GPIO_PIN_29 | DL_GPIO_PIN_30 | DL_GPIO_PIN_31 | DL_GPIO_PIN_2 |
-        DL_GPIO_PIN_3 | DL_GPIO_PIN_4 | DL_GPIO_PIN_7 | DL_GPIO_PIN_8 |
-        DL_GPIO_PIN_9 | DL_GPIO_PIN_11));
+        (DL_GPIO_PIN_28 | DL_GPIO_PIN_31 | DL_GPIO_PIN_2 | DL_GPIO_PIN_3 |
+        DL_GPIO_PIN_4 | DL_GPIO_PIN_7 | DL_GPIO_PIN_8 | DL_GPIO_PIN_9 |
+        DL_GPIO_PIN_10 | DL_GPIO_PIN_11 | DL_GPIO_PIN_13 | DL_GPIO_PIN_22 |
+        DL_GPIO_PIN_24));
     DL_GPIO_enableOutput(GPIOA,
-        (DL_GPIO_PIN_13 | DL_GPIO_PIN_22 | DL_GPIO_PIN_24 | DL_GPIO_PIN_28 |
-        DL_GPIO_PIN_29 | DL_GPIO_PIN_30 | DL_GPIO_PIN_31 | DL_GPIO_PIN_2 |
-        DL_GPIO_PIN_3 | DL_GPIO_PIN_4 | DL_GPIO_PIN_7 | DL_GPIO_PIN_8 |
-        DL_GPIO_PIN_9 | DL_GPIO_PIN_11));
+        (DL_GPIO_PIN_28 | DL_GPIO_PIN_31 | DL_GPIO_PIN_2 | DL_GPIO_PIN_3 |
+        DL_GPIO_PIN_4 | DL_GPIO_PIN_7 | DL_GPIO_PIN_8 | DL_GPIO_PIN_9 |
+        DL_GPIO_PIN_10 | DL_GPIO_PIN_11 | DL_GPIO_PIN_13 | DL_GPIO_PIN_22 |
+        DL_GPIO_PIN_24));
     DL_GPIO_clearPins(GPIOB,
-        (DL_GPIO_PIN_13 | DL_GPIO_PIN_14 | DL_GPIO_PIN_20 | DL_GPIO_PIN_21 |
-        DL_GPIO_PIN_22 | DL_GPIO_PIN_23 | DL_GPIO_PIN_24 | DL_GPIO_PIN_25 |
-        DL_GPIO_PIN_26 | DL_GPIO_PIN_27 | DL_GPIO_PIN_0 | DL_GPIO_PIN_1 |
-        DL_GPIO_PIN_2 | DL_GPIO_PIN_3 | DL_GPIO_PIN_4 | DL_GPIO_PIN_5 |
-        DL_GPIO_PIN_10 | DL_GPIO_PIN_11 | DL_GPIO_PIN_12));
+        (DL_GPIO_PIN_2 | DL_GPIO_PIN_3 | DL_GPIO_PIN_14 | DL_GPIO_PIN_20 |
+        DL_GPIO_PIN_24));
     DL_GPIO_enableOutput(GPIOB,
-        (DL_GPIO_PIN_13 | DL_GPIO_PIN_14 | DL_GPIO_PIN_20 | DL_GPIO_PIN_21 |
-        DL_GPIO_PIN_22 | DL_GPIO_PIN_23 | DL_GPIO_PIN_24 | DL_GPIO_PIN_25 |
-        DL_GPIO_PIN_26 | DL_GPIO_PIN_27 | DL_GPIO_PIN_0 | DL_GPIO_PIN_1 |
-        DL_GPIO_PIN_2 | DL_GPIO_PIN_3 | DL_GPIO_PIN_4 | DL_GPIO_PIN_5 |
-        DL_GPIO_PIN_10 | DL_GPIO_PIN_11 | DL_GPIO_PIN_12));
+        (DL_GPIO_PIN_2 | DL_GPIO_PIN_3 | DL_GPIO_PIN_14 | DL_GPIO_PIN_20 |
+        DL_GPIO_PIN_24));
 
     DL_GPIO_initPeripheralInputFunction(GPIO_FCC_IN_IOMUX, GPIO_FCC_IN_IOMUX_FUNC);
-    /*
-     * To output a signal that is greater than 32MHz a High-Speed IO (HSIO) pin
-     * needs to be used and have high drive enabled.
-     */
-    DL_GPIO_initPeripheralOutputFunctionFeatures(GPIO_CLKOUT_IOMUX,
-        GPIO_CLKOUT_IOMUX_FUNC, DL_GPIO_INVERSION_DISABLE,
-        DL_GPIO_RESISTOR_NONE, DL_GPIO_DRIVE_STRENGTH_HIGH,
-        DL_GPIO_HIZ_DISABLE);
-    DL_GPIO_enableOutput(GPIO_CLKOUT_PORT, GPIO_CLKOUT_PIN);
 
     DL_GPIO_initPeripheralOutputFunction(GPIO_PWM_AUDIO_C0_IOMUX,GPIO_PWM_AUDIO_C0_IOMUX_FUNC);
     DL_GPIO_enableOutput(GPIO_PWM_AUDIO_C0_PORT, GPIO_PWM_AUDIO_C0_PIN);
@@ -239,17 +220,17 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
 
 
 static const DL_SYSCTL_SYSPLLConfig gSYSPLLConfig = {
-    .inputFreq              = DL_SYSCTL_SYSPLL_INPUT_FREQ_32_48_MHZ,
-	.rDivClk2x              = 7,
-	.rDivClk1               = 1,
-	.rDivClk0               = 1,
-	.enableCLK2x            = DL_SYSCTL_SYSPLL_CLK2X_ENABLE,
+    .inputFreq              = DL_SYSCTL_SYSPLL_INPUT_FREQ_16_32_MHZ,
+	.rDivClk2x              = 0,
+	.rDivClk1               = 0,
+	.rDivClk0               = 0,
+	.enableCLK2x            = DL_SYSCTL_SYSPLL_CLK2X_DISABLE,
 	.enableCLK1             = DL_SYSCTL_SYSPLL_CLK1_ENABLE,
 	.enableCLK0             = DL_SYSCTL_SYSPLL_CLK0_ENABLE,
-	.sysPLLMCLK             = DL_SYSCTL_SYSPLL_MCLK_CLK2X,
+	.sysPLLMCLK             = DL_SYSCTL_SYSPLL_MCLK_CLK0,
 	.sysPLLRef              = DL_SYSCTL_SYSPLL_REF_SYSOSC,
 	.qDiv                   = 9,
-	.pDiv                   = DL_SYSCTL_SYSPLL_PDIV_1,
+	.pDiv                   = DL_SYSCTL_SYSPLL_PDIV_2,
 	
 };
 SYSCONFIG_WEAK void SYSCFG_DL_SYSCTL_init(void)
@@ -263,14 +244,19 @@ SYSCONFIG_WEAK void SYSCFG_DL_SYSCTL_init(void)
     DL_SYSCTL_setFlashWaitState(DL_SYSCTL_FLASH_WAIT_STATE_2);
 
     DL_SYSCTL_setSYSOSCFreq(DL_SYSCTL_SYSOSC_FREQ_BASE);
+    /* Set default configuration */
+    DL_SYSCTL_disableHFXT();
+    DL_SYSCTL_disableSYSPLL();
     DL_SYSCTL_configSYSPLL((DL_SYSCTL_SYSPLLConfig *) &gSYSPLLConfig);
 	
-    DL_SYSCTL_setULPCLKDivider(DL_SYSCTL_ULPCLK_DIV_2);
+    DL_SYSCTL_enableMFCLK();
+    DL_SYSCTL_setULPCLKDivider(DL_SYSCTL_ULPCLK_DIV_1);
     DL_SYSCTL_setMCLKSource(SYSOSC, HSCLK, DL_SYSCTL_HSCLK_SOURCE_SYSPLL);
     DL_SYSCTL_setMCLKDivider(DL_SYSCTL_MCLK_DIVIDER_DISABLE);
     DL_SYSCTL_setMFPCLKSource(DL_SYSCTL_MFPCLK_SOURCE_SYSOSC);
     DL_SYSCTL_enableMFPCLK();
-    DL_SYSCTL_enableExternalClock(DL_SYSCTL_CLK_OUT_SOURCE_SYSPLLOUT1, DL_SYSCTL_CLK_OUT_DIVIDE_2);
+    DL_SYSCTL_enableInterrupt((DL_SYSCTL_INTERRUPT_HFCLK_GOOD
+		 | DL_SYSCTL_INTERRUPT_FLASH_SEC));
 
 }
 SYSCONFIG_WEAK void SYSCFG_DL_SYSCTL_CLK_init(void) {
@@ -291,9 +277,9 @@ SYSCONFIG_WEAK void SYSCFG_DL_SYSCTL_CLK_init(void) {
 
 
 /*
- * Timer clock configuration to be sourced by  / 1 (40000000 Hz)
+ * Timer clock configuration to be sourced by  / 1 (80000000 Hz)
  * timerClkFreq = (timerClkSrc / (timerClkDivRatio * (timerClkPrescale + 1)))
- *   40000000 Hz = 40000000 Hz / (1 * (0 + 1))
+ *   80000000 Hz = 80000000 Hz / (1 * (0 + 1))
  */
 static const DL_TimerG_ClockConfig gPWM_AUDIOClockConfig = {
     .clockSel = DL_TIMER_CLOCK_BUSCLK,
@@ -393,7 +379,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_I2C_SENSORS_init(void) {
     /* Configure Controller Mode */
     DL_I2C_resetControllerTransfer(I2C_SENSORS_INST);
     /* Set frequency to 100000 Hz*/
-    DL_I2C_setTimerPeriod(I2C_SENSORS_INST, 39);
+    DL_I2C_setTimerPeriod(I2C_SENSORS_INST, 79);
     DL_I2C_setControllerTXFIFOThreshold(I2C_SENSORS_INST, DL_I2C_TX_FIFO_LEVEL_EMPTY);
     DL_I2C_setControllerRXFIFOThreshold(I2C_SENSORS_INST, DL_I2C_RX_FIFO_LEVEL_BYTES_1);
     DL_I2C_enableControllerClockStretching(I2C_SENSORS_INST);
@@ -476,9 +462,9 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_MIC_JOY_init(void)
 }
 /* ADC_ACCEL Initialization */
 static const DL_ADC12_ClockConfig gADC_ACCELClockConfig = {
-    .clockSel       = DL_ADC12_CLOCK_ULPCLK,
+    .clockSel       = DL_ADC12_CLOCK_SYSOSC,
     .divideRatio    = DL_ADC12_CLOCK_DIVIDE_8,
-    .freqRange      = DL_ADC12_CLOCK_FREQ_RANGE_32_TO_40,
+    .freqRange      = DL_ADC12_CLOCK_FREQ_RANGE_24_TO_32,
 };
 SYSCONFIG_WEAK void SYSCFG_DL_ADC_ACCEL_init(void)
 {
@@ -497,7 +483,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_ACCEL_init(void)
     DL_ADC12_configConversionMem(ADC_ACCEL_INST, ADC_ACCEL_ADCMEM_ACCEL_Z,
         DL_ADC12_INPUT_CHAN_7, DL_ADC12_REFERENCE_VOLTAGE_INTREF, DL_ADC12_SAMPLE_TIMER_SOURCE_SCOMP0, DL_ADC12_AVERAGING_MODE_DISABLED,
         DL_ADC12_BURN_OUT_SOURCE_DISABLED, DL_ADC12_TRIGGER_MODE_AUTO_NEXT, DL_ADC12_WINDOWS_COMP_MODE_DISABLED);
-    DL_ADC12_setSampleTime0(ADC_ACCEL_INST,625);
+    DL_ADC12_setSampleTime0(ADC_ACCEL_INST,500);
     DL_ADC12_setPublisherChanID(ADC_ACCEL_INST,ADC_ACCEL_INST_PUB_CH);
     DL_ADC12_setSubscriberChanID(ADC_ACCEL_INST,ADC_ACCEL_INST_SUB_CH);
     DL_ADC12_enableEvent(ADC_ACCEL_INST,(DL_ADC12_EVENT_MEM0_RESULT_LOADED));

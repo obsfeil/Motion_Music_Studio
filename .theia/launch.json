@@ -16,9 +16,18 @@
                         {
                             "name": "CORTEX_M0P",
                             "debuggerSettings": {
-                                "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues>\n\n  <property id=\"MPUEnabled\">\n    <curValue>1</curValue>\n  </property>\n\n  <property id=\"FlashFiles\">\n    <curValue></curValue>\n  </property>\n\n</PropertyValues>\n"
+                                "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues>\n\n  <property id=\"FlashFiles\">\n    <curValue></curValue>\n  </property>\n\n</PropertyValues>\n"
                             }
                         }
+                    ]
+                }
+            ],
+            "groupInfo": [
+                {
+                    "name": "group_0",
+                    "syncMode": true,
+                    "cores": [
+                        "Texas Instruments XDS110 USB Debug Probe/CORTEX_M0P"
                     ]
                 }
             ]

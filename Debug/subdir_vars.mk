@@ -10,7 +10,7 @@ SYSCFG_SRCS += \
 
 C_SRCS += \
 ../main.c \
-../startup_mspm0g3507_minimal.c \
+../startup_mspm0g350x_ticlang.c \
 ./ti_msp_dl_config.c 
 
 GEN_CMDS += \
@@ -23,7 +23,7 @@ GEN_FILES += \
 
 C_DEPS += \
 ./main.d \
-./startup_mspm0g3507_minimal.d \
+./startup_mspm0g350x_ticlang.d \
 ./ti_msp_dl_config.d 
 
 GEN_OPTS += \
@@ -31,7 +31,7 @@ GEN_OPTS += \
 
 OBJS += \
 ./main.o \
-./startup_mspm0g3507_minimal.o \
+./startup_mspm0g350x_ticlang.o \
 ./ti_msp_dl_config.o 
 
 GEN_MISC_FILES += \
@@ -43,7 +43,7 @@ GEN_MISC_FILES += \
 
 OBJS__QUOTED += \
 "main.o" \
-"startup_mspm0g3507_minimal.o" \
+"startup_mspm0g350x_ticlang.o" \
 "ti_msp_dl_config.o" 
 
 GEN_MISC_FILES__QUOTED += \
@@ -55,7 +55,7 @@ GEN_MISC_FILES__QUOTED += \
 
 C_DEPS__QUOTED += \
 "main.d" \
-"startup_mspm0g3507_minimal.d" \
+"startup_mspm0g350x_ticlang.d" \
 "ti_msp_dl_config.d" 
 
 GEN_FILES__QUOTED += \
@@ -65,7 +65,7 @@ GEN_FILES__QUOTED += \
 
 C_SRCS__QUOTED += \
 "../main.c" \
-"../startup_mspm0g3507_minimal.c" \
+"../startup_mspm0g350x_ticlang.c" \
 "./ti_msp_dl_config.c" 
 
 SYSCFG_SRCS__QUOTED += \

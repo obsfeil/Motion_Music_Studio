@@ -17,4 +17,10 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
+	<variableList>
+		<variable>
+			<name>SYSCONFIG_TOOL_ROOT</name>
+			<value>file:/C:/ti/sysconfig_1.25.0</value>
+		</variable>
+	</variableList>
 </projectDescription>

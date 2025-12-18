@@ -1,5 +1,5 @@
 "./main.o"
-"./startup_mspm0g3507_minimal.o"
+"./startup_mspm0g350x_ticlang.o"
 "./ti_msp_dl_config.o"
 "./lcd/lcd_driver.o"
 "./ti/driverlib/dl_adc12.o"
