@@ -81,7 +81,7 @@ extern "C" {
 #define PWM_AUDIO_INST                                                     TIMG0
 #define PWM_AUDIO_INST_IRQHandler                               TIMG0_IRQHandler
 #define PWM_AUDIO_INST_INT_IRQN                                 (TIMG0_INT_IRQn)
-#define PWM_AUDIO_INST_CLK_FREQ                                         32000000
+#define PWM_AUDIO_INST_CLK_FREQ                                         16000000
 /* GPIO defines for channel 0 */
 #define GPIO_PWM_AUDIO_C0_PORT                                             GPIOA
 #define GPIO_PWM_AUDIO_C0_PIN                                     DL_GPIO_PIN_12

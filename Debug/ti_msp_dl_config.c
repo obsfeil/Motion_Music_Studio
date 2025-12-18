@@ -120,12 +120,11 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
         IOMUX_PINCM52, IOMUX_PINCM54, IOMUX_PINCM56, IOMUX_PINCM57,
         IOMUX_PINCM58, IOMUX_PINCM1, IOMUX_PINCM2, IOMUX_PINCM3,
         IOMUX_PINCM4, IOMUX_PINCM5, IOMUX_PINCM6, IOMUX_PINCM8,
-        IOMUX_PINCM9, IOMUX_PINCM10, IOMUX_PINCM11, IOMUX_PINCM12,
-        IOMUX_PINCM13, IOMUX_PINCM14, IOMUX_PINCM15, IOMUX_PINCM16,
-        IOMUX_PINCM17, IOMUX_PINCM18, IOMUX_PINCM19, IOMUX_PINCM20,
-        IOMUX_PINCM21, IOMUX_PINCM22, IOMUX_PINCM23, IOMUX_PINCM24,
-        IOMUX_PINCM25, IOMUX_PINCM26, IOMUX_PINCM27, IOMUX_PINCM28,
-        IOMUX_PINCM29
+        IOMUX_PINCM9, IOMUX_PINCM10, IOMUX_PINCM12, IOMUX_PINCM13,
+        IOMUX_PINCM14, IOMUX_PINCM15, IOMUX_PINCM16, IOMUX_PINCM17,
+        IOMUX_PINCM18, IOMUX_PINCM19, IOMUX_PINCM20, IOMUX_PINCM21,
+        IOMUX_PINCM22, IOMUX_PINCM23, IOMUX_PINCM24, IOMUX_PINCM25,
+        IOMUX_PINCM26, IOMUX_PINCM27, IOMUX_PINCM28, IOMUX_PINCM29
     };
 
     for(int i = 0; i < sizeof(unusedPinIndexes)/sizeof(unusedPinIndexes[0]); i++)
@@ -136,13 +135,13 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
     DL_GPIO_clearPins(GPIOA,
         (DL_GPIO_PIN_24 | DL_GPIO_PIN_0 | DL_GPIO_PIN_1 | DL_GPIO_PIN_28 |
         DL_GPIO_PIN_29 | DL_GPIO_PIN_30 | DL_GPIO_PIN_31 | DL_GPIO_PIN_3 |
-        DL_GPIO_PIN_4 | DL_GPIO_PIN_5 | DL_GPIO_PIN_6 | DL_GPIO_PIN_7 |
-        DL_GPIO_PIN_8 | DL_GPIO_PIN_9 | DL_GPIO_PIN_10 | DL_GPIO_PIN_11));
+        DL_GPIO_PIN_4 | DL_GPIO_PIN_5 | DL_GPIO_PIN_7 | DL_GPIO_PIN_8 |
+        DL_GPIO_PIN_9 | DL_GPIO_PIN_10 | DL_GPIO_PIN_11));
     DL_GPIO_enableOutput(GPIOA,
         (DL_GPIO_PIN_24 | DL_GPIO_PIN_0 | DL_GPIO_PIN_1 | DL_GPIO_PIN_28 |
         DL_GPIO_PIN_29 | DL_GPIO_PIN_30 | DL_GPIO_PIN_31 | DL_GPIO_PIN_3 |
-        DL_GPIO_PIN_4 | DL_GPIO_PIN_5 | DL_GPIO_PIN_6 | DL_GPIO_PIN_7 |
-        DL_GPIO_PIN_8 | DL_GPIO_PIN_9 | DL_GPIO_PIN_10 | DL_GPIO_PIN_11));
+        DL_GPIO_PIN_4 | DL_GPIO_PIN_5 | DL_GPIO_PIN_7 | DL_GPIO_PIN_8 |
+        DL_GPIO_PIN_9 | DL_GPIO_PIN_10 | DL_GPIO_PIN_11));
     DL_GPIO_clearPins(GPIOB,
         (DL_GPIO_PIN_20 | DL_GPIO_PIN_21 | DL_GPIO_PIN_22 | DL_GPIO_PIN_23 |
         DL_GPIO_PIN_24 | DL_GPIO_PIN_25 | DL_GPIO_PIN_26 | DL_GPIO_PIN_27 |
@@ -217,23 +216,46 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
 }
 
 
+static const DL_SYSCTL_SYSPLLConfig gSYSPLLConfig = {
+    .inputFreq              = DL_SYSCTL_SYSPLL_INPUT_FREQ_16_32_MHZ,
+	.rDivClk2x              = 9,
+	.rDivClk1               = 0,
+	.rDivClk0               = 0,
+	.enableCLK2x            = DL_SYSCTL_SYSPLL_CLK2X_ENABLE,
+	.enableCLK1             = DL_SYSCTL_SYSPLL_CLK1_DISABLE,
+	.enableCLK0             = DL_SYSCTL_SYSPLL_CLK0_DISABLE,
+	.sysPLLMCLK             = DL_SYSCTL_SYSPLL_MCLK_CLK2X,
+	.sysPLLRef              = DL_SYSCTL_SYSPLL_REF_SYSOSC,
+	.qDiv                   = 9,
+	.pDiv                   = DL_SYSCTL_SYSPLL_PDIV_2,
+	
+};
 SYSCONFIG_WEAK void SYSCFG_DL_SYSCTL_init(void)
 {
 
-	//Low Power Mode is configured to be SLEEP0
+	//Low Power Mode is configured to be STANDBY0
+    DL_SYSCTL_setPowerPolicySTANDBY0();
     DL_SYSCTL_setBORThreshold(DL_SYSCTL_BOR_THRESHOLD_LEVEL_0);
+    DL_SYSCTL_setFlashWaitState(DL_SYSCTL_FLASH_WAIT_STATE_2);
 
     DL_SYSCTL_setSYSOSCFreq(DL_SYSCTL_SYSOSC_FREQ_BASE);
-    DL_SYSCTL_setULPCLKDivider(DL_SYSCTL_ULPCLK_DIV_1);
+    DL_SYSCTL_configSYSPLL((DL_SYSCTL_SYSPLLConfig *) &gSYSPLLConfig);
+	
+    DL_SYSCTL_enableMFCLK();
+    DL_SYSCTL_setULPCLKDivider(DL_SYSCTL_ULPCLK_DIV_2);
+    DL_SYSCTL_setMCLKSource(SYSOSC, HSCLK, DL_SYSCTL_HSCLK_SOURCE_SYSPLL);
     DL_SYSCTL_setMCLKDivider(DL_SYSCTL_MCLK_DIVIDER_DISABLE);
+    DL_SYSCTL_setMFPCLKSource(DL_SYSCTL_MFPCLK_SOURCE_SYSOSC);
+    DL_SYSCTL_enableMFPCLK();
+    DL_SYSCTL_enableInterrupt((DL_SYSCTL_INTERRUPT_HFCLK_GOOD));
 
 }
 
 
 /*
- * Timer clock configuration to be sourced by  / 1 (32000000 Hz)
+ * Timer clock configuration to be sourced by  / 1 (16000000 Hz)
  * timerClkFreq = (timerClkSrc / (timerClkDivRatio * (timerClkPrescale + 1)))
- *   32000000 Hz = 32000000 Hz / (1 * (0 + 1))
+ *   16000000 Hz = 16000000 Hz / (1 * (0 + 1))
  */
 static const DL_TimerG_ClockConfig gPWM_AUDIOClockConfig = {
     .clockSel = DL_TIMER_CLOCK_BUSCLK,
@@ -243,7 +265,7 @@ static const DL_TimerG_ClockConfig gPWM_AUDIOClockConfig = {
 
 static const DL_TimerG_PWMConfig gPWM_AUDIOConfig = {
     .pwmMode = DL_TIMER_PWM_MODE_EDGE_ALIGN,
-    .period = 3199,
+    .period = 4095,
     .isTimerWithFourCC = false,
     .startTimer = DL_TIMER_START,
 };
@@ -264,19 +286,20 @@ SYSCONFIG_WEAK void SYSCFG_DL_PWM_AUDIO_init(void) {
 		DL_TIMERG_CAPTURE_COMPARE_0_INDEX);
 
     DL_TimerG_setCaptCompUpdateMethod(PWM_AUDIO_INST, DL_TIMER_CC_UPDATE_METHOD_IMMEDIATE, DL_TIMERG_CAPTURE_COMPARE_0_INDEX);
-    DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 3199, DL_TIMER_CC_0_INDEX);
+    DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2047, DL_TIMER_CC_0_INDEX);
 
     DL_TimerG_setCaptureCompareOutCtl(PWM_AUDIO_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
 		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
 		DL_TIMERG_CAPTURE_COMPARE_1_INDEX);
 
     DL_TimerG_setCaptCompUpdateMethod(PWM_AUDIO_INST, DL_TIMER_CC_UPDATE_METHOD_IMMEDIATE, DL_TIMERG_CAPTURE_COMPARE_1_INDEX);
-    DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 3199, DL_TIMER_CC_1_INDEX);
+    DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2047, DL_TIMER_CC_1_INDEX);
 
     DL_TimerG_enableClock(PWM_AUDIO_INST);
 
 
-    
+    DL_TimerG_enableInterrupt(PWM_AUDIO_INST , DL_TIMER_INTERRUPT_ZERO_EVENT);
+
     DL_TimerG_setCCPDirection(PWM_AUDIO_INST , DL_TIMER_CC0_OUTPUT | DL_TIMER_CC1_OUTPUT );
 
 
@@ -424,10 +447,6 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_ACCEL_init(void)
 }
 
 
-static const DL_VREF_ClockConfig gVREFClockConfig = {
-    .clockSel = DL_VREF_CLOCK_BUSCLK,
-    .divideRatio = DL_VREF_CLOCK_DIVIDE_1,
-};
 static const DL_VREF_Config gVREFConfig = {
     .vrefEnable     = DL_VREF_ENABLE_ENABLE,
     .bufConfig      = DL_VREF_BUFCONFIG_OUTPUT_2_5V,
@@ -437,8 +456,6 @@ static const DL_VREF_Config gVREFConfig = {
 };
 
 SYSCONFIG_WEAK void SYSCFG_DL_VREF_init(void) {
-    DL_VREF_setClockConfig(VREF,
-        (DL_VREF_ClockConfig *) &gVREFClockConfig);
     DL_VREF_configReference(VREF,
         (DL_VREF_Config *) &gVREFConfig);
     delay_cycles(VREF_READY_DELAY);

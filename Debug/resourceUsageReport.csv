@@ -7,6 +7,7 @@ Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User L
 14,PB17,SD,GPIO,Standard Output,GREEN
 15,PB18,SD,GPIO,Standard Output,BLUE
 16,PB19,SD,GPIO,Standard Output,RST
+46,PA6,SD,SYSCTL,"HFCLK In",
 5,PA12,HS,TIMG0,"Capture/Compare Pin 0",
 6,PA13,HS,TIMG0,"Capture/Compare Pin 1",
 4,PB16,SD,SPI1,"SPI SCLK (Clock)",
