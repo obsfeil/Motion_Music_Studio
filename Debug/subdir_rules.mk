@@ -8,37 +8,30 @@ SHELL = cmd.exe
 %.o: ../%.c $(GEN_OPTS) | $(GEN_FILES) $(GEN_MISC_FILES)
 	@echo 'Building file: "$<"'
 	@echo 'Invoking: Arm Compiler'
-	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" -c @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug" -I"C:/ti/mspm0_sdk_2_08_00_04/source/third_party/CMSIS/Core/Include" -I"C:/ti/mspm0_sdk_2_08_00_04/source" -gdwarf-3 -MMD -MP -MF"$(basename $(<F)).d_raw" -MT"$(@)"  @"./device.opt" -o"$@" "$<"
+	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" -c @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug" -I"C:/ti/mspm0_sdk_2_08_00_04/source/third_party/CMSIS/Core/Include" -I"C:/ti/mspm0_sdk_2_08_00_04/source" -gdwarf-3 -MMD -MP -MF"$(basename $(<F)).d_raw" -MT"$(@)"  $(GEN_OPTS__FLAG) -o"$@" "$<"
 	@echo 'Finished building: "$<"'
 	@echo ' '
 
-error.h: ../ti_msp_dl_config.syscfg
+build-1000533073: ../ti_msp_dl_config.syscfg
 	@echo 'Building file: "$<"'
 	@echo 'Invoking: SysConfig'
 	"C:/ti/sysconfig_1.25.0/sysconfig_cli.bat" -s "C:/ti/mspm0_sdk_2_08_00_04/.metadata/product.json" --script "C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti_msp_dl_config.syscfg" -o "." --compiler ticlang
 	@echo 'Finished building: "$<"'
 	@echo ' '
 
-build-336661657: ../ti_msp_dl_config_CLEAN.syscfg
-	@echo 'Building file: "$<"'
-	@echo 'Invoking: SysConfig'
-	"C:/ti/sysconfig_1.25.0/sysconfig_cli.bat" -s "C:/ti/mspm0_sdk_2_08_00_04/.metadata/product.json" --script "C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti_msp_dl_config_CLEAN.syscfg" -o "." --compiler ticlang
-	@echo 'Finished building: "$<"'
-	@echo ' '
-
-device_linker.cmd: build-336661657 ../ti_msp_dl_config_CLEAN.syscfg
-device.opt: build-336661657
-device.cmd.genlibs: build-336661657
-ti_msp_dl_config.c: build-336661657
-ti_msp_dl_config.h: build-336661657
-peripheralPinAssignments.txt: build-336661657
-resourceUsageReport.csv: build-336661657
-Event.dot: build-336661657
+device_linker.cmd: build-1000533073 ../ti_msp_dl_config.syscfg
+device.opt: build-1000533073
+device.cmd.genlibs: build-1000533073
+ti_msp_dl_config.c: build-1000533073
+ti_msp_dl_config.h: build-1000533073
+peripheralPinAssignments.txt: build-1000533073
+resourceUsageReport.csv: build-1000533073
+Event.dot: build-1000533073
 
 %.o: ./%.c $(GEN_OPTS) | $(GEN_FILES) $(GEN_MISC_FILES)
 	@echo 'Building file: "$<"'
 	@echo 'Invoking: Arm Compiler'
-	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" -c @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug" -I"C:/ti/mspm0_sdk_2_08_00_04/source/third_party/CMSIS/Core/Include" -I"C:/ti/mspm0_sdk_2_08_00_04/source" -gdwarf-3 -MMD -MP -MF"$(basename $(<F)).d_raw" -MT"$(@)"  @"./device.opt" -o"$@" "$<"
+	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" -c @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug" -I"C:/ti/mspm0_sdk_2_08_00_04/source/third_party/CMSIS/Core/Include" -I"C:/ti/mspm0_sdk_2_08_00_04/source" -gdwarf-3 -MMD -MP -MF"$(basename $(<F)).d_raw" -MT"$(@)"  $(GEN_OPTS__FLAG) -o"$@" "$<"
 	@echo 'Finished building: "$<"'
 	@echo ' '
 

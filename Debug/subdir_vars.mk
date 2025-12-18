@@ -6,8 +6,7 @@ SHELL = cmd.exe
 
 # Add inputs and outputs from these tool invocations to the build variables 
 SYSCFG_SRCS += \
-../ti_msp_dl_config.syscfg \
-../ti_msp_dl_config_CLEAN.syscfg 
+../ti_msp_dl_config.syscfg 
 
 C_SRCS += \
 ../main.c \
@@ -36,7 +35,6 @@ OBJS += \
 ./ti_msp_dl_config.o 
 
 GEN_MISC_FILES += \
-./error.h \
 ./device.cmd.genlibs \
 ./ti_msp_dl_config.h \
 ./peripheralPinAssignments.txt \
@@ -49,7 +47,6 @@ OBJS__QUOTED += \
 "ti_msp_dl_config.o" 
 
 GEN_MISC_FILES__QUOTED += \
-"error.h" \
 "device.cmd.genlibs" \
 "ti_msp_dl_config.h" \
 "peripheralPinAssignments.txt" \
@@ -72,7 +69,6 @@ C_SRCS__QUOTED += \
 "./ti_msp_dl_config.c" 
 
 SYSCFG_SRCS__QUOTED += \
-"../ti_msp_dl_config.syscfg" \
-"../ti_msp_dl_config_CLEAN.syscfg" 
+"../ti_msp_dl_config.syscfg" 
 
 

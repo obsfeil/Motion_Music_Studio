@@ -1,289 +1,303 @@
 /**
- * Motion Music Studio - Complete Working Configuration
- * @cliArgs --device "MSPM0G350X" --part "Default" --package "LQFP-64(PM)" --product "mspm0_sdk@2.08.00.03"
- * @v2CliArgs --device "MSPM0G3507" --package "LQFP-64(PM)" --product "mspm0_sdk@2.08.00.03"
- * @versions {"tool":"1.25.0+4268"}
+ * Motion Music Studio - FIXED .syscfg
+ * Removed conflicting TIMER1/TIMER2 definitions
+ * PWM1 is already configured correctly for audio
  */
 
-const ADC12         = scripting.addModule(\"/ti/driverlib/ADC12\", {}, false);
+/**
+ * These arguments were used when this file was generated.
+ */
+//@cliArgs --device "MSPM0G350X" --part "Default" --package "LQFP-64(PM)" --product "mspm0_sdk@2.08.00.03"
+//@v2CliArgs --device "MSPM0G3507" --package "LQFP-64(PM)" --product "mspm0_sdk@2.08.00.03"
+//@versions {"tool":"1.25.0+4268"}
+
+/**
+ * Import the modules used in this configuration.
+ */
+const ADC12         = scripting.addModule("/ti/driverlib/ADC12", {}, false);
 const ADC121        = ADC12.addInstance();
 const ADC122        = ADC12.addInstance();
-const Board         = scripting.addModule(\"/ti/driverlib/Board\");
-const GPIO          = scripting.addModule(\"/ti/driverlib/GPIO\", {}, false);
+const Board         = scripting.addModule("/ti/driverlib/Board");
+const GPIO          = scripting.addModule("/ti/driverlib/GPIO", {}, false);
 const GPIO1         = GPIO.addInstance();
 const GPIO2         = GPIO.addInstance();
 const GPIO3         = GPIO.addInstance();
-const I2C           = scripting.addModule(\"/ti/driverlib/I2C\", {}, false);
+const I2C           = scripting.addModule("/ti/driverlib/I2C", {}, false);
 const I2C1          = I2C.addInstance();
-const PWM           = scripting.addModule(\"/ti/driverlib/PWM\", {}, false);
+const PWM           = scripting.addModule("/ti/driverlib/PWM", {}, false);
 const PWM1          = PWM.addInstance();
-const SPI           = scripting.addModule(\"/ti/driverlib/SPI\", {}, false);
+const SPI           = scripting.addModule("/ti/driverlib/SPI", {}, false);
 const SPI1          = SPI.addInstance();
-const SYSCTL        = scripting.addModule(\"/ti/driverlib/SYSCTL\");
-const TIMER         = scripting.addModule(\"/ti/driverlib/TIMER\", {}, false);
+const SYSCTL        = scripting.addModule("/ti/driverlib/SYSCTL");
+const TIMER         = scripting.addModule("/ti/driverlib/TIMER", {}, false);
 const TIMER1        = TIMER.addInstance();
-const VREF          = scripting.addModule(\"/ti/driverlib/VREF\");
-const ProjectConfig = scripting.addModule(\"/ti/project_config/ProjectConfig\");
+const VREF          = scripting.addModule("/ti/driverlib/VREF");
+
+const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
 
 //=============================================================================
 // ADC0 - Joystick + Microphone
 //=============================================================================
-ADC121.$name                      = \"ADC_MIC_JOY\";
-ADC121.sampClkDiv                 = \"DL_ADC12_CLOCK_DIVIDE_4\";
-ADC121.sampleTime0                = \"125 us\";
-ADC121.samplingOperationMode      = \"sequence\";
+ADC121.$name                      = "ADC_MIC_JOY";
+ADC121.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_4";
+ADC121.sampleTime0                = "125 us";
+ADC121.samplingOperationMode      = "sequence";
 ADC121.repeatMode                 = true;
-ADC121.sampleMode                 = \"DL_ADC12_SAMPLING_SOURCE_AUTO\";  // ✅ AUTO!
+ADC121.sampleMode                 = "DL_ADC12_SAMPLING_SOURCE_AUTO";  // ✅ AUTO!
 ADC121.endAdd                     = 2;
 ADC121.enabledInterrupts          = [
-    \"DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED\",
-    \"DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED\",
-    \"DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED\"
+    "DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED",
+    "DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED",
+    "DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"
 ];
-ADC121.enabledEvents              = [\"DL_ADC12_EVENT_MEM0_RESULT_LOADED\"];
+ADC121.enabledEvents              = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
 ADC121.pubChanID                  = 2;
 ADC121.subChanID                  = 2;
 
-ADC121.adcMem0_name               = \"MIC\";
-ADC121.adcMem0chansel             = \"DL_ADC12_INPUT_CHAN_2\";
-ADC121.adcMem1_name               = \"JOY_Y\";
-ADC121.adcMem1chansel             = \"DL_ADC12_INPUT_CHAN_1\";
-ADC121.adcMem2_name               = \"JOY_X\";
+ADC121.adcMem0_name               = "MIC";
+ADC121.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
+ADC121.adcMem1_name               = "JOY_Y";
+ADC121.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_1";
+ADC121.adcMem2_name               = "JOY_X";
 
-ADC121.peripheral.$assign         = \"ADC0\";
-ADC121.peripheral.adcPin0.$assign = \"PA27\";
-ADC121.peripheral.adcPin1.$assign = \"PA26\";
-ADC121.peripheral.adcPin2.$assign = \"PA25\";
+ADC121.peripheral.$assign         = "ADC0";
+ADC121.peripheral.adcPin0.$assign = "PA27";  // Mic
+ADC121.peripheral.adcPin1.$assign = "PA26";  // Joy X
+ADC121.peripheral.adcPin2.$assign = "PA25";  // Joy Y
 
-ADC121.adcPin0Config.$name        = \"ti_driverlib_gpio_GPIOPinGeneric5\";
-ADC121.adcPin1Config.$name        = \"ti_driverlib_gpio_GPIOPinGeneric0\";
-ADC121.adcPin2Config.$name        = \"ti_driverlib_gpio_GPIOPinGeneric10\";
+ADC121.adcPin0Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric5";
+ADC121.adcPin1Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";
+ADC121.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric10";
 
 //=============================================================================
 // ADC1 - Accelerometer
 //=============================================================================
-ADC122.$name                      = \"ADC_ACCEL\";
-ADC122.sampClkSrc                 = \"DL_ADC12_CLOCK_ULPCLK\";
-ADC122.sampClkDiv                 = \"DL_ADC12_CLOCK_DIVIDE_8\";
-ADC122.sampleTime0                = \"125 us\";
-ADC122.samplingOperationMode      = \"sequence\";
+ADC122.$name                      = "ADC_ACCEL";
+ADC122.sampClkSrc                 = "DL_ADC12_CLOCK_ULPCLK";
+ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
+ADC122.sampleTime0                = "125 us";
+ADC122.samplingOperationMode      = "sequence";
 ADC122.repeatMode                 = true;
-ADC122.sampleMode                 = \"DL_ADC12_SAMPLING_SOURCE_AUTO\";  // ✅ AUTO!
-ADC122.trigSrc                    = \"DL_ADC12_TRIG_SRC_EVENT\";
+ADC122.sampleMode                 = "DL_ADC12_SAMPLING_SOURCE_AUTO";  // ✅ AUTO!
+ADC122.trigSrc                    = "DL_ADC12_TRIG_SRC_EVENT";
 ADC122.endAdd                     = 2;
 ADC122.enabledInterrupts          = [
-    \"DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED\",
-    \"DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED\",
-    \"DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED\"
+    "DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED",
+    "DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED",
+    "DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"
 ];
-ADC122.enabledEvents              = [\"DL_ADC12_EVENT_MEM0_RESULT_LOADED\"];
+ADC122.enabledEvents              = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
 ADC122.pubChanID                  = 1;
 ADC122.subChanID                  = 1;
 
-ADC122.adcMem0_name               = \"ACCEL_X\";
-ADC122.adcMem0chansel             = \"DL_ADC12_INPUT_CHAN_2\";
-ADC122.adcMem0vref                = \"VREF\";
-ADC122.adcMem1_name               = \"ACCEL_Y\";
-ADC122.adcMem1chansel             = \"DL_ADC12_INPUT_CHAN_3\";
-ADC122.adcMem1vref                = \"VREF\";
-ADC122.adcMem2_name               = \"ACCEL_Z\";
-ADC122.adcMem2chansel             = \"DL_ADC12_INPUT_CHAN_7\";
-ADC122.adcMem2vref                = \"VREF\";
+ADC122.adcMem0_name               = "ACCEL_X";
+ADC122.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
+ADC122.adcMem0vref                = "VREF";
+ADC122.adcMem1_name               = "ACCEL_Y";
+ADC122.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_3";
+ADC122.adcMem1vref                = "VREF";
+ADC122.adcMem2_name               = "ACCEL_Z";
+ADC122.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_7";
+ADC122.adcMem2vref                = "VREF";
 
-ADC122.peripheral.$assign         = \"ADC1\";
-ADC122.peripheral.adcPin2.$assign = \"PA17\";
-ADC122.peripheral.adcPin3.$assign = \"PA18\";
-ADC122.peripheral.adcPin7.$assign = \"PA21\";
+ADC122.peripheral.$assign         = "ADC1";
+ADC122.peripheral.adcPin2.$assign = "PA17";  // Accel X
+ADC122.peripheral.adcPin3.$assign = "PA18";  // Accel Y
+ADC122.peripheral.adcPin7.$assign = "PA21";  // Accel Z
 
-ADC122.adcPin2Config.$name        = \"ti_driverlib_gpio_GPIOPinGeneric12\";
-ADC122.adcPin3Config.$name        = \"ti_driverlib_gpio_GPIOPinGeneric1\";
-ADC122.adcPin7Config.$name        = \"ti_driverlib_gpio_GPIOPinGeneric11\";
+ADC122.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric12";
+ADC122.adcPin3Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
+ADC122.adcPin7Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric11";
 
 //=============================================================================
 // GPIO - Buttons
 //=============================================================================
-GPIO1.$name                              = \"GPIO_BUTTONS\";
-GPIO1.port                               = \"PORTA\";
+GPIO1.$name                              = "GPIO_BUTTONS";
+GPIO1.port                               = "PORTA";
 GPIO1.associatedPins.create(3);
-GPIO1.associatedPins[0].$name            = \"S1\";
-GPIO1.associatedPins[0].direction        = \"INPUT\";
-GPIO1.associatedPins[0].internalResistor = \"PULL_UP\";
+GPIO1.associatedPins[0].$name            = "S1";
+GPIO1.associatedPins[0].direction        = "INPUT";
+GPIO1.associatedPins[0].internalResistor = "PULL_UP";
 GPIO1.associatedPins[0].interruptEn      = true;
-GPIO1.associatedPins[0].polarity         = \"FALL\";
-GPIO1.associatedPins[0].pin.$assign      = \"PA16\";
+GPIO1.associatedPins[0].polarity         = "FALL";
+GPIO1.associatedPins[0].pin.$assign      = "PA16";
 
-GPIO1.associatedPins[1].$name            = \"S2\";
-GPIO1.associatedPins[1].direction        = \"INPUT\";
-GPIO1.associatedPins[1].internalResistor = \"PULL_UP\";
+GPIO1.associatedPins[1].$name            = "S2";
+GPIO1.associatedPins[1].direction        = "INPUT";
+GPIO1.associatedPins[1].internalResistor = "PULL_UP";
 GPIO1.associatedPins[1].interruptEn      = true;
-GPIO1.associatedPins[1].polarity         = \"FALL\";
-GPIO1.associatedPins[1].pin.$assign      = \"PA14\";
+GPIO1.associatedPins[1].polarity         = "FALL";
+GPIO1.associatedPins[1].pin.$assign      = "PA14";
 
-GPIO1.associatedPins[2].$name            = \"JOY_SEL\";
-GPIO1.associatedPins[2].direction        = \"INPUT\";
-GPIO1.associatedPins[2].internalResistor = \"PULL_UP\";
+GPIO1.associatedPins[2].$name            = "JOY_SEL";
+GPIO1.associatedPins[2].direction        = "INPUT";
+GPIO1.associatedPins[2].internalResistor = "PULL_UP";
 GPIO1.associatedPins[2].interruptEn      = true;
-GPIO1.associatedPins[2].polarity         = \"FALL\";
-GPIO1.associatedPins[2].pin.$assign      = \"PA15\";
+GPIO1.associatedPins[2].polarity         = "FALL";
+GPIO1.associatedPins[2].pin.$assign      = "PA15";
 
 //=============================================================================
 // GPIO - RGB LED
 //=============================================================================
-GPIO2.$name                          = \"GPIO_RGB\";
-GPIO2.port                           = \"PORTB\";
+GPIO2.$name                          = "GPIO_RGB";
+GPIO2.port                           = "PORTB";
 GPIO2.associatedPins.create(3);
-GPIO2.associatedPins[0].$name        = \"RED\";
-GPIO2.associatedPins[0].initialValue = \"SET\";
-GPIO2.associatedPins[0].pin.$assign  = \"PB16\";
+GPIO2.associatedPins[0].$name        = "RED";
+GPIO2.associatedPins[0].initialValue = "SET";
+GPIO2.associatedPins[0].pin.$assign  = "PB16";
 
-GPIO2.associatedPins[1].$name        = \"GREEN\";
-GPIO2.associatedPins[1].initialValue = \"SET\";
-GPIO2.associatedPins[1].pin.$assign  = \"PB19\";
+GPIO2.associatedPins[1].$name        = "GREEN";
+GPIO2.associatedPins[1].initialValue = "SET";
+GPIO2.associatedPins[1].pin.$assign  = "PB19";
 
-GPIO2.associatedPins[2].$name        = \"BLUE\";
-GPIO2.associatedPins[2].initialValue = \"SET\";
-GPIO2.associatedPins[2].pin.$assign  = \"PB18\";
+GPIO2.associatedPins[2].$name        = "BLUE";
+GPIO2.associatedPins[2].initialValue = "SET";
+GPIO2.associatedPins[2].pin.$assign  = "PB18";
 
 //=============================================================================
 // GPIO - LCD Control
 //=============================================================================
-GPIO3.$name                         = \"GPIO_LCD\";
-GPIO3.port                          = \"PORTB\";
+GPIO3.$name                         = "GPIO_LCD";
+GPIO3.port                          = "PORTB";
 GPIO3.associatedPins.create(2);
-GPIO3.associatedPins[0].$name       = \"RST\";
-GPIO3.associatedPins[0].pin.$assign = \"PB15\";
+GPIO3.associatedPins[0].$name       = "RST";
+GPIO3.associatedPins[0].pin.$assign = "PB15";
 
-GPIO3.associatedPins[1].$name       = \"DC\";
-GPIO3.associatedPins[1].pin.$assign = \"PB17\";
+GPIO3.associatedPins[1].$name       = "DC";
+GPIO3.associatedPins[1].pin.$assign = "PB17";
 
 //=============================================================================
 // I2C - Sensors
 //=============================================================================
-I2C1.$name                             = \"I2C_SENSORS\";
+I2C1.$name                             = "I2C_SENSORS";
 I2C1.basicEnableController             = true;
-I2C1.peripheral.$assign                = \"I2C0\";
-I2C1.peripheral.sdaPin.$assign         = \"PA0\";
-I2C1.peripheral.sclPin.$assign         = \"PA1\";
-I2C1.sdaPinConfig.$name                = \"ti_driverlib_gpio_GPIOPinGeneric2\";
+I2C1.peripheral.$assign                = "I2C0";
+I2C1.peripheral.sdaPin.$assign         = "PA0";
+I2C1.peripheral.sclPin.$assign         = "PA1";
+I2C1.sdaPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric2";
 I2C1.sdaPinConfig.hideOutputInversion  = scripting.forceWrite(false);
 I2C1.sdaPinConfig.onlyInternalResistor = scripting.forceWrite(false);
-I2C1.sdaPinConfig.passedPeripheralType = scripting.forceWrite(\"Digital\");
-I2C1.sclPinConfig.$name                = \"ti_driverlib_gpio_GPIOPinGeneric3\";
+I2C1.sdaPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
+I2C1.sclPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric3";
 I2C1.sclPinConfig.hideOutputInversion  = scripting.forceWrite(false);
 I2C1.sclPinConfig.onlyInternalResistor = scripting.forceWrite(false);
-I2C1.sclPinConfig.passedPeripheralType = scripting.forceWrite(\"Digital\");
+I2C1.sclPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 
 //=============================================================================
-// PWM - Audio Output (TIMG0) @ 19.5 kHz
+// PWM - Audio Output (TIMG0)
 //=============================================================================
-PWM1.$name                              = \"PWM_AUDIO\";
-PWM1.pwmMode                            = \"EDGE_ALIGN_UP\";
+PWM1.$name                              = "PWM_AUDIO";
+PWM1.pwmMode                            = "EDGE_ALIGN_UP";
 PWM1.ccIndex                            = [0];
-PWM1.subscriberPort                     = \"FSUB0\";
-PWM1.interrupts                         = [\"ZERO_EVENT\"];
+PWM1.subscriberPort                     = "FSUB0";
+PWM1.interrupts                         = ["ZERO_EVENT"];
 PWM1.timerStartTimer                    = true;
-PWM1.timerCount                         = 4095;  // 12-bit @ 19.5 kHz
-PWM1.PWM_CHANNEL_0.$name                = \"ti_driverlib_pwm_PWMTimerCC0\";
-PWM1.PWM_CHANNEL_0.dutyCycle            = 50;  // 50% = silence
-PWM1.PWM_CHANNEL_0.initVal              = \"HIGH\";
-PWM1.peripheral.$assign                 = \"TIMG0\";
-PWM1.peripheral.ccp0Pin.$assign         = \"PA12\";
-PWM1.ccp0PinConfig.$name                = \"ti_driverlib_gpio_GPIOPinGeneric4\";
-PWM1.ccp0PinConfig.direction            = scripting.forceWrite(\"OUTPUT\");
+PWM1.timerCount                         = 4095;  // 12-bit resolution @ 19.5 kHz
+PWM1.PWM_CHANNEL_0.$name                = "ti_driverlib_pwm_PWMTimerCC0";
+PWM1.PWM_CHANNEL_0.dutyCycle            = 50;  // 50% = silence/center
+PWM1.PWM_CHANNEL_0.initVal              = "HIGH";
+PWM1.peripheral.$assign                 = "TIMG0";
+PWM1.peripheral.ccp0Pin.$assign         = "PA12";
+PWM1.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric4";
+PWM1.ccp0PinConfig.direction            = scripting.forceWrite("OUTPUT");
 PWM1.ccp0PinConfig.hideOutputInversion  = scripting.forceWrite(false);
 PWM1.ccp0PinConfig.onlyInternalResistor = scripting.forceWrite(false);
-PWM1.ccp0PinConfig.passedPeripheralType = scripting.forceWrite(\"Digital\");
+PWM1.ccp0PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 
 //=============================================================================
 // SPI - LCD Display
 //=============================================================================
-SPI1.$name                              = \"SPI_LCD\";
+SPI1.$name                              = "SPI_LCD";
 SPI1.targetBitRate                      = 10000000;
-SPI1.peripheral.$assign                 = \"SPI1\";
-SPI1.peripheral.sclkPin.$assign         = \"PB9\";
-SPI1.peripheral.mosiPin.$assign         = \"PB8\";
-SPI1.peripheral.misoPin.$assign         = \"PB7\";
-SPI1.peripheral.cs0Pin.$assign          = \"PB6\";
-SPI1.sclkPinConfig.$name                = \"ti_driverlib_gpio_GPIOPinGeneric6\";
-SPI1.sclkPinConfig.direction            = scripting.forceWrite(\"OUTPUT\");
+SPI1.peripheral.$assign                 = "SPI1";
+SPI1.peripheral.sclkPin.$assign         = "PB9";
+SPI1.peripheral.mosiPin.$assign         = "PB8";
+SPI1.peripheral.misoPin.$assign         = "PB7";
+SPI1.peripheral.cs0Pin.$assign          = "PB6";
+SPI1.sclkPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric6";
+SPI1.sclkPinConfig.direction            = scripting.forceWrite("OUTPUT");
 SPI1.sclkPinConfig.onlyInternalResistor = scripting.forceWrite(false);
-SPI1.sclkPinConfig.passedPeripheralType = scripting.forceWrite(\"Digital\");
-SPI1.mosiPinConfig.$name                = \"ti_driverlib_gpio_GPIOPinGeneric7\";
-SPI1.mosiPinConfig.direction            = scripting.forceWrite(\"OUTPUT\");
+SPI1.sclkPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
+SPI1.mosiPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric7";
+SPI1.mosiPinConfig.direction            = scripting.forceWrite("OUTPUT");
 SPI1.mosiPinConfig.hideOutputInversion  = scripting.forceWrite(false);
 SPI1.mosiPinConfig.onlyInternalResistor = scripting.forceWrite(false);
-SPI1.mosiPinConfig.passedPeripheralType = scripting.forceWrite(\"Digital\");
-SPI1.misoPinConfig.$name                = \"ti_driverlib_gpio_GPIOPinGeneric8\";
+SPI1.mosiPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
+SPI1.misoPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric8";
 SPI1.misoPinConfig.onlyInternalResistor = scripting.forceWrite(false);
-SPI1.misoPinConfig.passedPeripheralType = scripting.forceWrite(\"Digital\");
-SPI1.cs0PinConfig.$name                 = \"ti_driverlib_gpio_GPIOPinGeneric9\";
-SPI1.cs0PinConfig.direction             = scripting.forceWrite(\"OUTPUT\");
+SPI1.misoPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
+SPI1.cs0PinConfig.$name                 = "ti_driverlib_gpio_GPIOPinGeneric9";
+SPI1.cs0PinConfig.direction             = scripting.forceWrite("OUTPUT");
 SPI1.cs0PinConfig.hideOutputInversion   = scripting.forceWrite(false);
 SPI1.cs0PinConfig.onlyInternalResistor  = scripting.forceWrite(false);
-SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite(\"Digital\");
+SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite("Digital");
 
 //=============================================================================
-// TIMER - Sample Rate Generator (TIMG7) @ 20 kHz
+// TIMER7 - Audio Sample Rate Generator (20 kHz)
 //=============================================================================
-TIMER1.$name              = \"TIMER_SAMPLE\";
-TIMER1.timerMode          = \"PERIODIC\";
-TIMER1.timerClkSrc        = \"BUSCLK\";  // 80 MHz
+TIMER1.$name              = "TIMER_SAMPLE";
+TIMER1.timerMode          = "PERIODIC";
+TIMER1.timerClkSrc        = "BUSCLK";
 TIMER1.timerClkPrescale   = 1;
-TIMER1.timerCount         = 3999;  // (80MHz / 4000) = 20 kHz
-TIMER1.interrupts         = [\"ZERO\"];
-TIMER1.interruptPriority  = \"1\";  // High priority
+TIMER1.timerPeriod        = "50 us";  // 20 kHz sample rate
+TIMER1.interrupts         = ["ZERO"];
+TIMER1.interruptPriority  = "1";  // High priority
 TIMER1.timerStartTimer    = true;
-TIMER1.peripheral.$assign = \"TIMG7\";
+TIMER1.peripheral.$assign = "TIMG7";
 
 //=============================================================================
 // SYSCTL - System Configuration
 //=============================================================================
-SYSCTL.powerPolicy       = \"STANDBY0\";
-SYSCTL.MCLKSource        = \"HSCLK\";
+SYSCTL.powerPolicy       = "STANDBY0";
+SYSCTL.MCLKSource        = "HSCLK";
 SYSCTL.MFPCLKEn          = true;
 SYSCTL.SYSPLL_CLK1En     = true;
 SYSCTL.validateClkStatus = true;
-SYSCTL.HFCLK4MFPCLKDIV   = \"2\";
+SYSCTL.HFCLK4MFPCLKDIV   = "2";
 SYSCTL.SYSPLL_CLK0En     = true;
 SYSCTL.useHFCLK_Manual   = true;
-SYSCTL.EXCLKDivider      = \"2\";
-SYSCTL.HSCLKSource       = \"SYSPLLCLK2X\";
-SYSCTL.UDIV              = \"2\";
+SYSCTL.EXCLKDivider      = "2";
+SYSCTL.HSCLKSource       = "SYSPLLCLK2X";
+SYSCTL.UDIV              = "2";
 SYSCTL.enableEXCLK       = true;
-SYSCTL.EXCLKSource       = \"SYSPLLOUT1\";
+SYSCTL.EXCLKSource       = "SYSPLLOUT1";
 SYSCTL.enableFCC         = true;
 SYSCTL.SYSPLL_CLK0Div    = 1;
 SYSCTL.SYSPLL_CLK1Div    = 1;
 SYSCTL.SYSPLL_CLK2XEn    = true;
 SYSCTL.SYSPLL_Pdiv       = 1;
 SYSCTL.SYSPLL_CLK2XDiv   = 7;
-SYSCTL.peripheral.$assign         = \"SYSCTL\";
-SYSCTL.peripheral.hfclkInPin.$assign = \"PA6\";
-SYSCTL.peripheral.fccInPin.$assign   = \"PA5\";
-SYSCTL.peripheral.clkOutPin.$assign  = \"PA10\";
+SYSCTL.peripheral.$assign         = "SYSCTL";
+SYSCTL.peripheral.hfclkInPin.$assign = "PA6";
+SYSCTL.peripheral.fccInPin.$assign   = "PA5";
+SYSCTL.peripheral.clkOutPin.$assign  = "PA10";
 
 //=============================================================================
 // VREF - Voltage Reference for Accelerometer
 //=============================================================================
-VREF.basicIntVolt                 = \"DL_VREF_BUFCONFIG_OUTPUT_2_5V\";
+VREF.basicIntVolt                 = "DL_VREF_BUFCONFIG_OUTPUT_2_5V";
 VREF.checkVREFReady               = true;
-VREF.peripheral.$assign           = \"VREF\";
-VREF.peripheral.vrefPosPin.$assign = \"PA23\";
-VREF.vrefPosPinConfig.$name       = \"ti_driverlib_gpio_GPIOPinGeneric13\";
+VREF.peripheral.$assign           = "VREF";
+VREF.peripheral.vrefPosPin.$assign = "PA23";
+VREF.vrefPosPinConfig.$name       = "ti_driverlib_gpio_GPIOPinGeneric13";
 
 //=============================================================================
 // Board Configuration
 //=============================================================================
 Board.genPeriphPinFile            = true;
 Board.genResourceCSV              = true;
-Board.genResourceCSVAdvanced      = \"detailed\";
+Board.genResourceCSVAdvanced      = "detailed";
 Board.configureVDDA               = true;
 Board.configureUnused             = true;
-Board.peripheral.$assign          = \"DEBUGSS\";
-Board.peripheral.swclkPin.$assign = \"PA20\";
-Board.peripheral.swdioPin.$assign = \"PA19\";
-Board.genFileMod.$name            = \"ti_driverlib_BoardPins0\";
-Board.genFileCSV.$name            = \"ti_driverlib_ResourcesCSV0\";
+Board.peripheral.$assign          = "DEBUGSS";
+Board.peripheral.swclkPin.$assign = "PA20";
+Board.peripheral.swdioPin.$assign = "PA19";
+Board.genFileMod.$name            = "ti_driverlib_BoardPins0";
+Board.genFileCSV.$name            = "ti_driverlib_ResourcesCSV0";
 
 //=============================================================================
 // Project Configuration
