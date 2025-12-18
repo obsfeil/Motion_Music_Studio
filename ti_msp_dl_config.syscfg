@@ -2,6 +2,7 @@
 
 const ADC12 = scripting.addModule("/ti/driverlib/ADC12", {}, false);
 const ADC121 = ADC12.addInstance();
+const ADC122 = ADC12.addInstance();
 const Board = scripting.addModule("/ti/driverlib/Board");
 const GPIO = scripting.addModule("/ti/driverlib/GPIO", {}, false);
 const GPIO1 = GPIO.addInstance();
@@ -13,6 +14,7 @@ const SPI = scripting.addModule("/ti/driverlib/SPI", {}, false);
 const SPI1 = SPI.addInstance();
 const TIMER = scripting.addModule("/ti/driverlib/TIMER", {}, false);
 const TIMER1 = TIMER.addInstance();
+const VREF = scripting.addModule("/ti/driverlib/VREF");
 
 ADC121.$name = "ADC_MIC_JOY";
 ADC121.sampClkDiv = "DL_ADC12_CLOCK_DIVIDE_8";
@@ -25,6 +27,21 @@ ADC121.adcMem0chansel = "DL_ADC12_INPUT_CHAN_2";
 ADC121.adcMem1chansel = "DL_ADC12_INPUT_CHAN_1";
 ADC121.adcMem2chansel = "DL_ADC12_INPUT_CHAN_0";
 ADC121.peripheral.$assign = "ADC0";
+
+ADC122.$name = "ADC_ACCEL";
+ADC122.sampClkDiv = "DL_ADC12_CLOCK_DIVIDE_8";
+ADC122.sampleTime0 = "125 us";
+ADC122.samplingOperationMode = "sequence";
+ADC122.repeatMode = true;
+ADC122.endAdd = 2;
+ADC122.enabledInterrupts = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
+ADC122.adcMem0chansel = "DL_ADC12_INPUT_CHAN_2";
+ADC122.adcMem0vref = "VREF";
+ADC122.adcMem1chansel = "DL_ADC12_INPUT_CHAN_3";
+ADC122.adcMem1vref = "VREF";
+ADC122.adcMem2chansel = "DL_ADC12_INPUT_CHAN_7";
+ADC122.adcMem2vref = "VREF";
+ADC122.peripheral.$assign = "ADC1";
 
 Board.peripheral.$assign = "DEBUGSS";
 
@@ -76,3 +93,7 @@ TIMER1.interrupts = ["ZERO"];
 TIMER1.interruptPriority = "1";
 TIMER1.timerStartTimer = true;
 TIMER1.peripheral.$assign = "TIMG7";
+
+VREF.basicIntVolt = "DL_VREF_BUFCONFIG_OUTPUT_2_5V";
+VREF.checkVREFReady = true;
+VREF.peripheral.$assign = "VREF";

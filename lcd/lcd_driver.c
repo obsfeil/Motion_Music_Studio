@@ -99,11 +99,11 @@ static const uint8_t font_5x7[][5] = {
 //=============================================================================
 
 static inline void LCD_DC_Command(void) {
-    DL_GPIO_clearPins(GPIO_LCD_PORT, GPIO_LCD_DC_PIN);
+    DL_GPIO_clearPins(GPIO_LCD_RST_PORT, GPIO_LCD_RST_PIN);
 }
 
 static inline void LCD_DC_Data(void) {
-    DL_GPIO_setPins(GPIO_LCD_PORT, GPIO_LCD_DC_PIN);
+    DL_GPIO_setPins(GPIO_LCD_RST_PORT, GPIO_LCD_RST_PIN);
 }
 
 static void LCD_WriteCommand(uint8_t cmd) {
@@ -141,9 +141,9 @@ static void LCD_SetWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 
 void LCD_Init(void) {
     // Reset
-    DL_GPIO_clearPins(GPIO_LCD_PORT, GPIO_LCD_RST_PIN);
+    DL_GPIO_clearPins(GPIO_LCD_RST_PORT, GPIO_LCD_RST_PIN);
     delay_ms(20);
-    DL_GPIO_setPins(GPIO_LCD_PORT, GPIO_LCD_RST_PIN);
+    DL_GPIO_setPins(GPIO_LCD_RST_PORT, GPIO_LCD_RST_PIN);
     delay_ms(120);
     
     // Software reset
