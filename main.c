@@ -202,7 +202,8 @@ static void Process_Input(void) {
         g_synthState.btn_s1 = false;  // Clear flag
 
         // RGB LED feedback for each waveform
-        DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN | GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
+        DL_GPIO_clearPins(GPIO_RGB_PORT, 
+        GPIO_RGB_RED_PIN | GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
         
         switch (g_synthState.waveform) {
             case WAVE_SINE:
