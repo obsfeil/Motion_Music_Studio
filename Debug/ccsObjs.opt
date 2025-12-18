@@ -60,5 +60,6 @@
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l122x_l222x.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l211x_l112x.o"
 -l"./device_linker.cmd"
+-l"C:/ti/sysconfig_1.25.0"
 -ldevice.cmd.genlibs
 -llibc.a

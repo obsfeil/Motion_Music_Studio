@@ -72,6 +72,7 @@ ORDERED_OBJS += \
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l122x_l222x.o" \
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l211x_l112x.o" \
 $(GEN_CMDS__FLAG) \
+-Wl,-l"C:/ti/sysconfig_1.25.0" \
 -Wl,-ldevice.cmd.genlibs \
 -Wl,-llibc.a \
 

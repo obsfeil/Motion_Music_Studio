@@ -19,6 +19,14 @@
 	</natures>
 	<variableList>
 		<variable>
+			<name>CG_TOOL_CLANG</name>
+			<value>file:/C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe</value>
+		</variable>
+		<variable>
+			<name>CG_TOOL_INCLUDE_PATH</name>
+			<value>file:/C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/include</value>
+		</variable>
+		<variable>
 			<name>SYSCONFIG_TOOL_ROOT</name>
 			<value>file:/C:/ti/sysconfig_1.25.0</value>
 		</variable>
