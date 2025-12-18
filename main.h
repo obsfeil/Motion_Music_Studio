@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "ti_msp_dl_config.h" 
 
 //=============================================================================
 // SYSTEM CONSTANTS
