@@ -1,15 +1,18 @@
 Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User Label
-7,PA14,HS,GPIO,High-Speed Input with internal pull-up,S1
-8,PA15,SD,GPIO,Standard Output,RED
-18,PA22,SD,GPIO,Standard Output,DC
+6,PA13,HS,GPIO,High-Speed Input with internal pull-up,S1
+7,PA14,HS,GPIO,High-Speed Output,RED
+8,PA15,SD,GPIO,Standard Output,GREEN
 2,PB14,SD,GPIO,Standard Input with internal pull-up,S2
 1,PB13,SD,GPIO,Standard Input with internal pull-up,JOY_SEL
-14,PB17,SD,GPIO,Standard Output,GREEN
-15,PB18,SD,GPIO,Standard Output,BLUE
-16,PB19,SD,GPIO,Standard Output,RST
+14,PB17,SD,GPIO,Standard Output,BLUE
+15,PB18,SD,GPIO,Standard Output,RST
+16,PB19,SD,GPIO,Standard Output,DC
 46,PA6,SD,SYSCTL,"HFCLK In",
 5,PA12,HS,TIMG0,"Capture/Compare Pin 0",
-6,PA13,HS,TIMG0,"Capture/Compare Pin 1",
+33,PA0,OD,I2C0,"I2C Serial Data line (SDA)",
+34,PA1,OD,I2C0,"I2C Serial Clock line (SCL)",
+56,PA10,HD,I2C1,"I2C Serial Data line (SDA)",
+57,PA11,HD,I2C1,"I2C Serial Clock line (SCL)",
 4,PB16,SD,SPI1,"SPI SCLK (Clock)",
 3,PB15,SD,SPI1,"SPI PICO (Peripheral In, Controller Out)",
 9,PA16,SD,SPI1,"SPI POCI (Peripheral Out, Controller In)",
@@ -26,7 +29,8 @@ Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User L
 
 
 Peripheral,Usage
-TIMG0,2 channels used out of 2 (100%)
+TIMG0,1 channels used out of 2 (50%)
+I2C,2 out of 2 instances (100%)
 SPI,1 out of 2 instances (50%)
 ADC12,2 out of 2 instances (100%)
 
