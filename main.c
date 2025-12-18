@@ -390,26 +390,28 @@ int main(void) {
   NVIC_EnableIRQ(ADC_ACCEL_INST_INT_IRQN); // ← Denne!
   NVIC_EnableIRQ(GPIOA_INT_IRQn);
 
-  __enable_irq();
 
-  LCD_Init();
-  LCD_Clear(COLOR_BLACK);
+//  LCD_Init();
+//  LCD_Clear(COLOR_BLACK);
 
   // DEBUG: Vis initialiseringsverdier
-  char debug_str[32];
-  snprintf(debug_str, sizeof(debug_str), "F:%.1f V:%u", 
-           g_synthState.frequency, g_synthState.volume);
-  LCD_DrawString(5, 20, debug_str, COLOR_WHITE);
-  snprintf(debug_str, sizeof(debug_str), "JX:%u JY:%u", 
-           g_synthState.joy_x, g_synthState.joy_y);
-  LCD_DrawString(5, 35, debug_str, COLOR_WHITE);
-  delay_ms(3000);  // Gi tid til å lese debug-info
+//  char debug_str[32];
+//  snprintf(debug_str, sizeof(debug_str), "F:%.1f V:%u", 
+//           g_synthState.frequency, g_synthState.volume);
+//  LCD_DrawString(5, 20, debug_str, COLOR_WHITE);
+//  snprintf(debug_str, sizeof(debug_str), "JX:%u JY:%u", 
+//           g_synthState.joy_x, g_synthState.joy_y);
+//  LCD_DrawString(5, 35, debug_str, COLOR_WHITE);
+//  delay_ms(3000);  // Gi tid til å lese debug-info
 
-  LCD_DrawString(20, 50, "MSPM0G3507", COLOR_CYAN);
-  LCD_DrawString(15, 70, "Synthesizer", COLOR_WHITE);
-  LCD_DrawString(35, 90, "v1.3.2", COLOR_YELLOW);
-  delay_ms(2000);
+//  LCD_DrawString(20, 50, "MSPM0G3507", COLOR_CYAN);
+//  LCD_DrawString(15, 70, "Synthesizer", COLOR_WHITE);
+//  LCD_DrawString(35, 90, "v1.3.2", COLOR_YELLOW);
+//  delay_ms(2000);
 
+  
+  __enable_irq();
+  
   Update_Phase_Increment();
   DL_ADC12_startConversion(ADC_MIC_JOY_INST);
   Update_Display();

@@ -20,4 +20,7 @@ OBJS__QUOTED += \
 C_DEPS__QUOTED += \
 "lcd\lcd_driver.d" 
 
+C_SRCS__QUOTED += \
+"../lcd/lcd_driver.c" 
+
 

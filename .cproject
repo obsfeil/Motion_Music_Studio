@@ -5,6 +5,7 @@
             <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.755142424" moduleId="org.eclipse.cdt.core.settings" name="Debug">
                 <macros>
                     <stringMacro name="C:\Users\obsfe\workspace_ccstheia\Motion_Music_studio" type="VALUE_TEXT" value="C:\Users\obsfe\workspace_ccstheia\Motion_Music_studio"/>
+                    <stringMacro name="loadti ${PROJECT_LOC}/Debug/${ProjName}.out" type="VALUE_TEXT" value="C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug/Motion_Music_studio.out"/>
                     <stringListMacro name="COM_TI_MSPM0_SDK_INCLUDE_PATH" type="VALUE_PATH_DIR_LIST"/>
                     <stringListMacro name="COM_TI_CGT_TIARMCLANG_LIBRARIES" type="VALUE_PATH_FILE_LIST"/>
                     <stringMacro name="CG_TOOL_CLANG" type="VALUE_PATH_FILE" value="C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe"/>

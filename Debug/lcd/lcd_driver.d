@@ -1,6 +1,6 @@
 # FIXED
 
-lcd/.o: ../lcd/lcd_driver.c \
+lcd/lcd_driver.o: ../lcd/lcd_driver.c \
  ti_msp_dl_config.h \
  C:/ti/mspm0_sdk_2_08_00_04/source/ti/devices/msp/msp.h \
  C:/ti/mspm0_sdk_2_08_00_04/source/ti/devices/DeviceFamily.h \
