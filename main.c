@@ -30,8 +30,23 @@ void print_memory_usage(void);
 // GLOBAL STATE
 //=============================================================================
 
-// Declare without initialization - will be initialized in main()
-volatile SynthState_t g_synthState;
+SynthState_t g_synthState = {.waveform = WAVE_SINE,
+                             .mode = MODE_SYNTH,
+                             .frequency = FREQ_DEFAULT,
+                             .volume = VOLUME_DEFAULT,
+                             .pitchBend = 0,
+                             .audio_playing = false,
+                             .display_update_needed = false,
+                             .joy_x = JOY_ADC_CENTER,
+                             .joy_y = JOY_ADC_CENTER,
+                             .joy_pressed = false,
+                             .btn_s1 = false,
+                             .btn_s2 = false,
+                             .accel_x = ACCEL_ZERO_G,
+                             .accel_y = ACCEL_ZERO_G,
+                             .accel_z = ACCEL_ZERO_G,
+                             .mic_level = 0,
+                             .light_lux = 0.0f};
 
 //=============================================================================
 // AUDIO SYNTHESIS
@@ -76,7 +91,7 @@ static void Generate_Audio_Sample(void) {
   }
 
   uint8_t index = (uint8_t)((phase >> 24) & 0xFF);
-  int16_t sample = 0;  // ← FIX: Deklarasjon lagt til!
+  int16_t sample = 0;
 
   switch (g_synthState.waveform) {
   case WAVE_SINE:
@@ -345,7 +360,6 @@ void print_memory_usage(void) {
 //=============================================================================
 
 int main(void) {
-  // Initialize system
   SYSCFG_DL_init();
 
   // CRITICAL: Initialize g_synthState explicitly in main()
@@ -373,7 +387,7 @@ int main(void) {
 
   NVIC_EnableIRQ(TIMER_SAMPLE_INST_INT_IRQN);
   NVIC_EnableIRQ(ADC_MIC_JOY_INST_INT_IRQN);
-  NVIC_EnableIRQ(ADC_ACCEL_INST_INT_IRQN);
+  NVIC_EnableIRQ(ADC_ACCEL_INST_INT_IRQN); // ← Denne!
   NVIC_EnableIRQ(GPIOA_INT_IRQn);
 
   __enable_irq();

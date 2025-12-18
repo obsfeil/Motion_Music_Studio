@@ -9,7 +9,7 @@
       "stopAtEntry": false,
       "console": "externalTerminal",
       "cwd": "c:/Users/obsfe/workspace_ccstheia/Motion_Music_studio",
-      "program": "c:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/build/Release/outRelease"
+      "program": "c:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/build/Debug/outDebug"
     }
   ]
 }

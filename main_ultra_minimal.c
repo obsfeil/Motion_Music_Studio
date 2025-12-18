@@ -1,47 +1,84 @@
-/**
- * @file main_ultra_minimal.c
- * @brief Ultra minimal ADC test - just ADC, nothing else
+**
+ * DIAGNOSTIC VERSION - Minimal Test
+ * Test hver del systematisk
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "ti_msp_dl_config.h"
+#include "lcd/lcd_driver.h"
 
-// Test result variables
-volatile uint16_t adc0_result = 0;
-volatile uint32_t adc0_count = 0;
+// Test 1: Blink LED
+void test_led_blink(void) {
+    for(int i = 0; i < 10; i++) {
+        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+        for(volatile uint32_t d = 0; d < 1000000; d++);
+    }
+}
 
-void ADC0_IRQHandler(void) {
-    adc0_count++;
+// Test 2: LCD Test
+void test_lcd(void) {
+    LCD_Init();
+    LCD_Clear(COLOR_BLACK);
+    LCD_DrawString(10, 10, "LCD TEST", COLOR_WHITE);
+    LCD_DrawString(10, 30, "Line 2", COLOR_RED);
+    LCD_DrawString(10, 50, "Line 3", COLOR_GREEN);
+    LCD_FillRect(10, 70, 50, 20, COLOR_BLUE);
+}
+
+// Test 3: Button Test (polling)
+void test_buttons(void) {
+    while(1) {
+        // Read S1 button (active low with pull-up)
+        if(DL_GPIO_readPins(GPIOA, GPIO_BUTTONS_S1_PIN) == 0) {
+            DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+        } else {
+            DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+        }
+        
+        // Read S2 button
+        if(DL_GPIO_readPins(GPIOA, GPIO_BUTTONS_S2_PIN) == 0) {
+            DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+        } else {
+            DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+        }
+        
+        for(volatile uint32_t d = 0; d < 10000; d++);
+    }
+}
+
+// Test 4: PWM Audio Test (simple tone)
+void test_audio(void) {
+    // Set 50% duty cycle
+    DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
     
-    // Read any result just to test
-    adc0_result = DL_ADC12_getMemResult(ADC_MIC_JOY_INST, DL_ADC12_MEM_IDX_0);
-    
-    // Clear interrupt
-    DL_ADC12_clearInterruptStatus(ADC_MIC_JOY_INST, 
-        DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED);
+    // Blink LED to show we're here
+    for(int i = 0; i < 5; i++) {
+        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
+        for(volatile uint32_t d = 0; d < 1000000; d++);
+    }
 }
 
 int main(void) {
-    // 1. Init system
     SYSCFG_DL_init();
     
-    // 2. Enable interrupt
-    NVIC_EnableIRQ(ADC_MIC_JOY_INST_INT_IRQN);
-    __enable_irq();
+    // Wait a bit for power to stabilize
+    for(volatile uint32_t d = 0; d < 1000000; d++);
     
-    // 3. Enable ADC (CRITICAL!)
-    DL_ADC12_enableConversions(ADC_MIC_JOY_INST);
+    // TEST 1: LED Blink (simplest test)
+    // Uncomment ONE test at a time:
     
-    // 4. Start conversion
-    DL_ADC12_startConversion(ADC_MIC_JOY_INST);
+    test_led_blink();     // ← Start med denne først!
     
-    // 5. Loop forever
-    while (1) {
-        // Just wait - interrupts should fire
-        __WFI();
-        
-        // Breakpoint here and check:
-        // - adc0_count (should increase)
-        // - adc0_result (should have value)
+    // test_lcd();        // ← Test LCD etter LED virker
+    
+    // test_buttons();    // ← Test buttons etter LCD virker
+    
+    // test_audio();      // ← Test audio til slutt
+    
+    while(1) {
+        // Keep LED blinking to show we're alive
+        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+        for(volatile uint32_t d = 0; d < 1000000; d++);
     }
 }
