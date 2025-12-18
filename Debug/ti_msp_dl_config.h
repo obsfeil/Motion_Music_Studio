@@ -73,8 +73,15 @@ extern "C" {
 #define POWER_STARTUP_DELAY                                                (16)
 
 
-
-#define CPUCLK_FREQ                                                     32000000
+#define GPIO_FCC_IN_PORT                                                   GPIOA
+#define GPIO_FCC_IN_PIN                                            DL_GPIO_PIN_5
+#define GPIO_FCC_IN_IOMUX                                        (IOMUX_PINCM10)
+#define GPIO_FCC_IN_IOMUX_FUNC                    IOMUX_PINCM10_PF_SYSCTL_FCC_IN
+#define GPIO_CLKOUT_PORT                                                   GPIOA
+#define GPIO_CLKOUT_PIN                                           DL_GPIO_PIN_10
+#define GPIO_CLKOUT_IOMUX                                        (IOMUX_PINCM21)
+#define GPIO_CLKOUT_IOMUX_FUNC                   IOMUX_PINCM21_PF_SYSCTL_CLK_OUT
+#define CPUCLK_FREQ                                                     80000000
 
 
 
@@ -82,12 +89,12 @@ extern "C" {
 #define PWM_AUDIO_INST                                                     TIMG0
 #define PWM_AUDIO_INST_IRQHandler                               TIMG0_IRQHandler
 #define PWM_AUDIO_INST_INT_IRQN                                 (TIMG0_INT_IRQn)
-#define PWM_AUDIO_INST_CLK_FREQ                                         32000000
+#define PWM_AUDIO_INST_CLK_FREQ                                         40000000
 /* GPIO defines for channel 0 */
-#define GPIO_PWM_AUDIO_C0_PORT                                             GPIOB
-#define GPIO_PWM_AUDIO_C0_PIN                                     DL_GPIO_PIN_10
-#define GPIO_PWM_AUDIO_C0_IOMUX                                  (IOMUX_PINCM27)
-#define GPIO_PWM_AUDIO_C0_IOMUX_FUNC                 IOMUX_PINCM27_PF_TIMG0_CCP0
+#define GPIO_PWM_AUDIO_C0_PORT                                             GPIOA
+#define GPIO_PWM_AUDIO_C0_PIN                                     DL_GPIO_PIN_12
+#define GPIO_PWM_AUDIO_C0_IOMUX                                  (IOMUX_PINCM34)
+#define GPIO_PWM_AUDIO_C0_IOMUX_FUNC                 IOMUX_PINCM34_PF_TIMG0_CCP0
 #define GPIO_PWM_AUDIO_C0_IDX                                DL_TIMER_CC_0_INDEX
 
 
@@ -153,32 +160,36 @@ extern "C" {
 #define ADC_MIC_JOY_ADCMEM_JOY_X                              DL_ADC12_MEM_IDX_2
 #define ADC_MIC_JOY_ADCMEM_JOY_X_REF             DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC_MIC_JOY_ADCMEM_JOY_X_REF_VOLTAGE_V                                     3.3
+#define ADC_MIC_JOY_INST_PUB_CH                                              (2)
+#define ADC_MIC_JOY_INST_SUB_CH                                              (2)
 #define GPIO_ADC_MIC_JOY_C2_PORT                                           GPIOA
 #define GPIO_ADC_MIC_JOY_C2_PIN                                   DL_GPIO_PIN_25
 #define GPIO_ADC_MIC_JOY_IOMUX_C2                                (IOMUX_PINCM55)
 #define GPIO_ADC_MIC_JOY_IOMUX_C2_FUNC            (IOMUX_PINCM55_PF_UNCONNECTED)
-#define GPIO_ADC_MIC_JOY_C0_PORT                                           GPIOA
-#define GPIO_ADC_MIC_JOY_C0_PIN                                   DL_GPIO_PIN_27
-#define GPIO_ADC_MIC_JOY_IOMUX_C0                                (IOMUX_PINCM60)
-#define GPIO_ADC_MIC_JOY_IOMUX_C0_FUNC            (IOMUX_PINCM60_PF_UNCONNECTED)
 #define GPIO_ADC_MIC_JOY_C1_PORT                                           GPIOA
 #define GPIO_ADC_MIC_JOY_C1_PIN                                   DL_GPIO_PIN_26
 #define GPIO_ADC_MIC_JOY_IOMUX_C1                                (IOMUX_PINCM59)
 #define GPIO_ADC_MIC_JOY_IOMUX_C1_FUNC            (IOMUX_PINCM59_PF_UNCONNECTED)
+#define GPIO_ADC_MIC_JOY_C0_PORT                                           GPIOA
+#define GPIO_ADC_MIC_JOY_C0_PIN                                   DL_GPIO_PIN_27
+#define GPIO_ADC_MIC_JOY_IOMUX_C0                                (IOMUX_PINCM60)
+#define GPIO_ADC_MIC_JOY_IOMUX_C0_FUNC            (IOMUX_PINCM60_PF_UNCONNECTED)
 
 /* Defines for ADC_ACCEL */
 #define ADC_ACCEL_INST                                                      ADC1
 #define ADC_ACCEL_INST_IRQHandler                                ADC1_IRQHandler
 #define ADC_ACCEL_INST_INT_IRQN                                  (ADC1_INT_IRQn)
 #define ADC_ACCEL_ADCMEM_ACCEL_X                              DL_ADC12_MEM_IDX_0
-#define ADC_ACCEL_ADCMEM_ACCEL_X_REF             DL_ADC12_REFERENCE_VOLTAGE_VDDA
-#define ADC_ACCEL_ADCMEM_ACCEL_X_REF_VOLTAGE_V                                     3.3
+#define ADC_ACCEL_ADCMEM_ACCEL_X_REF           DL_ADC12_REFERENCE_VOLTAGE_INTREF
+#define ADC_ACCEL_ADCMEM_ACCEL_X_REF_VOLTAGE_V                                    2.50
 #define ADC_ACCEL_ADCMEM_ACCEL_Y                              DL_ADC12_MEM_IDX_1
-#define ADC_ACCEL_ADCMEM_ACCEL_Y_REF             DL_ADC12_REFERENCE_VOLTAGE_VDDA
-#define ADC_ACCEL_ADCMEM_ACCEL_Y_REF_VOLTAGE_V                                     3.3
+#define ADC_ACCEL_ADCMEM_ACCEL_Y_REF           DL_ADC12_REFERENCE_VOLTAGE_INTREF
+#define ADC_ACCEL_ADCMEM_ACCEL_Y_REF_VOLTAGE_V                                    2.50
 #define ADC_ACCEL_ADCMEM_ACCEL_Z                              DL_ADC12_MEM_IDX_2
-#define ADC_ACCEL_ADCMEM_ACCEL_Z_REF             DL_ADC12_REFERENCE_VOLTAGE_VDDA
-#define ADC_ACCEL_ADCMEM_ACCEL_Z_REF_VOLTAGE_V                                     3.3
+#define ADC_ACCEL_ADCMEM_ACCEL_Z_REF           DL_ADC12_REFERENCE_VOLTAGE_INTREF
+#define ADC_ACCEL_ADCMEM_ACCEL_Z_REF_VOLTAGE_V                                    2.50
+#define ADC_ACCEL_INST_PUB_CH                                                (1)
+#define ADC_ACCEL_INST_SUB_CH                                                (1)
 #define GPIO_ADC_ACCEL_C2_PORT                                             GPIOA
 #define GPIO_ADC_ACCEL_C2_PIN                                     DL_GPIO_PIN_17
 #define GPIO_ADC_ACCEL_IOMUX_C2                                  (IOMUX_PINCM39)
@@ -191,6 +202,12 @@ extern "C" {
 #define GPIO_ADC_ACCEL_C7_PIN                                     DL_GPIO_PIN_21
 #define GPIO_ADC_ACCEL_IOMUX_C7                                  (IOMUX_PINCM46)
 #define GPIO_ADC_ACCEL_IOMUX_C7_FUNC              (IOMUX_PINCM46_PF_UNCONNECTED)
+
+
+/* Defines for VREF */
+#define VREF_VOLTAGE_MV                                                     2500
+#define VREF_READY_DELAY                                                   (800)
+
 
 
 
@@ -241,12 +258,14 @@ void SYSCFG_DL_init(void);
 void SYSCFG_DL_initPower(void);
 void SYSCFG_DL_GPIO_init(void);
 void SYSCFG_DL_SYSCTL_init(void);
+void SYSCFG_DL_SYSCTL_CLK_init(void);
 void SYSCFG_DL_PWM_AUDIO_init(void);
 void SYSCFG_DL_TIMER_SAMPLE_init(void);
 void SYSCFG_DL_I2C_SENSORS_init(void);
 void SYSCFG_DL_SPI_LCD_init(void);
 void SYSCFG_DL_ADC_MIC_JOY_init(void);
 void SYSCFG_DL_ADC_ACCEL_init(void);
+void SYSCFG_DL_VREF_init(void);
 
 
 bool SYSCFG_DL_saveConfiguration(void);

@@ -6,7 +6,8 @@ SHELL = cmd.exe
 
 # Add inputs and outputs from these tool invocations to the build variables 
 SYSCFG_SRCS += \
-../ti_msp_dl_config.syscfg 
+../ti_msp_dl_config.syscfg \
+../ti_msp_dl_config_CLEAN.syscfg 
 
 C_SRCS += \
 ../main.c \
@@ -24,6 +25,7 @@ GEN_FILES += \
 C_DEPS += \
 ./main.d \
 ./startup_mspm0g3507_minimal.d \
+./ti_msp_dl_config.d \
 ./ti_msp_dl_config.d 
 
 GEN_OPTS += \
@@ -35,6 +37,11 @@ OBJS += \
 ./ti_msp_dl_config.o 
 
 GEN_MISC_FILES += \
+./device.cmd.genlibs \
+./ti_msp_dl_config.h \
+./peripheralPinAssignments.txt \
+./resourceUsageReport.csv \
+./Event.dot \
 ./device.cmd.genlibs \
 ./ti_msp_dl_config.h \
 ./peripheralPinAssignments.txt \
@@ -51,11 +58,17 @@ GEN_MISC_FILES__QUOTED += \
 "ti_msp_dl_config.h" \
 "peripheralPinAssignments.txt" \
 "resourceUsageReport.csv" \
+"Event.dot" \
+"device.cmd.genlibs" \
+"ti_msp_dl_config.h" \
+"peripheralPinAssignments.txt" \
+"resourceUsageReport.csv" \
 "Event.dot" 
 
 C_DEPS__QUOTED += \
 "main.d" \
 "startup_mspm0g3507_minimal.d" \
+"ti_msp_dl_config.d" \
 "ti_msp_dl_config.d" 
 
 GEN_FILES__QUOTED += \
@@ -69,6 +82,7 @@ C_SRCS__QUOTED += \
 "./ti_msp_dl_config.c" 
 
 SYSCFG_SRCS__QUOTED += \
-"../ti_msp_dl_config.syscfg" 
+"../ti_msp_dl_config.syscfg" \
+"../ti_msp_dl_config_CLEAN.syscfg" 
 
 

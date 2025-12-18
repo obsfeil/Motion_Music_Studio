@@ -323,23 +323,45 @@ void TIMG7_IRQHandler(void) {
 }
 
 /**
- * @brief ADC interrupt handler for joystick and microphone
+ * @brief ADC0 interrupt handler for joystick and microphone
+ * Note: With AUTO sampling, this fires continuously after startConversion()
  */
 void ADC0_IRQHandler(void) {
     switch (DL_ADC12_getPendingInterrupt(ADC_MIC_JOY_INST)) {
+        case DL_ADC12_IIDX_MEM0_RESULT_LOADED:
+            g_synthState.mic_level = DL_ADC12_getMemResult(ADC_MIC_JOY_INST, DL_ADC12_MEM_IDX_0);
+            break;
         case DL_ADC12_IIDX_MEM1_RESULT_LOADED:
             g_synthState.joy_y = DL_ADC12_getMemResult(ADC_MIC_JOY_INST, DL_ADC12_MEM_IDX_1);
             break;
         case DL_ADC12_IIDX_MEM2_RESULT_LOADED:
             g_synthState.joy_x = DL_ADC12_getMemResult(ADC_MIC_JOY_INST, DL_ADC12_MEM_IDX_2);
             break;
+        default:
+            break;
+    }
+}
+
+/**
+ * @brief ADC1 interrupt handler for accelerometer
+ * Note: With AUTO sampling, this fires continuously after startConversion()
+ */
+void ADC1_IRQHandler(void) {
+    switch (DL_ADC12_getPendingInterrupt(ADC_ACCEL_INST)) {
         case DL_ADC12_IIDX_MEM0_RESULT_LOADED:
-            g_synthState.mic_level = DL_ADC12_getMemResult(ADC_MIC_JOY_INST, DL_ADC12_MEM_IDX_0);
+            g_synthState.accel_x = DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_0);
+            break;
+        case DL_ADC12_IIDX_MEM1_RESULT_LOADED:
+            g_synthState.accel_y = DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_1);
+            break;
+        case DL_ADC12_IIDX_MEM2_RESULT_LOADED:
+            g_synthState.accel_z = DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_2);
             break;
         default:
             break;
     }
 }
+
 
 /**
  * @brief GPIO interrupt handler for buttons

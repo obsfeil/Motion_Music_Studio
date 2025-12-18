@@ -26,53 +26,63 @@ const SPI1          = SPI.addInstance();
 const SYSCTL        = scripting.addModule("/ti/driverlib/SYSCTL");
 const TIMER         = scripting.addModule("/ti/driverlib/TIMER", {}, false);
 const TIMER1        = TIMER.addInstance();
+const TIMER2        = TIMER.addInstance();
 const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 
 /**
  * Write custom configuration values to the imported modules.
  */
-ADC121.$name                             = "ADC_MIC_JOY";
-ADC121.sampClkDiv                        = "DL_ADC12_CLOCK_DIVIDE_8";
-ADC121.powerDownMode                     = "DL_ADC12_POWER_DOWN_MODE_MANUAL";
-ADC121.sampleTime0                       = "125 us";
-ADC121.enabledADCMems                    = [0,1,2];
-ADC121.adcMem0_name                      = "MIC";
-ADC121.adcMem0chansel                    = "DL_ADC12_INPUT_CHAN_2";
-ADC121.adcMem1_name                      = "JOY_Y";
-ADC121.adcMem2_name                      = "JOY_X";
-ADC121.adcMem2chansel                    = "DL_ADC12_INPUT_CHAN_1";
-ADC121.adcPin0Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric0";
-ADC121.adcPin0Config.hideOutputInversion = scripting.forceWrite(false);
-ADC121.adcPin2Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric10";
-ADC121.peripheral.$assign                = "ADC0";
-ADC121.peripheral.adcPin2.$assign        = "PA25";
-ADC121.peripheral.adcPin0.$assign        = "PA27";
-ADC121.peripheral.adcPin1.$assign        = "PA26";
-ADC121.adcPin1Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric11";
+ADC121.$name                      = "ADC_MIC_JOY";
+ADC121.sampleTime0                = "125 us";
+ADC121.adcMem0_name               = "MIC";
+ADC121.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
+ADC121.adcMem1_name               = "JOY_Y";
+ADC121.adcMem2_name               = "JOY_X";
+ADC121.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
+ADC121.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_4";
+ADC121.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_1";
+ADC121.samplingOperationMode      = "sequence";
+ADC121.endAdd                     = 2;
+ADC121.enabledEvents              = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
+ADC121.pubChanID                  = 2;
+ADC121.subChanID                  = 2;
+ADC121.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric10";
+ADC121.peripheral.$assign         = "ADC0";
+ADC121.peripheral.adcPin2.$assign = "PA25";
+ADC121.adcPin1Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";
+ADC121.adcPin0Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric5";
 
 ADC122.$name                      = "ADC_ACCEL";
 ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
-ADC122.powerDownMode              = "DL_ADC12_POWER_DOWN_MODE_MANUAL";
 ADC122.sampleTime0                = "125 us";
-ADC122.enabledADCMems             = [0,1,2];
 ADC122.adcMem0_name               = "ACCEL_X";
 ADC122.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
 ADC122.adcMem1_name               = "ACCEL_Y";
 ADC122.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_3";
 ADC122.adcMem2_name               = "ACCEL_Z";
 ADC122.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_7";
+ADC122.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
+ADC122.pubChanID                  = 1;
+ADC122.subChanID                  = 1;
+ADC122.samplingOperationMode      = "sequence";
+ADC122.enabledEvents              = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
+ADC122.endAdd                     = 2;
+ADC122.trigSrc                    = "DL_ADC12_TRIG_SRC_EVENT";
+ADC122.sampClkSrc                 = "DL_ADC12_CLOCK_ULPCLK";
+ADC122.adcMem1vref                = "VREF";
+ADC122.adcMem2vref                = "VREF";
+ADC122.adcMem0vref                = "VREF";
 ADC122.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric12";
-ADC122.adcPin3Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric13";
 ADC122.peripheral.$assign         = "ADC1";
 ADC122.peripheral.adcPin2.$assign = "PA17";
-ADC122.peripheral.adcPin3.$assign = "PA18";
-ADC122.peripheral.adcPin7.$assign = "PA21";
-ADC122.adcPin7Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
+ADC122.adcPin3Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
+ADC122.adcPin7Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric11";
 
 Board.genPeriphPinFile            = true;
 Board.genResourceCSV              = true;
 Board.genResourceCSVAdvanced      = "detailed";
 Board.configureVDDA               = true;
+Board.configureUnused             = true;
 Board.peripheral.$assign          = "DEBUGSS";
 Board.peripheral.swclkPin.$assign = "PA20";
 Board.peripheral.swdioPin.$assign = "PA19";
@@ -137,19 +147,21 @@ I2C1.sclPinConfig.onlyInternalResistor = scripting.forceWrite(false);
 I2C1.sclPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 
 PWM1.$name                              = "PWM_AUDIO";
-PWM1.timerCount                         = 4095;
-PWM1.timerStartTimer                    = true;
 PWM1.pwmMode                            = "EDGE_ALIGN_UP";
 PWM1.ccIndex                            = [0];
+PWM1.subscriberPort                     = "FSUB0";
+PWM1.interrupts                         = ["ZERO_EVENT"];
+PWM1.timerStartTimer                    = true;
+PWM1.timerCount                         = 4095;
 PWM1.PWM_CHANNEL_0.$name                = "ti_driverlib_pwm_PWMTimerCC0";
 PWM1.PWM_CHANNEL_0.dutyCycle            = 50;
+PWM1.PWM_CHANNEL_0.initVal              = "HIGH";
 PWM1.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric4";
 PWM1.ccp0PinConfig.direction            = scripting.forceWrite("OUTPUT");
 PWM1.ccp0PinConfig.hideOutputInversion  = scripting.forceWrite(false);
 PWM1.ccp0PinConfig.onlyInternalResistor = scripting.forceWrite(false);
 PWM1.ccp0PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 PWM1.peripheral.$assign                 = "TIMG0";
-PWM1.peripheral.ccp0Pin.$assign         = "PB10";
 
 SPI1.$name                              = "SPI_LCD";
 SPI1.targetBitRate                      = 10000000;
@@ -176,17 +188,52 @@ SPI1.cs0PinConfig.hideOutputInversion   = scripting.forceWrite(false);
 SPI1.cs0PinConfig.onlyInternalResistor  = scripting.forceWrite(false);
 SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite("Digital");
 
-SYSCTL.forceDefaultClkConfig = true;
-SYSCTL.clockTreeEn           = true;
+SYSCTL.powerPolicy       = "STANDBY0";
+SYSCTL.MCLKSource        = "HSCLK";
+SYSCTL.MFPCLKEn          = true;
+SYSCTL.SYSPLL_CLK1En     = true;
+SYSCTL.validateClkStatus = true;
+SYSCTL.HFCLK4MFPCLKDIV   = "2";
+SYSCTL.SYSPLL_CLK0En     = true;
+SYSCTL.useHFCLK_Manual   = true;
+SYSCTL.EXCLKDivider      = "2";
+SYSCTL.HSCLKSource       = "SYSPLLCLK2X";
+SYSCTL.UDIV              = "2";
+SYSCTL.enableEXCLK       = true;
+SYSCTL.EXCLKSource       = "SYSPLLOUT1";
+SYSCTL.enableFCC         = true;
+SYSCTL.SYSPLL_CLK0Div    = 1;
+SYSCTL.SYSPLL_CLK1Div    = 1;
+SYSCTL.SYSPLL_CLK2XEn    = true;
+SYSCTL.SYSPLL_Pdiv       = 1;
+SYSCTL.SYSPLL_CLK2XDiv   = 7;
 
-TIMER1.$name              = "TIMER_SAMPLE";
-TIMER1.timerMode          = "PERIODIC";
-TIMER1.timerPeriod        = "125 us";
-TIMER1.interrupts         = ["ZERO"];
-TIMER1.interruptPriority  = "0";
-TIMER1.timerStartTimer    = true;
+TIMER1.$name              = "TIMER_0";
 TIMER1.peripheral.$assign = "TIMG7";
 
+TIMER2.$name = "TIMER_1";
+
+const VREF                  = scripting.addModule("/ti/driverlib/VREF", {}, false);
+VREF.vrefPosPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric13";
+
 ProjectConfig.genLibDrivers = true;
-ProjectConfig.genLibCMSIS   = true;
+ProjectConfig.genLibGC      = true;
 scripting.suppress("startup_mspm0g350x_ticlang\\.c does not exist at path C:\\\\ti\\\\mspm0_sdk_2_08_00_04\\\\source\\\\ti\\\\devices\\\\msp\\\\m0p\\\\startup_system_files\\\\ticlang\\\\startup_mspm0g350x_ticlang\\.c", "../source/ti/devices/msp/m0p/startup_system_files/ticlang/startup_mspm0g350x_ticlang.c");
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+ADC121.peripheral.adcPin1.$suggestSolution    = "PA26";
+ADC121.peripheral.adcPin0.$suggestSolution    = "PA27";
+ADC122.peripheral.adcPin3.$suggestSolution    = "PA18";
+ADC122.peripheral.adcPin7.$suggestSolution    = "PA21";
+PWM1.peripheral.ccp0Pin.$suggestSolution      = "PA12";
+SYSCTL.peripheral.$suggestSolution            = "SYSCTL";
+SYSCTL.peripheral.hfclkInPin.$suggestSolution = "PA6";
+SYSCTL.peripheral.fccInPin.$suggestSolution   = "PA5";
+SYSCTL.peripheral.clkOutPin.$suggestSolution  = "PA10";
+TIMER2.peripheral.$suggestSolution            = "TIMA0";
+VREF.peripheral.$suggestSolution              = "VREF";
+VREF.peripheral.vrefPosPin.$suggestSolution   = "PA23";

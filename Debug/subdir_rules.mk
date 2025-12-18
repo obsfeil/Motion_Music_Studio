@@ -35,4 +35,20 @@ Event.dot: build-1000533073
 	@echo 'Finished building: "$<"'
 	@echo ' '
 
+build-336661657: ../ti_msp_dl_config_CLEAN.syscfg
+	@echo 'Building file: "$<"'
+	@echo 'Invoking: SysConfig'
+	"C:/ti/sysconfig_1.25.0/sysconfig_cli.bat" -s "C:/ti/mspm0_sdk_2_08_00_04/.metadata/product.json" --script "C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti_msp_dl_config_CLEAN.syscfg" -o "." --compiler ticlang
+	@echo 'Finished building: "$<"'
+	@echo ' '
+
+device_linker.cmd: build-336661657 ../ti_msp_dl_config_CLEAN.syscfg
+device.opt: build-336661657
+device.cmd.genlibs: build-336661657
+ti_msp_dl_config.c: build-336661657
+ti_msp_dl_config.h: build-336661657
+peripheralPinAssignments.txt: build-336661657
+resourceUsageReport.csv: build-336661657
+Event.dot: build-336661657
+
 
