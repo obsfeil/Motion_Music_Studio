@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/obsfe/workspace_ccstheia/Motion_Music_studio",
-      "program": "c:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/build/Release/outRelease",
+      "cwd": "c:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug",
+      "program": "c:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug/build/Release/outRelease",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

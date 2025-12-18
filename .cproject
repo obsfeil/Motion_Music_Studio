@@ -109,7 +109,7 @@
                                 <option id="com.ti.ccstudio.buildDefinitions.sysConfig.DIRECTORY_MODE.198728371" superClass="com.ti.ccstudio.buildDefinitions.sysConfig.DIRECTORY_MODE" value="com.ti.ccstudio.buildDefinitions.sysConfig.DIRECTORY_MODE.manual" valueType="enumerated"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.sysConfig.BOARD.834323425" superClass="com.ti.ccstudio.buildDefinitions.sysConfig.BOARD" value="" valueType="string"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.sysConfig.CONTEXT.1556323633" superClass="com.ti.ccstudio.buildDefinitions.sysConfig.CONTEXT" value="" valueType="string"/>
-                                <option id="com.ti.ccstudio.buildDefinitions.sysConfig.DEVICE.1291768653" superClass="com.ti.ccstudio.buildDefinitions.sysConfig.DEVICE" value="${DEVICE}" valueType="string"/>
+                                <option id="com.ti.ccstudio.buildDefinitions.sysConfig.DEVICE.1291768653" superClass="com.ti.ccstudio.buildDefinitions.sysConfig.DEVICE" value="" valueType="string"/>
                             </tool>
                         </toolChain>
                     </folderInfo>
