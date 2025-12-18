@@ -37,6 +37,8 @@ OBJS += \
 GEN_MISC_FILES += \
 ./device.cmd.genlibs \
 ./ti_msp_dl_config.h \
+./peripheralPinAssignments.txt \
+./resourceUsageReport.csv \
 ./Event.dot 
 
 OBJS__QUOTED += \
@@ -47,6 +49,8 @@ OBJS__QUOTED += \
 GEN_MISC_FILES__QUOTED += \
 "device.cmd.genlibs" \
 "ti_msp_dl_config.h" \
+"peripheralPinAssignments.txt" \
+"resourceUsageReport.csv" \
 "Event.dot" 
 
 C_DEPS__QUOTED += \

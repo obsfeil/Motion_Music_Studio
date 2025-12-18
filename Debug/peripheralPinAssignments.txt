@@ -1,0 +1,35 @@
+
+- GPIOA:
+	+ High-Speed Input with internal pull-up: PA14
+	+ Standard Output: PA15
+	+ Standard Output: PA22
+- GPIOB:
+	+ Standard Input with internal pull-up: PB14
+	+ Standard Input with internal pull-up: PB13
+	+ Standard Output: PB17
+	+ Standard Output: PB18
+	+ Standard Output: PB19
+- SYSCTL
+- TIMG0:
+	+ Capture/Compare Pin 0: PA12
+	+ Capture/Compare Pin 1: PA13
+- TIMG7
+- SPI1:
+	+ SPI SCLK (Clock): PB16
+	+ SPI PICO (Peripheral In, Controller Out): PB15
+	+ SPI POCI (Peripheral Out, Controller In): PA16
+	+ SPI CS0 (Chip Select 0): PA2
+- ADC0:
+	+ ADC12 Channel 2 Pin: PA25
+	+ ADC12 Channel 1 Pin: PA26
+	+ ADC12 Channel 0 Pin: PA27
+- ADC1:
+	+ ADC12 Channel 2 Pin: PA17
+	+ ADC12 Channel 3 Pin: PA18
+	+ ADC12 Channel 7 Pin: PA21
+- VREF:
+	+ VREF Positive (VREF+): PA23
+- EVENT
+- BOARD:
+	+ Debug Clock: PA20
+	+ Debug Data In Out: PA19

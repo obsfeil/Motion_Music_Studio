@@ -24,6 +24,8 @@ device.opt: build-1000533073
 device.cmd.genlibs: build-1000533073
 ti_msp_dl_config.c: build-1000533073
 ti_msp_dl_config.h: build-1000533073
+peripheralPinAssignments.txt: build-1000533073
+resourceUsageReport.csv: build-1000533073
 Event.dot: build-1000533073
 
 %.o: ./%.c $(GEN_OPTS) | $(GEN_FILES) $(GEN_MISC_FILES)
