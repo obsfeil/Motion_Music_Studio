@@ -51,6 +51,14 @@ SynthState_t g_synthState = {.waveform = WAVE_SINE,
 //=============================================================================
 // AUDIO SYNTHESIS
 //=============================================================================
+static uint32_t phase = 0;
+static uint32_t phase_increment = 0;
+
+static void Update_Phase_Increment(void) {
+    // f_out = (MCLK / Period) * (Inc / 2^32)
+    // Forenklet for 44.1kHz interrupt:
+    phase_increment = (uint32_t)((g_synthState.frequency * 4294967296.0) / SAMPLE_RATE);
+}
 
 // Sine wave lookup table (256 samples)
 static const int16_t sine_table[256] = {
@@ -76,50 +84,44 @@ static const int16_t sine_table[256] = {
     -798, -773, -747, -718, -688, -656, -622, -586, -549, -510, -470, -428,
     -385, -341, -296, -250, -203, -155, -107, -58};
 
-static uint32_t phase = 0;
-static uint32_t phase_increment = 0;
 
-static void Update_Phase_Increment(void) {
-  phase_increment =
-      (uint32_t)((g_synthState.frequency * 4294967296.0) / SAMPLE_RATE);
-}
 
 static void Generate_Audio_Sample(void) {
-  if (!g_synthState.audio_playing) {
-    DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
-    return;
-  }
+    if (!g_synthState.audio_playing) {
+        DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
+        return;
+    }
 
   uint8_t index = (uint8_t)((phase >> 24) & 0xFF);
-  int16_t sample = 0;
+    int16_t sample = 0;
 
-  switch (g_synthState.waveform) {
-  case WAVE_SINE:
-    sample = sine_table[index];
-    break;
-  case WAVE_SQUARE:
-    sample = (index < 128) ? 1000 : -1000;
-    break;
-  case WAVE_SAWTOOTH:
-    sample = (int16_t)((index * 8) - 1024);
-    break;
-  case WAVE_TRIANGLE:
+    switch (g_synthState.waveform) {
+        case WAVE_SINE:
+            sample = sine_table[index];
+            break;
+        case WAVE_SQUARE:
+            sample = (index < 128) ? 1000 : -1000;
+            break;
+        case WAVE_SAWTOOTH:
+            sample = (int16_t)((index * 8) - 1024);
+            break;
+        case WAVE_TRIANGLE:
     if (index < 128) {
       sample = (int16_t)((index * 16) - 1024);
     } else {
       sample = (int16_t)(1024 - ((index - 128) * 16));
     }
-    break;
+            break;
   default:
     sample = 0;
     break;
-  }
+    }
 
-  sample = (int16_t)((sample * g_synthState.volume) / 100);
+    sample = (int16_t)((sample * g_synthState.volume) / 100);
   int32_t duty_temp = 2048 + sample;
   uint16_t duty = (uint16_t)CLAMP(duty_temp, 1, 4095);
   DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, duty, DL_TIMER_CC_0_INDEX);
-  phase += phase_increment;
+    phase += phase_increment;
 }
 
 //=============================================================================
@@ -215,11 +217,11 @@ static void Process_Input(void) {
 //=============================================================================
 
 static void Update_Display(void) {
-  char str[32];
+    char str[32];
+    
+    LCD_Clear(COLOR_BLACK);
 
-  LCD_Clear(COLOR_BLACK);
-
-  const char *wave_names[] = {"SINE", "SQUARE", "SAW", "TRI"};
+    const char *wave_names[] = {"SINE", "SQUARE", "SAW", "TRI"};
   snprintf(str, sizeof(str), "SYNTH - %s", wave_names[g_synthState.waveform]);
   LCD_DrawString(LCD_MARGIN_LEFT, LCD_Y_TITLE, str, COLOR_YELLOW);
 
@@ -241,9 +243,9 @@ static void Update_Display(void) {
   uint8_t vol_width = (uint8_t)((g_synthState.volume * 118UL) / 100UL);
   LCD_FillRect(5, LCD_Y_VOLUME_BAR + 1, vol_width, 10, COLOR_GREEN);
 
-  if (g_synthState.audio_playing) {
+    if (g_synthState.audio_playing) {
     LCD_DrawString(35, LCD_Y_STATUS, "PLAYING", COLOR_RED);
-  } else {
+    } else {
     LCD_DrawString(35, LCD_Y_STATUS, "STOPPED", COLOR_GRAY);
   }
 
@@ -360,7 +362,7 @@ void print_memory_usage(void) {
 //=============================================================================
 
 int main(void) {
-  SYSCFG_DL_init();
+    SYSCFG_DL_init();
 
   // CRITICAL: Initialize g_synthState explicitly in main()
   // (static initialization may not work properly with this toolchain)
@@ -382,11 +384,12 @@ int main(void) {
   g_synthState.mic_level = 0;
   g_synthState.light_lux = 0.0f;
 
-  DL_ADC12_enableConversions(ADC_MIC_JOY_INST);
-  DL_ADC12_startConversion(ADC_MIC_JOY_INST);
-
-  NVIC_EnableIRQ(TIMER_SAMPLE_INST_INT_IRQN);
-  NVIC_EnableIRQ(ADC_MIC_JOY_INST_INT_IRQN);
+    DL_ADC12_enableConversions(ADC_MIC_JOY_INST);
+    DL_ADC12_startConversion(ADC_MIC_JOY_INST);
+    
+    NVIC_EnableIRQ(TIMER_SAMPLE_INST_INT_IRQN);
+    NVIC_EnableIRQ(GPIOA_INT_IRQn);
+    NVIC_EnableIRQ(ADC_MIC_JOY_INST_INT_IRQN);
   NVIC_EnableIRQ(ADC_ACCEL_INST_INT_IRQN); // ← Denne!
   NVIC_EnableIRQ(GPIOA_INT_IRQn);
 
@@ -409,16 +412,16 @@ int main(void) {
 //  LCD_DrawString(35, 90, "v1.3.2", COLOR_YELLOW);
 //  delay_ms(2000);
 
-  
-  __enable_irq();
+
+    __enable_irq();
   
   Update_Phase_Increment();
   DL_ADC12_startConversion(ADC_MIC_JOY_INST);
   Update_Display();
 
-  while (1) {
+    while (1) {
     check_stack_canary();  // Sjekk stack health
-    Process_Input();
+        Process_Input();
 
     static uint32_t last_display = 0;
     uint32_t now = DL_Timer_getTimerCount(TIMER_SAMPLE_INST);
@@ -426,10 +429,10 @@ int main(void) {
 
     if (display_elapsed > (SYSCLK_FREQUENCY / DISPLAY_UPDATE_HZ)) {
       last_display = now;
-      if (g_synthState.display_update_needed) {
-        Update_Display();
-        g_synthState.display_update_needed = false;
-      }
+        if (g_synthState.display_update_needed) {
+            Update_Display();
+            g_synthState.display_update_needed = false;
+        }
     }
   }
 }
@@ -459,5 +462,5 @@ void delay_us(uint32_t microseconds) {
   uint32_t target_ticks = (uint32_t)ticks;
   while (TIMER_ELAPSED(DL_Timer_getTimerCount(TIMER_SAMPLE_INST), start) <
          target_ticks) {
-  }
+    }
 }

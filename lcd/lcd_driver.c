@@ -142,36 +142,36 @@ static void LCD_SetWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 void LCD_Init(void) {
     // Reset
     DL_GPIO_clearPins(GPIO_LCD_PORT, GPIO_LCD_RST_PIN);
-    delay_ms(20);
+    delay_ms(20); 
     DL_GPIO_setPins(GPIO_LCD_PORT, GPIO_LCD_RST_PIN);
     delay_ms(120);
-    
+
     // Software reset
     LCD_WriteCommand(ST7735_SWRESET);
     delay_ms(150);
     
     // Sleep out
-    LCD_WriteCommand(ST7735_SLPOUT);
+    LCD_WriteCommand(ST7735_SLPOUT); 
     delay_ms(120);
-    
+
     // Frame rate
     LCD_WriteCommand(ST7735_FRMCTR1);
     LCD_WriteData(0x01);
     LCD_WriteData(0x2C);
     LCD_WriteData(0x2D);
-    
+
     // Color mode (16-bit)
     LCD_WriteCommand(ST7735_COLMOD);
     LCD_WriteData(0x05);
-    
+
     // Memory access
     LCD_WriteCommand(ST7735_MADCTL);
-    LCD_WriteData(0xC8);
-    
+    LCD_WriteData(0xC8); 
+
     // Normal display
     LCD_WriteCommand(ST7735_NORON);
     delay_ms(10);
-    
+
     // Display on
     LCD_WriteCommand(ST7735_DISPON);
     delay_ms(10);
