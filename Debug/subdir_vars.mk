@@ -65,7 +65,6 @@ GEN_FILES__QUOTED += \
 
 C_SRCS__QUOTED += \
 "../main.c" \
-"../startup_mspm0g350x_ticlang.c" \
 "./ti_msp_dl_config.c" 
 
 SYSCFG_SRCS__QUOTED += \

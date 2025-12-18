@@ -11,7 +11,7 @@
 	+ Standard Output: PB17
 - SYSCTL:
 	+ HFCLK In: PA6
-	+ FCC IN: PA5
+	+ CLK OUT: PA7
 - TIMG0:
 	+ Capture/Compare Pin 0: PA12
 - TIMG7

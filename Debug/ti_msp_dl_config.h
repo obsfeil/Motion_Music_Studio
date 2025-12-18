@@ -73,10 +73,10 @@ extern "C" {
 #define POWER_STARTUP_DELAY                                                (16)
 
 
-#define GPIO_FCC_IN_PORT                                                   GPIOA
-#define GPIO_FCC_IN_PIN                                            DL_GPIO_PIN_5
-#define GPIO_FCC_IN_IOMUX                                        (IOMUX_PINCM10)
-#define GPIO_FCC_IN_IOMUX_FUNC                    IOMUX_PINCM10_PF_SYSCTL_FCC_IN
+#define GPIO_CLKOUT_PORT                                                   GPIOA
+#define GPIO_CLKOUT_PIN                                            DL_GPIO_PIN_7
+#define GPIO_CLKOUT_IOMUX                                        (IOMUX_PINCM14)
+#define GPIO_CLKOUT_IOMUX_FUNC                   IOMUX_PINCM14_PF_SYSCTL_CLK_OUT
 #define CPUCLK_FREQ                                                     80000000
 
 

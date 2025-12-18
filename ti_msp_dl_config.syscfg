@@ -195,18 +195,23 @@ SPI1.cs0PinConfig.hideOutputInversion   = scripting.forceWrite(false);
 SPI1.cs0PinConfig.onlyInternalResistor  = scripting.forceWrite(false);
 SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite("Digital");
 
-SYSCTL.useHFCLK_Manual       = true;
-SYSCTL.SYSPLL_CLK0En         = true;
-SYSCTL.SYSPLL_CLK1En         = true;
-SYSCTL.powerPolicy           = "STANDBY0";
-SYSCTL.forceDefaultClkConfig = true;
-SYSCTL.MFPCLKEn              = true;
-SYSCTL.enableFCC             = true;
-SYSCTL.clockInterrupts       = ["HFCLK_GOOD"];
-SYSCTL.powerSysInterrupts    = ["FLASH_SEC"];
-SYSCTL.validateClkStatus     = true;
-SYSCTL.MFCLKEn               = true;
-SYSCTL.MCLKSource            = "HSCLK";
+SYSCTL.useHFCLK_Manual              = true;
+SYSCTL.SYSPLL_CLK0En                = true;
+SYSCTL.SYSPLL_CLK1En                = true;
+SYSCTL.powerPolicy                  = "STANDBY0";
+SYSCTL.forceDefaultClkConfig        = true;
+SYSCTL.MFPCLKEn                     = true;
+SYSCTL.clockInterrupts              = ["HFCLK_GOOD"];
+SYSCTL.powerSysInterrupts           = ["FLASH_SEC"];
+SYSCTL.validateClkStatus            = true;
+SYSCTL.MFCLKEn                      = true;
+SYSCTL.MCLKSource                   = "HSCLK";
+SYSCTL.enableEXCLK                  = true;
+SYSCTL.EXCLKSource                  = "SYSPLLOUT1";
+SYSCTL.pmcuInterruptPriority        = "0";
+SYSCTL.enableIntDone                = true;
+SYSCTL.CANCLKSource                 = "SYSPLLCLK1";
+SYSCTL.peripheral.clkOutPin.$assign = "PA7";
 
 TIMER1.$name              = "TIMER_SAMPLE";
 TIMER1.timerMode          = "PERIODIC";
@@ -224,7 +229,6 @@ VREF.vrefPosPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric13";
 
 ProjectConfig.genLibDrivers = true;
 ProjectConfig.genLibCMSIS   = true;
-scripting.suppress("startup_mspm0g350x_ticlang\\.c does not exist at path C:\\\\ti\\\\mspm0_sdk_2_08_00_04\\\\source\\\\ti\\\\devices\\\\msp\\\\m0p\\\\startup_system_files\\\\ticlang\\\\startup_mspm0g350x_ticlang\\.c", "../source/ti/devices/msp/m0p/startup_system_files/ticlang/startup_mspm0g350x_ticlang.c");
 
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
@@ -233,4 +237,3 @@ scripting.suppress("startup_mspm0g350x_ticlang\\.c does not exist at path C:\\\\
  */
 SYSCTL.peripheral.$suggestSolution            = "SYSCTL";
 SYSCTL.peripheral.hfclkInPin.$suggestSolution = "PA6";
-SYSCTL.peripheral.fccInPin.$suggestSolution   = "PA5";
