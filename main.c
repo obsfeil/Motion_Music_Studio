@@ -200,25 +200,25 @@ static void Process_Input(void) {
     g_synthState.display_update_needed = true;
     g_synthState.btn_s1 = false; // Clear flag
 
-DL_GPIO_clearPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
-DL_GPIO_clearPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
-DL_GPIO_clearPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
+    DL_GPIO_clearPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
+    DL_GPIO_clearPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
+    DL_GPIO_clearPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
 
-switch (g_synthState.waveform) {
+    switch (g_synthState.waveform) {
     case WAVE_SINE:
-        DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
-        break;
+      DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
+      break;
     case WAVE_SQUARE:
       DL_GPIO_setPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
       break;
     case WAVE_SAWTOOTH:
-        DL_GPIO_setPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
-        break;
+      DL_GPIO_setPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
+      break;
     case WAVE_TRIANGLE:
-        DL_GPIO_setPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
-        DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
-        break;
-}
+      DL_GPIO_setPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
+      DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
+      break;
+    }
     last_s1 = btn_s1_local;
 
     // Button S2 or Joystick Press: Toggle audio playback
@@ -237,8 +237,11 @@ switch (g_synthState.waveform) {
       g_synthState.joy_pressed = false;
 
       // Turn off RGB LED when stopped
+      // AFTER:
       if (!g_synthState.audio_playing) {
-        DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN | GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
+        DL_GPIO_clearPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
+        DL_GPIO_clearPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
+        DL_GPIO_clearPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
       }
     }
     last_s2 = btn_s2_local;
