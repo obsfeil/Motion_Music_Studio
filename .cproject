@@ -131,7 +131,7 @@
                         </tool>
                     </fileInfo>
                     <sourceEntries>
-                        <entry excluding="main_ultra_minimal.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="maintest100.c|main_ultra_minimal.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                     </sourceEntries>
                 </configuration>
             </storageModule>
