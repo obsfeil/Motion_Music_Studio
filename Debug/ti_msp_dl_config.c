@@ -121,6 +121,8 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
 
 SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
 {
+    DL_GPIO_enableGlobalFastWake(GPIOA);
+    DL_GPIO_enableGlobalFastWake(GPIOB);
     const uint8_t unusedPinIndexes[] =
     {
         IOMUX_PINCM47, IOMUX_PINCM48, IOMUX_PINCM49, IOMUX_PINCM50,
@@ -219,7 +221,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
 
     DL_GPIO_initDigitalOutput(GPIO_LCD_DC_IOMUX);
 
-    DL_GPIO_setLowerPinsPolarity(GPIO_BUTTONS_PORT, DL_GPIO_PIN_15_EDGE_FALL |
+    DL_GPIO_setLowerPinsPolarity(GPIO_BUTTONS_PORT, DL_GPIO_PIN_15_EDGE_RISE |
 		DL_GPIO_PIN_14_EDGE_FALL |
 		DL_GPIO_PIN_13_EDGE_FALL);
     DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN |

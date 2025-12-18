@@ -134,6 +134,8 @@ typedef struct {
     
     // Light sensor
     volatile float light_lux;
+
+    
     
 } SynthState_t;
 
@@ -141,7 +143,7 @@ typedef struct {
 // GLOBAL VARIABLES (defined in main.c)
 //=============================================================================
 
-extern SynthState_t g_synthState;
+
 
 //=============================================================================
 // FUNCTION PROTOTYPES

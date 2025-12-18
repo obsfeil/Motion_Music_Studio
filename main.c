@@ -15,6 +15,28 @@
 #include "main.h"
 #include "ti_msp_dl_config.h"
 
+#define STACK_CANARY_VALUE 0xDEADBEEF
+volatile uint32_t stack_canary __attribute__((section(".stack"))) = STACK_CANARY_VALUE;
+
+// Forbedret HardFault handler
+void HardFault_Handler(void) {
+    // Disable alle interrupts
+    __disable_irq();
+    
+    // Prøv å vise feilinfo på LCD (hvis mulig)
+    LCD_Clear(COLOR_BLACK);
+    LCD_DrawString(10, 40, "HARD FAULT!", COLOR_RED);
+    LCD_DrawString(10, 60, "Stack overflow?", COLOR_YELLOW);
+    LCD_DrawString(10, 80, "Check stack size", COLOR_WHITE);
+    
+    // Blink rød LED for å signalisere feil
+    while(1) {
+        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+        
+        // Software delay (siden timers kan være korrupte)
+        for(volatile uint32_t i = 0; i < 100000; i++);
+    }
+}
 //=============================================================================
 // GLOBAL STATE
 //=============================================================================
@@ -80,7 +102,7 @@ static void Generate_Audio_Sample(void) {
   }
 
   uint8_t index = (uint8_t)((phase >> 24) & 0xFF);
-  int16_t sample = 0;
+sample = sine_table[index];  
 
   switch (g_synthState.waveform) {
   case WAVE_SINE:
@@ -322,6 +344,33 @@ int main(void) {
   Update_Phase_Increment();
   DL_ADC12_startConversion(ADC_MIC_JOY_INST);
   Update_Display();
+
+  void check_stack_canary(void) {
+    if (stack_canary != STACK_CANARY_VALUE) {
+        // Stack overflow detektert!
+        LCD_Clear(COLOR_BLACK);
+        LCD_DrawString(10, 50, "STACK OVERFLOW!", COLOR_RED);
+        
+        while(1) {
+            DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+            delay_ms(100);
+        }
+    }
+}
+
+// Minne-rapport funksjon
+void print_memory_usage(void) {
+    extern uint32_t __STACK_END;
+    extern uint32_t __bss_start__;
+    extern uint32_t __bss_end__;
+    
+    uint32_t stack_size = 2048;  // Fra linker script
+    uint32_t bss_size = (uint32_t)&__bss_end__ - (uint32_t)&__bss_start__;
+    
+    char str[32];
+    snprintf(str, sizeof(str), "Stk:%lu BSS:%lu", stack_size, bss_size);
+    LCD_DrawString(0, 0, str, COLOR_DARKGRAY);
+}
 
   while (1) {
     Process_Input();
