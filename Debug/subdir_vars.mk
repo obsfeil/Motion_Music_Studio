@@ -25,7 +25,6 @@ GEN_FILES += \
 C_DEPS += \
 ./main.d \
 ./startup_mspm0g3507_minimal.d \
-./ti_msp_dl_config.d \
 ./ti_msp_dl_config.d 
 
 GEN_OPTS += \
@@ -37,11 +36,7 @@ OBJS += \
 ./ti_msp_dl_config.o 
 
 GEN_MISC_FILES += \
-./device.cmd.genlibs \
-./ti_msp_dl_config.h \
-./peripheralPinAssignments.txt \
-./resourceUsageReport.csv \
-./Event.dot \
+./error.h \
 ./device.cmd.genlibs \
 ./ti_msp_dl_config.h \
 ./peripheralPinAssignments.txt \
@@ -54,11 +49,7 @@ OBJS__QUOTED += \
 "ti_msp_dl_config.o" 
 
 GEN_MISC_FILES__QUOTED += \
-"device.cmd.genlibs" \
-"ti_msp_dl_config.h" \
-"peripheralPinAssignments.txt" \
-"resourceUsageReport.csv" \
-"Event.dot" \
+"error.h" \
 "device.cmd.genlibs" \
 "ti_msp_dl_config.h" \
 "peripheralPinAssignments.txt" \
@@ -68,7 +59,6 @@ GEN_MISC_FILES__QUOTED += \
 C_DEPS__QUOTED += \
 "main.d" \
 "startup_mspm0g3507_minimal.d" \
-"ti_msp_dl_config.d" \
 "ti_msp_dl_config.d" 
 
 GEN_FILES__QUOTED += \
