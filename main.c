@@ -259,6 +259,26 @@ static void Process_Input(void) {
   static void Update_Display(void) {
     char str[32];
 
+    switch (g_synthState.waveform) {
+    case WAVE_SINE:
+        DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
+        break;
+    case WAVE_SQUARE:
+        DL_GPIO_setPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
+        break;
+    case WAVE_SAWTOOTH:
+        DL_GPIO_setPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
+        break;
+    case WAVE_TRIANGLE:
+        DL_GPIO_setPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
+        DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
+        break;
+    case WAVE_COUNT:    // ← ADD THIS
+        break;          // ← ADD THIS
+    default:
+        break;
+}
+
     // Clear screen
     LCD_Clear(COLOR_BLACK);
 
