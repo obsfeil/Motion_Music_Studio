@@ -5,10 +5,10 @@
 SHELL = cmd.exe
 
 # Each subdirectory must supply rules for building sources it contributes
-lcd/%.o: ../lcd/%.c $(GEN_OPTS) | $(GEN_FILES) $(GEN_MISC_FILES)
+lcd/lcd_driver.o: ../lcd/lcd_driver.c $(GEN_OPTS) | $(GEN_FILES) $(GEN_MISC_FILES)
 	@echo 'Building file: "$<"'
 	@echo 'Invoking: Arm Compiler'
-	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" -c @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug" -I"C:/ti/mspm0_sdk_2_08_00_04/source/third_party/CMSIS/Core/Include" -I"C:/ti/mspm0_sdk_2_08_00_04/source" -I"C:/ti/sysconfig_1.25.0" -gdwarf-3 -MMD -MP -MF"lcd/$(basename $(<F)).d_raw" -MT"$(@)"  $(GEN_OPTS__FLAG) -o"$@" "$<"
+	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" -c @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -I"C:/ti/sysconfig_1.25.0" -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug" -I"C:/ti/mspm0_sdk_2_08_00_04/source/third_party/CMSIS/Core/Include" -I"C:/ti/mspm0_sdk_2_08_00_04/source" -I"C:/ti/sysconfig_1.25.0" -I"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/main.h" -gdwarf-3 -MMD -MP -MF"lcd/$(basename $(<F)).d_raw" -MT"lcd/$(basename\ $(<F)).o"  $(GEN_OPTS__FLAG) -o"$@" "$<"
 	@echo 'Finished building: "$<"'
 	@echo ' '
 

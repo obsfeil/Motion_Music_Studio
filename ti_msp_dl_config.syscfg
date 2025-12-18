@@ -201,7 +201,6 @@ SYSCTL.SYSPLL_CLK1En                 = true;
 SYSCTL.powerPolicy                   = "STANDBY0";
 SYSCTL.forceDefaultClkConfig         = true;
 SYSCTL.MFPCLKEn                      = true;
-SYSCTL.clockInterrupts               = ["HFCLK_GOOD"];
 SYSCTL.powerSysInterrupts            = ["FLASH_SEC"];
 SYSCTL.validateClkStatus             = true;
 SYSCTL.MFCLKEn                       = true;
@@ -211,10 +210,9 @@ SYSCTL.EXCLKSource                   = "SYSPLLOUT1";
 SYSCTL.pmcuInterruptPriority         = "0";
 SYSCTL.enableIntDone                 = true;
 SYSCTL.CANCLKSource                  = "SYSPLLCLK1";
-SYSCTL.HSCLKSource                   = "HFCLK";
-SYSCTL.enableFCC                     = true;
 SYSCTL.fccClkSrc                     = "FCC_IN";
-SYSCTL.enableEventOnPending          = true;
+SYSCTL.clockInterrupts               = ["HFCLK_GOOD"];
+SYSCTL.UDIV                          = "2";
 SYSCTL.peripheral.$assign            = "SYSCTL";
 SYSCTL.peripheral.hfclkInPin.$assign = "PA6";
 SYSCTL.peripheral.clkOutPin.$assign  = "PA7";
@@ -224,7 +222,7 @@ TIMER1.timerPeriod        = "50 us";
 TIMER1.interrupts         = ["ZERO"];
 TIMER1.interruptPriority  = "1";
 TIMER1.timerStartTimer    = true;
-TIMER1.timerMode          = "PERIODIC_UP";
+TIMER1.timerMode          = "PERIODIC";
 TIMER1.peripheral.$assign = "TIMG7";
 
 VREF.basicIntVolt                  = "DL_VREF_BUFCONFIG_OUTPUT_2_5V";
@@ -236,10 +234,3 @@ VREF.vrefPosPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric13";
 ProjectConfig.genLibDrivers      = true;
 ProjectConfig.genLibCMSIS        = true;
 ProjectConfig.migrationCondition = true;
-
-/**
- * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
- * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
- * re-solve from scratch.
- */
-SYSCTL.peripheral.fccInPin.$suggestSolution = "PA5";

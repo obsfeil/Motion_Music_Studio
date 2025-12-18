@@ -4,7 +4,7 @@
         <cconfiguration id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.755142424">
             <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.755142424" moduleId="org.eclipse.cdt.core.settings" name="Debug">
                 <macros>
-                    <stringMacro name="SYSCONFIG_TOOL_ROOT" type="VALUE_PATH_DIR" value="C:/ti/sysconfig_1.25.0"/>
+                    <stringMacro name="C:\Users\obsfe\workspace_ccstheia\Motion_Music_studio" type="VALUE_TEXT" value="C:\Users\obsfe\workspace_ccstheia\Motion_Music_studio"/>
                     <stringListMacro name="COM_TI_MSPM0_SDK_INCLUDE_PATH" type="VALUE_PATH_DIR_LIST"/>
                     <stringListMacro name="COM_TI_CGT_TIARMCLANG_LIBRARIES" type="VALUE_PATH_FILE_LIST"/>
                     <stringMacro name="CG_TOOL_CLANG" type="VALUE_PATH_FILE" value="C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe"/>
@@ -45,11 +45,9 @@
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.SELECT_PROCESSOR_MODE__ARM_THUMB.564737368" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.SELECT_PROCESSOR_MODE__ARM_THUMB" value="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.SELECT_PROCESSOR_MODE__ARM_THUMB.MTHUMB" valueType="enumerated"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.OPT_LEVEL.249376703" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.OPT_LEVEL.2" valueType="enumerated"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH.1410798284" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH" valueType="includePath">
-                                    <listOptionValue value="${COM_TI_CGT_TIARMCLANG_INCLUDE_PATH}"/>
-                                    <listOptionValue value="${SYSCONFIG_TOOL_INCLUDE_PATH}"/>
-                                    <listOptionValue value="${COM_TI_MSPM0_ACADEMY_INCLUDE_PATH}"/>
+                                    <listOptionValue value="${COM_TI_CGT_TIARMCLANG_INCLUDE_PATH}${COM_TI_CGT_TIARMCLANG_INCLUDE_PATH}"/>
+                                    <listOptionValue value="${COM_TI_MSPM0_ACADEMY_INCLUDE_PATH}${COM_TI_MSPM0_ACADEMY_LIBRARY_PATH}"/>
                                     <listOptionValue value="${COM_TI_MSPM0_SDK_INCLUDE_PATH}"/>
-                                    <listOptionValue value="${PROJECT_ROOT}"/>
                                     <listOptionValue value="${PROJECT_ROOT}/${ConfigName}"/>
                                     <listOptionValue value="${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/third_party/CMSIS/Core/Include"/>
                                     <listOptionValue value="${COM_TI_MSPM0_SDK_INSTALL_DIR}/source"/>
@@ -73,7 +71,6 @@
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.MAP_FILE.2104682330" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.MAP_FILE" value="${ProjName}.map" valueType="string"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.OUTPUT_FILE.2082165237" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.OUTPUT_FILE" value="${ProjName}.out" valueType="string"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.LIBRARY.152116992" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.LIBRARY" valueType="libs">
-                                    <listOptionValue value="${SYSCONFIG_TOOL_LIBRARIES}${SYSCONFIG_TOOL_ROOT}"/>
                                     <listOptionValue value="${SYSCONFIG_TOOL_LIBRARIES}"/>
                                     <listOptionValue value="${COM_TI_MSPM0_ACADEMY_LIBRARIES}"/>
                                     <listOptionValue value="${COM_TI_MSPM0_SDK_LIBRARIES}"/>
@@ -117,21 +114,18 @@
                             </tool>
                         </toolChain>
                     </folderInfo>
-                    <fileInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.755142424.startup_mspm0g350x_ticlang.c" name="startup_mspm0g350x_ticlang.c" rcbsApplicability="disable" resourcePath="startup_mspm0g350x_ticlang.c" toolsToInvoke="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exe.compilerDebug.1876701123.1683275857">
-                        <tool id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exe.compilerDebug.1876701123.1683275857" name="Arm Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exe.compilerDebug.1876701123">
-                            <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH.356573850" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH" valueType="includePath">
-                                <listOptionValue value="${COM_TI_MSPM0_SDK_INCLUDE_PATH}${COM_TI_MSPM0_SDK_INCLUDE_PATH}"/>
-                                <listOptionValue value="${COM_TI_MSPM0_SDK_INCLUDE_PATH}${COM_TI_CGT_TIARMCLANG_INCLUDE_PATH}"/>
-                                <listOptionValue value="${SYSCONFIG_TOOL_INCLUDE${SYSCONFIG_TOOL_ROOT}_PATH}"/>
-                                <listOptionValue value="${COM_TI_MSPM0_ACADEMY_INCLUDE_PATH}"/>
-                                <listOptionValue value="${PROJECT_ROOT}"/>
+                    <fileInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.755142424.lcd/lcd_driver.c" name="lcd_driver.c" rcbsApplicability="disable" resourcePath="lcd/lcd_driver.c" toolsToInvoke="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exe.compilerDebug.1876701123.1624390450">
+                        <tool id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exe.compilerDebug.1876701123.1624390450" name="Arm Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exe.compilerDebug.1876701123">
+                            <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH.788917304" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.INCLUDE_PATH" valueType="includePath">
+                                <listOptionValue value="${COM_TI_CGT_TIARMCLANG_INCLUDE_PATH}${COM_TI_CGT_TIARMCLANG_INCLUDE_PATH}"/>
+                                <listOptionValue value="${SYSCONFIG_TOOL_INCLUDE_PATH}${SYSCONFIG_TOOL_ROOT}"/>
+                                <listOptionValue value="${COM_TI_MSPM0_ACADEMY_INCLUDE_PATH}${COM_TI_MSPM0_ACADEMY_LIBRARY_PATH}"/>
+                                <listOptionValue value="${COM_TI_MSPM0_SDK_INCLUDE_PATH}"/>
                                 <listOptionValue value="${PROJECT_ROOT}/${ConfigName}"/>
                                 <listOptionValue value="${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/third_party/CMSIS/Core/Include"/>
                                 <listOptionValue value="${COM_TI_MSPM0_SDK_INSTALL_DIR}/source"/>
                                 <listOptionValue value="${SYSCONFIG_TOOL_ROOT}"/>
-                                <listOptionValue value="${COM_TI_CGT_TIARMCLANG_INCLUDE_PATH}"/>
-                                <listOptionValue value="${COM_TI_MSPM0_SDK_INCLUDE_PATH}"/>
-                                <listOptionValue value="${SYSCONFIG_TOOL_INCLUDE_PATH}"/>
+                                <listOptionValue value="C:\Users\obsfe\workspace_ccstheia\Motion_Music_studio\main.h"/>
                             </option>
                         </tool>
                     </fileInfo>

@@ -73,19 +73,11 @@ extern "C" {
 #define POWER_STARTUP_DELAY                                                (16)
 
 
-#define GPIO_FCC_IN_PORT                                                   GPIOA
-#define GPIO_FCC_IN_PIN                                            DL_GPIO_PIN_5
-#define GPIO_FCC_IN_IOMUX                                        (IOMUX_PINCM10)
-#define GPIO_FCC_IN_IOMUX_FUNC                    IOMUX_PINCM10_PF_SYSCTL_FCC_IN
-#define GPIO_HFCLKIN_PORT                                                  GPIOA
-#define GPIO_HFCLKIN_PIN                                           DL_GPIO_PIN_6
-#define GPIO_HFCLKIN_IOMUX                                       (IOMUX_PINCM11)
-#define GPIO_HFCLKIN_IOMUX_FUNC                  IOMUX_PINCM11_PF_SYSCTL_HFCLKIN
 #define GPIO_CLKOUT_PORT                                                   GPIOA
 #define GPIO_CLKOUT_PIN                                            DL_GPIO_PIN_7
 #define GPIO_CLKOUT_IOMUX                                        (IOMUX_PINCM14)
 #define GPIO_CLKOUT_IOMUX_FUNC                   IOMUX_PINCM14_PF_SYSCTL_CLK_OUT
-#define CPUCLK_FREQ                                                      4000000
+#define CPUCLK_FREQ                                                     80000000
 
 
 
@@ -93,7 +85,7 @@ extern "C" {
 #define PWM_AUDIO_INST                                                     TIMG0
 #define PWM_AUDIO_INST_IRQHandler                               TIMG0_IRQHandler
 #define PWM_AUDIO_INST_INT_IRQN                                 (TIMG0_INT_IRQn)
-#define PWM_AUDIO_INST_CLK_FREQ                                          4000000
+#define PWM_AUDIO_INST_CLK_FREQ                                         40000000
 /* GPIO defines for channel 0 */
 #define GPIO_PWM_AUDIO_C0_PORT                                             GPIOA
 #define GPIO_PWM_AUDIO_C0_PIN                                     DL_GPIO_PIN_12
@@ -107,7 +99,7 @@ extern "C" {
 #define TIMER_SAMPLE_INST                                                (TIMG7)
 #define TIMER_SAMPLE_INST_IRQHandler                            TIMG7_IRQHandler
 #define TIMER_SAMPLE_INST_INT_IRQN                              (TIMG7_INT_IRQn)
-#define TIMER_SAMPLE_INST_LOAD_VALUE                                      (199U)
+#define TIMER_SAMPLE_INST_LOAD_VALUE                                     (3999U)
 
 
 
@@ -210,7 +202,7 @@ extern "C" {
 
 /* Defines for VREF */
 #define VREF_VOLTAGE_MV                                                     2500
-#define VREF_READY_DELAY                                                    (40)
+#define VREF_READY_DELAY                                                   (800)
 
 
 

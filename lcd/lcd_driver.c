@@ -4,10 +4,11 @@
  */
 
 #include "ti_msp_dl_config.h"  // SysConfig generated
-#include "lcd_driver.h"         // LCD interface
-#include "main.h"               // For delay_ms() ✅
+#include "lcd_driver.h"         // LCD interface             // For delay_ms() ✅
 #include <string.h>
-#include <math.h>               // For sinf() ✅
+#include <math.h>
+#include "main.h"
+
 
 //=============================================================================
 // PRIVATE CONSTANTS
@@ -27,7 +28,7 @@
 #define ST7735_MADCTL       0x36
 #define ST7735_FRMCTR1      0xB1
 
-//=============================================================================
+//=======================================================================
 // SIMPLE 5x7 FONT
 //=============================================================================
 
@@ -141,7 +142,7 @@ static void LCD_SetWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
 void LCD_Init(void) {
     // Reset
     DL_GPIO_clearPins(GPIO_LCD_PORT, GPIO_LCD_RST_PIN);
-    delay_ms(10);
+    delay_ms(20);
     DL_GPIO_setPins(GPIO_LCD_PORT, GPIO_LCD_RST_PIN);
     delay_ms(120);
     
