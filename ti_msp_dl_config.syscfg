@@ -170,3 +170,34 @@ VREF.peripheral.$assign     = "VREF";
 VREF.vrefPosPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric10";
 
 ProjectConfig.genLibDrivers = true;
+ProjectConfig.genLibCMSIS   = true;
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+ADC121.peripheral.adcPin2.$suggestSolution   = "PA25";
+ADC121.peripheral.adcPin1.$suggestSolution   = "PA26";
+ADC121.peripheral.adcPin0.$suggestSolution   = "PA27";
+ADC122.peripheral.adcPin2.$suggestSolution   = "PA17";
+ADC122.peripheral.adcPin3.$suggestSolution   = "PA18";
+ADC122.peripheral.adcPin7.$suggestSolution   = "PA21";
+Board.peripheral.swclkPin.$suggestSolution   = "PA20";
+Board.peripheral.swdioPin.$suggestSolution   = "PA19";
+GPIO1.associatedPins[0].pin.$suggestSolution = "PA13";
+GPIO1.associatedPins[1].pin.$suggestSolution = "PB14";
+GPIO1.associatedPins[2].pin.$suggestSolution = "PB13";
+GPIO2.associatedPins[0].pin.$suggestSolution = "PA14";
+GPIO2.associatedPins[1].pin.$suggestSolution = "PA15";
+GPIO2.associatedPins[2].pin.$suggestSolution = "PB17";
+GPIO3.associatedPins[0].pin.$suggestSolution = "PB18";
+GPIO3.associatedPins[1].pin.$suggestSolution = "PB19";
+I2C1.peripheral.sdaPin.$suggestSolution      = "PA0";
+I2C1.peripheral.sclPin.$suggestSolution      = "PA1";
+PWM1.peripheral.ccp0Pin.$suggestSolution     = "PA12";
+SPI1.peripheral.sclkPin.$suggestSolution     = "PB16";
+SPI1.peripheral.mosiPin.$suggestSolution     = "PB15";
+SPI1.peripheral.misoPin.$suggestSolution     = "PA16";
+SPI1.peripheral.cs0Pin.$suggestSolution      = "PA2";
+VREF.peripheral.vrefPosPin.$suggestSolution  = "PA23";
