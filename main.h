@@ -25,6 +25,29 @@
 #define SENSOR_UPDATE_HZ    20          // 20 Hz sensor polling
 
 //=============================================================================
+// GPIO PIN DEFINITIONS (Manual - SysConfig doesn't generate these)
+//=============================================================================
+
+// GPIO Ports
+#define GPIO_BUTTONS_PORT      GPIOA
+#define GPIO_RGB_PORT          GPIOB  
+#define GPIO_LCD_PORT          GPIOB
+
+// Button Pins (PORTA)
+#define GPIO_BUTTONS_S1_PIN    DL_GPIO_PIN_16
+#define GPIO_BUTTONS_S2_PIN    DL_GPIO_PIN_14
+#define GPIO_BUTTONS_JOY_SEL_PIN DL_GPIO_PIN_15
+
+// RGB LED Pins (PORTB) - Active LOW!
+#define GPIO_RGB_RED_PIN       DL_GPIO_PIN_16
+#define GPIO_RGB_GREEN_PIN     DL_GPIO_PIN_19
+#define GPIO_RGB_BLUE_PIN      DL_GPIO_PIN_18
+
+// LCD Control Pins (PORTB)
+#define GPIO_LCD_RST_PIN       DL_GPIO_PIN_15
+#define GPIO_LCD_DC_PIN        DL_GPIO_PIN_17
+
+//=============================================================================
 // LCD LAYOUT CONSTANTS (NEW)
 //=============================================================================
 
