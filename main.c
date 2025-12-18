@@ -271,21 +271,7 @@ void ADC0_IRQHandler(void) {
     }
 }
 
-void ADC1_IRQHandler(void) {
-    switch (DL_ADC12_getPendingInterrupt(ADC_ACCEL_INST)) {
-        case DL_ADC12_IIDX_MEM0_RESULT_LOADED:
-            g_synthState.accel_x = DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_0);
-            break;
-        case DL_ADC12_IIDX_MEM1_RESULT_LOADED:
-            g_synthState.accel_y = DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_1);
-            break;
-        case DL_ADC12_IIDX_MEM2_RESULT_LOADED:
-            g_synthState.accel_z = DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_2);
-            break;
-        default:
-            break;
-    }
-}
+
 
 void GPIOA_IRQHandler(void) {
     uint32_t status = DL_GPIO_getEnabledInterruptStatus(GPIOA,
