@@ -15,8 +15,6 @@
 #include "main.h"
 #include "ti_msp_dl_config.h"
 
-
-#define SYSCLK_FREQUENCY 80000000
 //=============================================================================
 // GLOBAL STATE
 //=============================================================================
@@ -154,23 +152,23 @@ static void Process_Input(void) {
     g_synthState.btn_s1 = false;
 
     // Clear all RGB LEDs
-    DL_GPIO_clearPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
-    DL_GPIO_clearPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
-    DL_GPIO_clearPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
+    DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+    DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+    DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
 
     switch (g_synthState.waveform) {
     case WAVE_SINE:
-      DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
+      DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
       break;
     case WAVE_SQUARE:
-      DL_GPIO_setPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
+      DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
       break;
     case WAVE_SAWTOOTH:
-      DL_GPIO_setPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
+      DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
       break;
     case WAVE_TRIANGLE:
-      DL_GPIO_setPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
-      DL_GPIO_setPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
+      DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+      DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
       break;
     case WAVE_COUNT:
     default:
@@ -192,9 +190,9 @@ static void Process_Input(void) {
     g_synthState.joy_pressed = false;
 
     if (!g_synthState.audio_playing) {
-      DL_GPIO_clearPins(GPIO_RGB_RED_PORT, GPIO_RGB_RED_PIN);
-      DL_GPIO_clearPins(GPIO_RGB_GREEN_PORT, GPIO_RGB_GREEN_PIN);
-      DL_GPIO_clearPins(GPIO_RGB_BLUE_PORT, GPIO_RGB_BLUE_PIN);
+      DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
+      DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+      DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
     }
   }
   last_s2 = btn_s2_local;
@@ -302,6 +300,9 @@ void GPIOA_IRQHandler(void) {
 
 int main(void) {
   SYSCFG_DL_init();
+
+  DL_ADC12_enableConversions(ADC_MIC_JOY_INST); // Aktiver ADC-modulen
+  DL_ADC12_startConversion(ADC_MIC_JOY_INST);  // Start den første målingen
 
   NVIC_EnableIRQ(TIMER_SAMPLE_INST_INT_IRQN);
   NVIC_EnableIRQ(ADC_MIC_JOY_INST_INT_IRQN);

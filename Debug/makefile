@@ -196,7 +196,7 @@ all: $(OBJS) $(GEN_CMDS)
 Motion_Music_studio.out: $(OBJS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: Arm Linker'
-	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -gdwarf-3 -Wl,-m"Motion_Music_studio.map" -Wl,--stack_size=2048 -Wl,-i"C:/ti/mspm0_sdk_2_08_00_04/source" -Wl,-i"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -Wl,-i"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug/syscfg" -Wl,-i"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/lib" -Wl,--diag_wrap=off -Wl,--display_error_number -Wl,--warn_sections -Wl,--xml_link_info="Motion_Music_studio_linkInfo.xml" -Wl,--rom_model C:/ti/mspm0_sdk_2_08_00_04/source/ti/driverlib/lib/ticlang/m0p/mspm0g1x0x_g3x0x/driverlib.a -o "Motion_Music_studio.out" $(ORDERED_OBJS)
+	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" @"device.opt"  -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O2 -gdwarf-3 -Wl,-m"Motion_Music_studio.map" -Wl,--heap_size=1024 -Wl,--stack_size=2048 -Wl,-i"C:/ti/mspm0_sdk_2_08_00_04/source" -Wl,-i"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -Wl,-i"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug/syscfg" -Wl,-i"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/lib" -Wl,--diag_wrap=off -Wl,--display_error_number -Wl,--warn_sections -Wl,--xml_link_info="Motion_Music_studio_linkInfo.xml" -Wl,--rom_model C:/ti/mspm0_sdk_2_08_00_04/source/ti/driverlib/lib/ticlang/m0p/mspm0g1x0x_g3x0x/driverlib.a -o "Motion_Music_studio.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 

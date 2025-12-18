@@ -1,12 +1,12 @@
 Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User Label
-6,PA13,HS,GPIO,High-Speed Input with internal pull-up,S1
-7,PA14,HS,GPIO,High-Speed Output,RED
-8,PA15,SD,GPIO,Standard Output,GREEN
-2,PB14,SD,GPIO,Standard Input with internal pull-up,S2
-1,PB13,SD,GPIO,Standard Input with internal pull-up,JOY_SEL
-14,PB17,SD,GPIO,Standard Output,BLUE
-15,PB18,SD,GPIO,Standard Output,RST
-16,PB19,SD,GPIO,Standard Output,DC
+8,PA15,SD,GPIO,Standard Input with internal pull-up,S1
+7,PA14,HS,GPIO,High-Speed Input with internal pull-up,S2
+6,PA13,HS,GPIO,High-Speed Input with internal pull-up,JOY_SEL
+14,PB17,SD,GPIO,Standard Output,RED
+15,PB18,SD,GPIO,Standard Output,GREEN
+16,PB19,SD,GPIO,Standard Output,BLUE
+2,PB14,SD,GPIO,Standard Output,RST
+1,PB13,SD,GPIO,Standard Output,DC
 46,PA6,SD,SYSCTL,"HFCLK In",
 5,PA12,HS,TIMG0,"Capture/Compare Pin 0",
 33,PA0,OD,I2C0,"I2C Serial Data line (SDA)",
