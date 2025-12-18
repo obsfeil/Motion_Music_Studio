@@ -4,10 +4,10 @@
  */
 
 #include "ti_msp_dl_config.h"  // SysConfig generated
-#include "lcd_driver.h"         // LCD interface             // For delay_ms() ✅
+#include "lcd_driver.h"         // LCD interface
 #include <string.h>
 #include <math.h>
-#include "main.h"
+#include "../main.h"            // Parent directory
 
 
 //=============================================================================
