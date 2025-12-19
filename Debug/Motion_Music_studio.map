@@ -1,7 +1,7 @@
 ******************************************************************************
             TI ARM Clang Linker PC v4.0.4                      
 ******************************************************************************
->> Linked Fri Dec 19 01:16:21 2025
+>> Linked Fri Dec 19 01:26:36 2025
 
 OUTPUT FILE NAME:   <Motion_Music_studio.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 00004431
@@ -12,7 +12,7 @@ MEMORY CONFIGURATION
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
   FLASH                 00000000   00020000  00005500  0001ab00  R  X
-  SRAM                  20200000   00008000  00000aff  00007501  RW X
+  SRAM                  20200000   00008000  000012ff  00006d01  RW X
   BCR_CONFIG            41c00000   000000ff  00000000  000000ff  R   
   BSL_CONFIG            41c00100   00000080  00000000  00000080  R   
 
@@ -26,10 +26,10 @@ run origin  load origin   length   init length attrs members
   000000c0    000000c0    00004cf0   00004cf0    r-x .text
   00004db0    00004db0    00000710   00000710    r-- .rodata
   000054c0    000054c0    00000040   00000040    r-- .cinit
-20200000    20200000    000008ff   00000000    rw-
-  20200000    20200000    00000800   00000000    rw- .sysmem
-  20200800    20200800    000000c8   00000000    rw- .bss
-  202008c8    202008c8    00000037   00000000    rw- .data
+20200000    20200000    000010ff   00000000    rw-
+  20200000    20200000    00001000   00000000    rw- .sysmem
+  20201000    20201000    000000c8   00000000    rw- .bss
+  202010c8    202010c8    00000037   00000000    rw- .data
 20207e00    20207e00    00000200   00000200    rw-
   20207e00    20207e00    00000200   00000200    rw- .stack
 
@@ -340,24 +340,24 @@ section   page    origin      length       input sections
 
 .binit     0    00000000    00000000     
 
-.sysmem    0    20200000    00000800     UNINITIALIZED
+.sysmem    0    20200000    00001000     UNINITIALIZED
                   20200000    00000010     libc.a : memory.c.obj (.sysmem)
-                  20200010    000007f0     --HOLE--
+                  20200010    00000ff0     --HOLE--
 
-.bss       0    20200800    000000c8     UNINITIALIZED
-                  20200800    000000a0     ti_msp_dl_config.o (.bss.gTIMER_SAMPLEBackup)
-                  202008a0    00000028     ti_msp_dl_config.o (.bss.gSPI_LCDBackup)
+.bss       0    20201000    000000c8     UNINITIALIZED
+                  20201000    000000a0     ti_msp_dl_config.o (.bss.gTIMER_SAMPLEBackup)
+                  202010a0    00000028     ti_msp_dl_config.o (.bss.gSPI_LCDBackup)
 
-.data      0    202008c8    00000037     UNINITIALIZED
-                  202008c8    00000020     main.o (.data.g_synthState)
-                  202008e8    00000004     main.o (.data.Process_Input.last_update)
-                  202008ec    00000004     libc.a : aeabi_portable.c.obj (.data.__aeabi_errno)
-                  202008f0    00000004     main.o (.data.main.last_display)
-                  202008f4    00000004     main.o (.data.phase)
-                  202008f8    00000004     main.o (.data.phase_increment)
-                  202008fc    00000001     main.o (.data.Process_Input.last_joy)
-                  202008fd    00000001     main.o (.data.Process_Input.last_s1)
-                  202008fe    00000001     main.o (.data.Process_Input.last_s2)
+.data      0    202010c8    00000037     UNINITIALIZED
+                  202010c8    00000020     main.o (.data.g_synthState)
+                  202010e8    00000004     main.o (.data.Process_Input.last_update)
+                  202010ec    00000004     libc.a : aeabi_portable.c.obj (.data.__aeabi_errno)
+                  202010f0    00000004     main.o (.data.main.last_display)
+                  202010f4    00000004     main.o (.data.phase)
+                  202010f8    00000004     main.o (.data.phase_increment)
+                  202010fc    00000001     main.o (.data.Process_Input.last_joy)
+                  202010fd    00000001     main.o (.data.Process_Input.last_s1)
+                  202010fe    00000001     main.o (.data.Process_Input.last_s2)
 
 .stack     0    20207e00    00000200     
                   20207e00    00000004     main.o (.stack)
@@ -462,18 +462,18 @@ MODULE SUMMARY
     +--+------------------------------+-------+---------+---------+
        Total:                         2968    0         0      
                                                                
-       Heap:                          0       0         2048   
+       Heap:                          0       0         4096   
        Stack:                         0       0         512    
        Linker Generated:              0       59        0      
     +--+------------------------------+-------+---------+---------+
-       Grand Total:                   19652   2054      2815   
+       Grand Total:                   19652   2054      4863   
 
 
 LINKER GENERATED COPY TABLES
 
 __TI_cinit_table @ 000054ec records: 2, size/record: 8, table size: 16
-	.data: load addr=000054c0, load size=00000017 bytes, run addr=202008c8, run size=00000037 bytes, compression=lzss
-	.bss: load addr=000054e4, load size=00000008 bytes, run addr=20200800, run size=000000c8 bytes, compression=zero_init
+	.data: load addr=000054c0, load size=00000017 bytes, run addr=202010c8, run size=00000037 bytes, compression=lzss
+	.bss: load addr=000054e4, load size=00000008 bytes, run addr=20201000, run size=000000c8 bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
@@ -585,7 +585,7 @@ address   name
 00004d89  UART3_IRQHandler                     
 20208000  __STACK_END                          
 00000200  __STACK_SIZE                         
-00000800  __SYSMEM_SIZE                        
+00001000  __SYSMEM_SIZE                        
 00000000  __TI_ATRegion0_region_sz             
 00000000  __TI_ATRegion0_src_addr              
 00000000  __TI_ATRegion0_trg_addr              
@@ -625,7 +625,7 @@ ffffffff  __TI_prof_data_start
 000021d5  __aeabi_ddiv                         
 000025ad  __aeabi_dmul                         
 00001745  __aeabi_dsub                         
-202008ec  __aeabi_errno                        
+202010ec  __aeabi_errno                        
 00004d55  __aeabi_errno_addr                   
 00003d21  __aeabi_f2d                          
 00003fbd  __aeabi_f2iz                         
@@ -708,9 +708,9 @@ ffffffff  binit
 00003469  float_to_string                      
 00001e71  floor                                
 00001e71  floorl                               
-202008a0  gSPI_LCDBackup                       
-20200800  gTIMER_SAMPLEBackup                  
-202008c8  g_synthState                         
+202010a0  gSPI_LCDBackup                       
+20201000  gTIMER_SAMPLEBackup                  
+202010c8  g_synthState                         
 00000000  interruptVectors                     
 00002691  ldexp                                
 00002691  ldexpl                               
@@ -741,8 +741,8 @@ address   name
 00000000  interruptVectors                     
 000000c1  __TI_printfi_nofloat                 
 00000200  __STACK_SIZE                         
-00000800  __SYSMEM_SIZE                        
 00000929  __kernel_rem_pio2                    
+00001000  __SYSMEM_SIZE                        
 000011e1  LCD_DrawWaveform                     
 000013e1  sinf                                 
 000015a9  SYSCFG_DL_GPIO_init                  
@@ -929,10 +929,10 @@ address   name
 20200000  __stop___llvm_prf_bits               
 20200000  __stop___llvm_prf_cnts               
 20200000  _sys_memory                          
-20200800  gTIMER_SAMPLEBackup                  
-202008a0  gSPI_LCDBackup                       
-202008c8  g_synthState                         
-202008ec  __aeabi_errno                        
+20201000  gTIMER_SAMPLEBackup                  
+202010a0  gSPI_LCDBackup                       
+202010c8  g_synthState                         
+202010ec  __aeabi_errno                        
 20207e00  stack_canary                         
 20207e04  __stack                              
 20208000  __STACK_END                          
