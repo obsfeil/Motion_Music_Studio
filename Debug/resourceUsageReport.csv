@@ -1,0 +1,35 @@
+Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User Label
+8,PA15,SD,GPIO,Standard Input with internal pull-up,S1
+7,PA14,HS,GPIO,High-Speed Input with internal pull-up,S2
+6,PA13,HS,GPIO,High-Speed Input with internal pull-up,JOY_SEL
+14,PB17,SD,GPIO,Standard Output,RED
+15,PB18,SD,GPIO,Standard Output,GREEN
+16,PB19,SD,GPIO,Standard Output,BLUE
+2,PB14,SD,GPIO,Standard Output,RST
+1,PB13,SD,GPIO,Standard Output,DC
+5,PA12,HS,TIMG0,"Capture/Compare Pin 0",
+33,PA0,OD,I2C0,"I2C Serial Data line (SDA)",
+34,PA1,OD,I2C0,"I2C Serial Clock line (SCL)",
+56,PA10,HD,I2C1,"I2C Serial Data line (SDA)",
+57,PA11,HD,I2C1,"I2C Serial Clock line (SCL)",
+4,PB16,SD,SPI1,"SPI SCLK (Clock)",
+3,PB15,SD,SPI1,"SPI PICO (Peripheral In, Controller Out)",
+9,PA16,SD,SPI1,"SPI POCI (Peripheral Out, Controller In)",
+42,PA2,SDL,SPI1,"SPI CS0 (Chip Select 0)",
+26,PA25,SD,ADC0,"ADC12 Channel 2 Pin",
+30,PA26,SD,ADC0,"ADC12 Channel 1 Pin",
+31,PA27,SD,ADC0,"ADC12 Channel 0 Pin",
+10,PA17,SDW,ADC1,"ADC12 Channel 2 Pin",
+11,PA18,SDW,ADC1,"ADC12 Channel 3 Pin",
+17,PA21,SD,ADC1,"ADC12 Channel 7 Pin",
+24,PA23,SD,VREF,"VREF Positive (VREF+)",
+13,PA20,SD,BOARD,"Debug Clock",
+12,PA19,HS,BOARD,"Debug Data In Out",
+
+
+Peripheral,Usage
+TIMG0,1 channels used out of 2 (50%)
+I2C,2 out of 2 instances (100%)
+SPI,1 out of 2 instances (50%)
+ADC12,2 out of 2 instances (100%)
+
