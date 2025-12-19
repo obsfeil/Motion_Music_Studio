@@ -451,7 +451,7 @@ static const DL_SPI_Config gSPI_LCD_config = {
     .frameFormat = DL_SPI_FRAME_FORMAT_MOTO4_POL0_PHA0,
     .parity      = DL_SPI_PARITY_NONE,
     .dataSize    = DL_SPI_DATA_SIZE_8,
-    .bitOrder    = DL_SPI_BIT_ORDER_LSB_FIRST,
+    .bitOrder    = DL_SPI_BIT_ORDER_MSB_FIRST,
     .chipSelectPin = DL_SPI_CHIP_SELECT_0,
 };
 

@@ -1,4 +1,5 @@
 /**
+ * FIXED VERSION - Critical bug fix: SPI bitOrder changed from LSB to MSB
  * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
  * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
  * @cliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.08.00.03"
@@ -158,9 +159,13 @@ PWM1.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric2";
 PWM1.peripheral.$assign                 = "TIMG0";
 PWM1.peripheral.ccp0Pin.$assign         = "boosterpack.32";
 
+// ============================================================================
+// CRITICAL FIX: Changed bitOrder from "LSB" to "MSB" 
+// ST7735S LCD controller requires MSB First (per technical report section 4.1)
+// ============================================================================
 SPI1.$name                              = "SPI_LCD";
 SPI1.targetBitRate                      = 10000000;
-SPI1.bitOrder                           = "LSB";
+SPI1.bitOrder                           = "MSB";  // ✅ FIXED: Was "LSB", now "MSB"
 SPI1.peripheral.$assign                 = "SPI1";
 SPI1.peripheral.sclkPin.$assign         = "boosterpack.11";
 SPI1.peripheral.mosiPin.$assign         = "boosterpack.17";
