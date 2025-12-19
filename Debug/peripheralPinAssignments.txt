@@ -4,11 +4,11 @@
 	+ High-Speed Input with internal pull-up: PA14
 	+ High-Speed Input with internal pull-up: PA13
 - GPIOB:
-	+ Standard Output: PB17
-	+ Standard Output: PB18
-	+ Standard Output: PB19
-	+ Standard Output: PB14
+	+ Standard Output: PB26
+	+ Standard Output: PB27
+	+ Standard Output: PB22
 	+ Standard Output: PB13
+	+ Standard Output: PB14
 - SYSCTL
 - TIMG0:
 	+ Capture/Compare Pin 0: PA12
@@ -25,9 +25,9 @@
 	+ SPI POCI (Peripheral Out, Controller In): PA16
 	+ SPI CS0 (Chip Select 0): PA2
 - ADC0:
-	+ ADC12 Channel 2 Pin: PA25
-	+ ADC12 Channel 1 Pin: PA26
 	+ ADC12 Channel 0 Pin: PA27
+	+ ADC12 Channel 1 Pin: PA26
+	+ ADC12 Channel 2 Pin: PA25
 - ADC1:
 	+ ADC12 Channel 2 Pin: PA17
 	+ ADC12 Channel 3 Pin: PA18

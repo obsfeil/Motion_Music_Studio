@@ -166,18 +166,18 @@ extern "C" {
 #define ADC_MIC_JOY_ADCMEM_2                                  DL_ADC12_MEM_IDX_2
 #define ADC_MIC_JOY_ADCMEM_2_REF                 DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC_MIC_JOY_ADCMEM_2_REF_VOLTAGE_V                                     3.3
-#define GPIO_ADC_MIC_JOY_C2_PORT                                           GPIOA
-#define GPIO_ADC_MIC_JOY_C2_PIN                                   DL_GPIO_PIN_25
-#define GPIO_ADC_MIC_JOY_IOMUX_C2                                (IOMUX_PINCM55)
-#define GPIO_ADC_MIC_JOY_IOMUX_C2_FUNC            (IOMUX_PINCM55_PF_UNCONNECTED)
-#define GPIO_ADC_MIC_JOY_C1_PORT                                           GPIOA
-#define GPIO_ADC_MIC_JOY_C1_PIN                                   DL_GPIO_PIN_26
-#define GPIO_ADC_MIC_JOY_IOMUX_C1                                (IOMUX_PINCM59)
-#define GPIO_ADC_MIC_JOY_IOMUX_C1_FUNC            (IOMUX_PINCM59_PF_UNCONNECTED)
 #define GPIO_ADC_MIC_JOY_C0_PORT                                           GPIOA
 #define GPIO_ADC_MIC_JOY_C0_PIN                                   DL_GPIO_PIN_27
 #define GPIO_ADC_MIC_JOY_IOMUX_C0                                (IOMUX_PINCM60)
 #define GPIO_ADC_MIC_JOY_IOMUX_C0_FUNC            (IOMUX_PINCM60_PF_UNCONNECTED)
+#define GPIO_ADC_MIC_JOY_C1_PORT                                           GPIOA
+#define GPIO_ADC_MIC_JOY_C1_PIN                                   DL_GPIO_PIN_26
+#define GPIO_ADC_MIC_JOY_IOMUX_C1                                (IOMUX_PINCM59)
+#define GPIO_ADC_MIC_JOY_IOMUX_C1_FUNC            (IOMUX_PINCM59_PF_UNCONNECTED)
+#define GPIO_ADC_MIC_JOY_C2_PORT                                           GPIOA
+#define GPIO_ADC_MIC_JOY_C2_PIN                                   DL_GPIO_PIN_25
+#define GPIO_ADC_MIC_JOY_IOMUX_C2                                (IOMUX_PINCM55)
+#define GPIO_ADC_MIC_JOY_IOMUX_C2_FUNC            (IOMUX_PINCM55_PF_UNCONNECTED)
 
 /* Defines for ADC_ACCEL */
 #define ADC_ACCEL_INST                                                      ADC1
@@ -234,24 +234,24 @@ extern "C" {
 /* Port definition for Pin Group GPIO_RGB */
 #define GPIO_RGB_PORT                                                    (GPIOB)
 
-/* Defines for RED: GPIOB.17 with pinCMx 43 on package pin 14 */
-#define GPIO_RGB_RED_PIN                                        (DL_GPIO_PIN_17)
-#define GPIO_RGB_RED_IOMUX                                       (IOMUX_PINCM43)
-/* Defines for GREEN: GPIOB.18 with pinCMx 44 on package pin 15 */
-#define GPIO_RGB_GREEN_PIN                                      (DL_GPIO_PIN_18)
-#define GPIO_RGB_GREEN_IOMUX                                     (IOMUX_PINCM44)
-/* Defines for BLUE: GPIOB.19 with pinCMx 45 on package pin 16 */
-#define GPIO_RGB_BLUE_PIN                                       (DL_GPIO_PIN_19)
-#define GPIO_RGB_BLUE_IOMUX                                      (IOMUX_PINCM45)
+/* Defines for RED: GPIOB.26 with pinCMx 57 on package pin 28 */
+#define GPIO_RGB_RED_PIN                                        (DL_GPIO_PIN_26)
+#define GPIO_RGB_RED_IOMUX                                       (IOMUX_PINCM57)
+/* Defines for GREEN: GPIOB.27 with pinCMx 58 on package pin 29 */
+#define GPIO_RGB_GREEN_PIN                                      (DL_GPIO_PIN_27)
+#define GPIO_RGB_GREEN_IOMUX                                     (IOMUX_PINCM58)
+/* Defines for BLUE: GPIOB.22 with pinCMx 50 on package pin 21 */
+#define GPIO_RGB_BLUE_PIN                                       (DL_GPIO_PIN_22)
+#define GPIO_RGB_BLUE_IOMUX                                      (IOMUX_PINCM50)
 /* Port definition for Pin Group GPIO_LCD */
 #define GPIO_LCD_PORT                                                    (GPIOB)
 
-/* Defines for RST: GPIOB.14 with pinCMx 31 on package pin 2 */
-#define GPIO_LCD_RST_PIN                                        (DL_GPIO_PIN_14)
-#define GPIO_LCD_RST_IOMUX                                       (IOMUX_PINCM31)
-/* Defines for DC: GPIOB.13 with pinCMx 30 on package pin 1 */
-#define GPIO_LCD_DC_PIN                                         (DL_GPIO_PIN_13)
-#define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM30)
+/* Defines for RST: GPIOB.13 with pinCMx 30 on package pin 1 */
+#define GPIO_LCD_RST_PIN                                        (DL_GPIO_PIN_13)
+#define GPIO_LCD_RST_IOMUX                                       (IOMUX_PINCM30)
+/* Defines for DC: GPIOB.14 with pinCMx 31 on package pin 2 */
+#define GPIO_LCD_DC_PIN                                         (DL_GPIO_PIN_14)
+#define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM31)
 
 
 /* clang-format on */

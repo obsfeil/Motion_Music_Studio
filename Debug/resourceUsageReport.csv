@@ -2,11 +2,11 @@ Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User L
 8,PA15,SD,GPIO,Standard Input with internal pull-up,S1
 7,PA14,HS,GPIO,High-Speed Input with internal pull-up,S2
 6,PA13,HS,GPIO,High-Speed Input with internal pull-up,JOY_SEL
-14,PB17,SD,GPIO,Standard Output,RED
-15,PB18,SD,GPIO,Standard Output,GREEN
-16,PB19,SD,GPIO,Standard Output,BLUE
-2,PB14,SD,GPIO,Standard Output,RST
-1,PB13,SD,GPIO,Standard Output,DC
+28,PB26,SD,GPIO,Standard Output,RED
+29,PB27,SD,GPIO,Standard Output,GREEN
+21,PB22,SD,GPIO,Standard Output,BLUE
+1,PB13,SD,GPIO,Standard Output,RST
+2,PB14,SD,GPIO,Standard Output,DC
 5,PA12,HS,TIMG0,"Capture/Compare Pin 0",
 33,PA0,OD,I2C0,"I2C Serial Data line (SDA)",
 34,PA1,OD,I2C0,"I2C Serial Clock line (SCL)",
@@ -16,9 +16,9 @@ Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User L
 3,PB15,SD,SPI1,"SPI PICO (Peripheral In, Controller Out)",
 9,PA16,SD,SPI1,"SPI POCI (Peripheral Out, Controller In)",
 42,PA2,SDL,SPI1,"SPI CS0 (Chip Select 0)",
-26,PA25,SD,ADC0,"ADC12 Channel 2 Pin",
-30,PA26,SD,ADC0,"ADC12 Channel 1 Pin",
 31,PA27,SD,ADC0,"ADC12 Channel 0 Pin",
+30,PA26,SD,ADC0,"ADC12 Channel 1 Pin",
+26,PA25,SD,ADC0,"ADC12 Channel 2 Pin",
 10,PA17,SDW,ADC1,"ADC12 Channel 2 Pin",
 11,PA18,SDW,ADC1,"ADC12 Channel 3 Pin",
 17,PA21,SD,ADC1,"ADC12 Channel 7 Pin",
