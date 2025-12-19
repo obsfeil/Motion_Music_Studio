@@ -18,7 +18,7 @@
                         {
                             "name": "CORTEX_M0P",
                             "debuggerSettings": {
-                                "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues>\n\n  <property id=\"VerifyAfterProgramLoad\">\n    <curValue>Full verification</curValue>\n  </property>\n\n  <property id=\"AutoResetOnConnect\">\n    <curValue>1</curValue>\n  </property>\n\n  <property id=\"FlashFiles\">\n    <curValue></curValue>\n  </property>\n\n</PropertyValues>\n"
+                                "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues>\n\n  <property id=\"RestartOnSymbolLoad\">\n    <curValue>1</curValue>\n  </property>\n\n  <property id=\"VerifyAfterProgramLoad\">\n    <curValue>Full verification</curValue>\n  </property>\n\n  <property id=\"AutoResetOnConnect\">\n    <curValue>1</curValue>\n  </property>\n\n  <property id=\"FlashFiles\">\n    <curValue></curValue>\n  </property>\n\n</PropertyValues>\n"
                             }
                         }
                     ]
@@ -46,6 +46,28 @@
                             "name": "CORTEX_M0P",
                             "debuggerSettings": {
                                 "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues/>\n"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Motion_Music_studio (2)",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "Motion_Music_studio",
+                "resourceId": "/Motion_Music_studio/__ccs_2_generatedBinaries"
+            },
+            "connections": [
+                {
+                    "name": "Texas Instruments XDS110 USB Debug Probe",
+                    "cores": [
+                        {
+                            "name": "CORTEX_M0P",
+                            "debuggerSettings": {
+                                "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues>\n\n  <property id=\"MPUEnabled\">\n    <curValue>1</curValue>\n  </property>\n\n  <property id=\"FlashResetType\">\n    <curValue>Soft reset</curValue>\n  </property>\n\n  <property id=\"FlashVerification\">\n    <curValue>0</curValue>\n  </property>\n\n  <property id=\"EnableWaitForDebug\">\n    <curValue>0</curValue>\n  </property>\n\n  <property id=\"EraseECCSRAM\">\n    <curValue>1</curValue>\n  </property>\n\n  <property id=\"FlashSkipDeviceID\">\n    <curValue>1</curValue>\n  </property>\n\n  <property id=\"FlashVerboseMode\">\n    <curValue>1</curValue>\n  </property>\n\n</PropertyValues>\n"
                             }
                         }
                     ]

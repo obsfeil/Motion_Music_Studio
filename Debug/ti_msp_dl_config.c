@@ -87,7 +87,7 @@ SYSCONFIG_WEAK bool SYSCFG_DL_restoreConfiguration(void)
 {
     bool retStatus = true;
 
-	retStatus &= DL_TimerG_restoreConfiguration(TIMER_SAMPLE_INST, &gTIMER_SAMPLEBackup, false);
+	retStatus &= DL_TimerG_restoreConfiguration(TIMER_SAMPLE_INST, &gTIMER_SAMPLEBackup, true);
 	retStatus &= DL_SPI_restoreConfiguration(SPI_LCD_INST, &gSPI_LCDBackup);
 
     return retStatus;
@@ -264,6 +264,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_SYSCTL_init(void)
 	//Low Power Mode is configured to be STANDBY0
     DL_SYSCTL_setPowerPolicySTANDBY0();
     DL_SYSCTL_setBORThreshold(DL_SYSCTL_BOR_THRESHOLD_LEVEL_0);
+    DL_SYSCTL_setVBOOSTConfig(DL_SYSCTL_VBOOST_ONALWAYS);
     DL_SYSCTL_setFlashWaitState(DL_SYSCTL_FLASH_WAIT_STATE_2);
 
     DL_SYSCTL_setSYSOSCFreq(DL_SYSCTL_SYSOSC_FREQ_BASE);
@@ -369,7 +370,7 @@ static const DL_TimerG_ClockConfig gTIMER_SAMPLEClockConfig = {
  */
 static const DL_TimerG_TimerConfig gTIMER_SAMPLETimerConfig = {
     .period     = TIMER_SAMPLE_INST_LOAD_VALUE,
-    .timerMode  = DL_TIMER_TIMER_MODE_PERIODIC,
+    .timerMode  = DL_TIMER_TIMER_MODE_PERIODIC_UP,
     .startTimer = DL_TIMER_START,
 };
 

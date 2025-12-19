@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "path": "file:///c%3A/Users/obsfe/workspace_ccstheia"
+    },
+    {
+      "path": "file:///c%3A/Users/obsfe/workspace_ccstheia/.theia"
+    },
+    {
+      "path": "file:///c%3A/Users/obsfe/workspace_ccstheia/.vscode"
+    }
+  ],
+  "settings": {
+    "CCS.debug.breakpoint.showCore": false
+  }
+}
