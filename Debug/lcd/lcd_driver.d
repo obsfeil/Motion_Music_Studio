@@ -1,6 +1,6 @@
 # FIXED
 
-lcd/lcd_driver.o: ../lcd/lcd_driver.c \
+lcd/lcd_driver.o: ../lcd/lcd_driver.c ../lcd/lcd_driver.h \
  ti_msp_dl_config.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/DeviceFamily.h \
@@ -83,9 +83,8 @@ lcd/lcd_driver.o: ../lcd/lcd_driver.c \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/dl_vref.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/dl_wwdt.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_interrupt.h \
- C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_systick.h \
- ../lcd/lcd_driver.h ../main.h \
- ../ti/driverlib/dl_mathacl.h
+ C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_systick.h
+../lcd/lcd_driver.h:
 ti_msp_dl_config.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/DeviceFamily.h:
@@ -169,6 +168,3 @@ C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/dl_vref.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/dl_wwdt.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_interrupt.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_systick.h:
-../lcd/lcd_driver.h:
-../main.h:
-../ti/driverlib/dl_mathacl.h:

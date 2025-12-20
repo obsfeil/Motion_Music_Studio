@@ -220,14 +220,6 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 
 
 
-/* Defines for DMA_CH0 */
-#define DMA_CH0_CHAN_ID                                                      (1)
-#define SPI_LCD_INST_DMA_TRIGGER_0                            (DMA_SPI1_RX_TRIG)
-/* Defines for DMA_CH1 */
-#define DMA_CH1_CHAN_ID                                                      (0)
-#define SPI_LCD_INST_DMA_TRIGGER_1                            (DMA_SPI1_TX_TRIG)
-
-
 /* Port definition for Pin Group GPIO_BUTTONS */
 #define GPIO_BUTTONS_PORT                                                (GPIOA)
 
@@ -269,6 +261,9 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM31)
 
 
+
+
+
 /* clang-format on */
 
 void SYSCFG_DL_init(void);
@@ -286,8 +281,8 @@ void SYSCFG_DL_SPI_LCD_init(void);
 void SYSCFG_DL_ADC_MIC_JOY_init(void);
 void SYSCFG_DL_ADC_ACCEL_init(void);
 void SYSCFG_DL_VREF_init(void);
-void SYSCFG_DL_DMA_init(void);
 
+void SYSCFG_DL_RTC_init(void);
 
 bool SYSCFG_DL_saveConfiguration(void);
 bool SYSCFG_DL_restoreConfiguration(void);

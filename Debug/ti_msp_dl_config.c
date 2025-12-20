@@ -61,7 +61,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_init(void)
     SYSCFG_DL_ADC_MIC_JOY_init();
     SYSCFG_DL_ADC_ACCEL_init();
     SYSCFG_DL_VREF_init();
-    SYSCFG_DL_DMA_init();
+    SYSCFG_DL_RTC_init();
     SYSCFG_DL_SYSCTL_CLK_init();
     /* Ensure backup structures have no valid state */
 
@@ -106,7 +106,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
     DL_ADC12_reset(ADC_MIC_JOY_INST);
     DL_ADC12_reset(ADC_ACCEL_INST);
     DL_VREF_reset(VREF);
-
+    DL_RTC_reset(RTC);
 
     DL_GPIO_enablePower(GPIOA);
     DL_GPIO_enablePower(GPIOB);
@@ -118,7 +118,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
     DL_ADC12_enablePower(ADC_MIC_JOY_INST);
     DL_ADC12_enablePower(ADC_ACCEL_INST);
     DL_VREF_enablePower(VREF);
-
+    DL_RTC_enablePower(RTC);
     delay_cycles(POWER_STARTUP_DELAY);
 }
 
@@ -172,14 +172,15 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
     DL_GPIO_initPeripheralOutputFunction(GPIO_PWM_AUDIO_C0_IOMUX,GPIO_PWM_AUDIO_C0_IOMUX_FUNC);
     DL_GPIO_enableOutput(GPIO_PWM_AUDIO_C0_PORT, GPIO_PWM_AUDIO_C0_PIN);
 
-    DL_GPIO_initPeripheralInputFunctionFeatures(GPIO_I2C_0_IOMUX_SDA,
-        GPIO_I2C_0_IOMUX_SDA_FUNC, DL_GPIO_INVERSION_DISABLE,
-        DL_GPIO_RESISTOR_NONE, DL_GPIO_HYSTERESIS_DISABLE,
-        DL_GPIO_WAKEUP_DISABLE);
-    DL_GPIO_initPeripheralInputFunctionFeatures(GPIO_I2C_0_IOMUX_SCL,
-        GPIO_I2C_0_IOMUX_SCL_FUNC, DL_GPIO_INVERSION_DISABLE,
-        DL_GPIO_RESISTOR_NONE, DL_GPIO_HYSTERESIS_DISABLE,
-        DL_GPIO_WAKEUP_DISABLE);
+    
+	DL_GPIO_initPeripheralInputFunctionFeatures(
+		 GPIO_I2C_0_IOMUX_SDA, GPIO_I2C_0_IOMUX_SDA_FUNC,
+		 DL_GPIO_INVERSION_DISABLE, DL_GPIO_RESISTOR_NONE,
+		 DL_GPIO_HYSTERESIS_DISABLE, DL_GPIO_WAKEUP_DISABLE);
+	DL_GPIO_initPeripheralInputFunctionFeatures(
+		 GPIO_I2C_0_IOMUX_SCL, GPIO_I2C_0_IOMUX_SCL_FUNC,
+		 DL_GPIO_INVERSION_DISABLE, DL_GPIO_RESISTOR_NONE,
+		 DL_GPIO_HYSTERESIS_DISABLE, DL_GPIO_WAKEUP_DISABLE);
     DL_GPIO_enableHiZ(GPIO_I2C_0_IOMUX_SDA);
     DL_GPIO_enableHiZ(GPIO_I2C_0_IOMUX_SCL);
     DL_GPIO_initPeripheralInputFunctionFeatures(GPIO_I2C_1_IOMUX_SDA,
@@ -193,14 +194,22 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
     DL_GPIO_enableHiZ(GPIO_I2C_1_IOMUX_SDA);
     DL_GPIO_enableHiZ(GPIO_I2C_1_IOMUX_SCL);
 
-    DL_GPIO_initPeripheralOutputFunction(
-        GPIO_SPI_LCD_IOMUX_SCLK, GPIO_SPI_LCD_IOMUX_SCLK_FUNC);
-    DL_GPIO_initPeripheralOutputFunction(
-        GPIO_SPI_LCD_IOMUX_PICO, GPIO_SPI_LCD_IOMUX_PICO_FUNC);
-    DL_GPIO_initPeripheralInputFunction(
-        GPIO_SPI_LCD_IOMUX_POCI, GPIO_SPI_LCD_IOMUX_POCI_FUNC);
-    DL_GPIO_initPeripheralOutputFunction(
-        GPIO_SPI_LCD_IOMUX_CS0, GPIO_SPI_LCD_IOMUX_CS0_FUNC);
+    
+	DL_GPIO_initPeripheralOutputFunction(
+		 GPIO_SPI_LCD_IOMUX_SCLK, GPIO_SPI_LCD_IOMUX_SCLK_FUNC);
+	DL_GPIO_initPeripheralOutputFunction(
+		 GPIO_SPI_LCD_IOMUX_PICO, GPIO_SPI_LCD_IOMUX_PICO_FUNC);
+	DL_GPIO_initPeripheralInputFunctionFeatures(
+		 GPIO_SPI_LCD_IOMUX_POCI, GPIO_SPI_LCD_IOMUX_POCI_FUNC,
+		 DL_GPIO_INVERSION_DISABLE, DL_GPIO_RESISTOR_NONE,
+		 DL_GPIO_HYSTERESIS_DISABLE, DL_GPIO_WAKEUP_DISABLE);
+	DL_GPIO_initPeripheralOutputFunction(
+		 GPIO_SPI_LCD_IOMUX_CS0, GPIO_SPI_LCD_IOMUX_CS0_FUNC);
+
+    
+	DL_GPIO_setAnalogInternalResistor(GPIO_ADC_MIC_JOY_IOMUX_C0, DL_GPIO_RESISTOR_NONE);
+	DL_GPIO_setAnalogInternalResistor(GPIO_ADC_MIC_JOY_IOMUX_C1, DL_GPIO_RESISTOR_NONE);
+	DL_GPIO_setAnalogInternalResistor(GPIO_ADC_MIC_JOY_IOMUX_C2, DL_GPIO_RESISTOR_NONE);
 
     DL_GPIO_initDigitalInputFeatures(GPIO_BUTTONS_S1_IOMUX,
 		 DL_GPIO_INVERSION_DISABLE, DL_GPIO_RESISTOR_PULL_UP,
@@ -224,8 +233,8 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
 
     DL_GPIO_initDigitalOutput(GPIO_LCD_DC_IOMUX);
 
-    DL_GPIO_setLowerPinsPolarity(GPIO_BUTTONS_PORT, DL_GPIO_PIN_15_EDGE_RISE |
-		DL_GPIO_PIN_14_EDGE_FALL |
+    DL_GPIO_setLowerPinsPolarity(GPIO_BUTTONS_PORT, DL_GPIO_PIN_15_EDGE_FALL |
+		DL_GPIO_PIN_14_EDGE_RISE |
 		DL_GPIO_PIN_13_EDGE_FALL);
     DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN |
 		GPIO_BUTTONS_S2_PIN |
@@ -398,7 +407,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_PWM_AUDIO_init(void) {
     DL_TimerG_setCounterControl(PWM_AUDIO_INST,DL_TIMER_CZC_CCCTL0_ZCOND,DL_TIMER_CAC_CCCTL0_ACOND,DL_TIMER_CLC_CCCTL0_LCOND);
 
     DL_TimerG_setCaptureCompareOutCtl(PWM_AUDIO_INST, DL_TIMER_CC_OCTL_INIT_VAL_LOW,
-		DL_TIMER_CC_OCTL_INV_OUT_DISABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
+		DL_TIMER_CC_OCTL_INV_OUT_ENABLED, DL_TIMER_CC_OCTL_SRC_FUNCVAL,
 		DL_TIMERG_CAPTURE_COMPARE_0_INDEX);
 
     DL_TimerG_setCaptCompUpdateMethod(PWM_AUDIO_INST, DL_TIMER_CC_UPDATE_METHOD_IMMEDIATE, DL_TIMERG_CAPTURE_COMPARE_0_INDEX);
@@ -533,9 +542,10 @@ SYSCONFIG_WEAK void SYSCFG_DL_SPI_LCD_init(void) {
     /*
      * Set the bit rate clock divider to generate the serial output clock
      *     outputBitRate = (spiInputClock) / ((1 + SCR) * 2)
-     *     10000000 = (80000000)/((1 + 3) * 2)
+     *     13333333.33 = (80000000)/((1 + 2) * 2)
      */
-    DL_SPI_setBitRateSerialClockDivider(SPI_LCD_INST, 3);
+    DL_SPI_setBitRateSerialClockDivider(SPI_LCD_INST, 2);
+    DL_SPI_enableLoopbackMode(SPI_LCD_INST);
     /* Set RX and TX FIFO threshold levels */
     DL_SPI_setFIFOThreshold(SPI_LCD_INST, DL_SPI_RX_FIFO_LEVEL_1_2_FULL, DL_SPI_TX_FIFO_LEVEL_1_2_EMPTY);
 
@@ -633,43 +643,23 @@ SYSCONFIG_WEAK void SYSCFG_DL_VREF_init(void) {
 }
 
 
-static const DL_DMA_Config gDMA_CH0Config = {
-    .transferMode   = DL_DMA_SINGLE_TRANSFER_MODE,
-    .extendedMode   = DL_DMA_NORMAL_MODE,
-    .destIncrement  = DL_DMA_ADDR_UNCHANGED,
-    .srcIncrement   = DL_DMA_ADDR_UNCHANGED,
-    .destWidth      = DL_DMA_WIDTH_WORD,
-    .srcWidth       = DL_DMA_WIDTH_WORD,
-    .trigger        = SPI_LCD_INST_DMA_TRIGGER_0,
-    .triggerType    = DL_DMA_TRIGGER_TYPE_EXTERNAL,
+static const DL_RTC_Calendar gRTCCalendarConfig = {
+		.seconds    = 0,   /* Seconds = 0 */
+		.minutes    = 0,   /* Minute = 0 */
+		.hours      = 0,   /* Hour = 0 */
+		.dayOfWeek  = 0,    /* Day of week = 0 (Sunday) */
+		.dayOfMonth = 1,    /* Day of month = 1*/
+		.month      = 1,    /* Month = 1 (January) */
+		.year       = 2022, /* Year = 2022 */
 };
 
-SYSCONFIG_WEAK void SYSCFG_DL_DMA_CH0_init(void)
-{
-    DL_DMA_clearInterruptStatus(DMA, DL_DMA_INTERRUPT_CHANNEL1);
-    DL_DMA_enableInterrupt(DMA, DL_DMA_INTERRUPT_CHANNEL1);
-    DL_DMA_initChannel(DMA, DMA_CH0_CHAN_ID , (DL_DMA_Config *) &gDMA_CH0Config);
-}
-static const DL_DMA_Config gDMA_CH1Config = {
-    .transferMode   = DL_DMA_SINGLE_TRANSFER_MODE,
-    .extendedMode   = DL_DMA_NORMAL_MODE,
-    .destIncrement  = DL_DMA_ADDR_UNCHANGED,
-    .srcIncrement   = DL_DMA_ADDR_UNCHANGED,
-    .destWidth      = DL_DMA_WIDTH_WORD,
-    .srcWidth       = DL_DMA_WIDTH_WORD,
-    .trigger        = SPI_LCD_INST_DMA_TRIGGER_1,
-    .triggerType    = DL_DMA_TRIGGER_TYPE_EXTERNAL,
-};
 
-SYSCONFIG_WEAK void SYSCFG_DL_DMA_CH1_init(void)
-{
-    DL_DMA_clearInterruptStatus(DMA, DL_DMA_INTERRUPT_CHANNEL0);
-    DL_DMA_enableInterrupt(DMA, DL_DMA_INTERRUPT_CHANNEL0);
-    DL_DMA_initChannel(DMA, DMA_CH1_CHAN_ID , (DL_DMA_Config *) &gDMA_CH1Config);
-}
-SYSCONFIG_WEAK void SYSCFG_DL_DMA_init(void){
-    SYSCFG_DL_DMA_CH0_init();
-    SYSCFG_DL_DMA_CH1_init();
-}
 
+
+SYSCONFIG_WEAK void SYSCFG_DL_RTC_init(void)
+{
+	/* Initialize RTC Calendar */
+	DL_RTC_initCalendar(RTC , gRTCCalendarConfig, DL_RTC_FORMAT_BINARY);
+
+}
 
