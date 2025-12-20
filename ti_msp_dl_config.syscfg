@@ -41,6 +41,8 @@ ADC121.endAdd                            = 2;
 ADC121.enabledInterrupts                 = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
 ADC121.adcMem1chansel                    = "DL_ADC12_INPUT_CHAN_1";
 ADC121.adcMem2chansel                    = "DL_ADC12_INPUT_CHAN_2";
+ADC121.enabledEvents                     = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
+ADC121.adcClk_Freq_cconrun               = true;
 ADC121.adcPin0Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric0";
 ADC121.adcPin0Config.hideOutputInversion = scripting.forceWrite(false);
 ADC121.adcPin1Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric10";
@@ -160,6 +162,11 @@ PWM1.peripheral.ccp0Pin.$assign         = "boosterpack.32";
 
 SPI1.$name                              = "SPI_LCD";
 SPI1.targetBitRate                      = 10000000;
+SPI1.enabledInterrupts                  = ["IDLE"];
+SPI1.enabledDMAEvent1Triggers           = "DL_SPI_DMA_INTERRUPT_RX";
+SPI1.enabledDMAEvent2Triggers           = "DL_SPI_DMA_INTERRUPT_TX";
+SPI1.enableDMAEvent1                    = false;
+SPI1.enableDMAEvent2                    = false;
 SPI1.peripheral.$assign                 = "SPI1";
 SPI1.peripheral.sclkPin.$assign         = "boosterpack.11";
 SPI1.peripheral.mosiPin.$assign         = "boosterpack.17";
@@ -182,6 +189,10 @@ SPI1.cs0PinConfig.hideOutputInversion   = scripting.forceWrite(false);
 SPI1.cs0PinConfig.onlyInternalResistor  = scripting.forceWrite(false);
 SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite("Digital");
 SPI1.cs0PinConfig.$name                 = "ti_driverlib_gpio_GPIOPinGeneric7";
+SPI1.DMA_CHANNEL_EVENT1.$name           = "DMA_CH0";
+SPI1.DMA_CHANNEL_EVENT1.enableInterrupt = true;
+SPI1.DMA_CHANNEL_EVENT2.$name           = "DMA_CH1";
+SPI1.DMA_CHANNEL_EVENT2.enableInterrupt = true;
 
 SYSCTL.MFPCLKEn               = true;
 SYSCTL.MFCLKEn                = true;
@@ -225,3 +236,11 @@ ProjectConfig.genLibCMSIS        = true;
 ProjectConfig.migrationCondition = true;
 ProjectConfig.genLibGC           = true;
 ProjectConfig.genLibMC           = true;
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+SPI1.DMA_CHANNEL_EVENT1.peripheral.$suggestSolution = "DMA_CH1";
+SPI1.DMA_CHANNEL_EVENT2.peripheral.$suggestSolution = "DMA_CH0";

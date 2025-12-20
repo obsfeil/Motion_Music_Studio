@@ -35,6 +35,7 @@
 - VREF:
 	+ VREF Positive (VREF+): PA23
 - EVENT
+- DMA
 - BOARD:
 	+ Debug Clock: PA20
 	+ Debug Data In Out: PA19

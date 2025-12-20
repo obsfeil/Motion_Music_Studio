@@ -61,6 +61,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_init(void)
     SYSCFG_DL_ADC_MIC_JOY_init();
     SYSCFG_DL_ADC_ACCEL_init();
     SYSCFG_DL_VREF_init();
+    SYSCFG_DL_DMA_init();
     SYSCFG_DL_SYSCTL_CLK_init();
     /* Ensure backup structures have no valid state */
 
@@ -106,6 +107,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
     DL_ADC12_reset(ADC_ACCEL_INST);
     DL_VREF_reset(VREF);
 
+
     DL_GPIO_enablePower(GPIOA);
     DL_GPIO_enablePower(GPIOB);
     DL_TimerG_enablePower(PWM_AUDIO_INST);
@@ -116,6 +118,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
     DL_ADC12_enablePower(ADC_MIC_JOY_INST);
     DL_ADC12_enablePower(ADC_ACCEL_INST);
     DL_VREF_enablePower(VREF);
+
     delay_cycles(POWER_STARTUP_DELAY);
 }
 
@@ -535,6 +538,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_SPI_LCD_init(void) {
     DL_SPI_setBitRateSerialClockDivider(SPI_LCD_INST, 3);
     /* Set RX and TX FIFO threshold levels */
     DL_SPI_setFIFOThreshold(SPI_LCD_INST, DL_SPI_RX_FIFO_LEVEL_1_2_FULL, DL_SPI_TX_FIFO_LEVEL_1_2_EMPTY);
+    DL_SPI_enableInterrupt(SPI_LCD_INST, (DL_SPI_INTERRUPT_IDLE));
 
     /* Enable module */
     DL_SPI_enable(SPI_LCD_INST);
@@ -549,6 +553,7 @@ static const DL_ADC12_ClockConfig gADC_MIC_JOYClockConfig = {
 SYSCONFIG_WEAK void SYSCFG_DL_ADC_MIC_JOY_init(void)
 {
     DL_ADC12_setClockConfig(ADC_MIC_JOY_INST, (DL_ADC12_ClockConfig *) &gADC_MIC_JOYClockConfig);
+    DL_ADC12_forceSYSOSCOnInRunMode(ADC_MIC_JOY_INST);
 
     DL_ADC12_initSeqSample(ADC_MIC_JOY_INST,
         DL_ADC12_REPEAT_MODE_ENABLED, DL_ADC12_SAMPLING_SOURCE_AUTO, DL_ADC12_TRIG_SRC_SOFTWARE,
@@ -564,6 +569,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_MIC_JOY_init(void)
         DL_ADC12_INPUT_CHAN_2, DL_ADC12_REFERENCE_VOLTAGE_VDDA, DL_ADC12_SAMPLE_TIMER_SOURCE_SCOMP0, DL_ADC12_AVERAGING_MODE_DISABLED,
         DL_ADC12_BURN_OUT_SOURCE_DISABLED, DL_ADC12_TRIGGER_MODE_AUTO_NEXT, DL_ADC12_WINDOWS_COMP_MODE_DISABLED);
     DL_ADC12_setSampleTime0(ADC_MIC_JOY_INST,4000);
+    DL_ADC12_enableEvent(ADC_MIC_JOY_INST,(DL_ADC12_EVENT_MEM0_RESULT_LOADED));
     /* Enable ADC12 interrupt */
     DL_ADC12_clearInterruptStatus(ADC_MIC_JOY_INST,(DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED
 		 | DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED
@@ -620,6 +626,46 @@ SYSCONFIG_WEAK void SYSCFG_DL_VREF_init(void) {
     DL_VREF_configReference(VREF,
         (DL_VREF_Config *) &gVREFConfig);
     delay_cycles(VREF_READY_DELAY);
+}
+
+
+static const DL_DMA_Config gDMA_CH0Config = {
+    .transferMode   = DL_DMA_SINGLE_TRANSFER_MODE,
+    .extendedMode   = DL_DMA_NORMAL_MODE,
+    .destIncrement  = DL_DMA_ADDR_UNCHANGED,
+    .srcIncrement   = DL_DMA_ADDR_UNCHANGED,
+    .destWidth      = DL_DMA_WIDTH_WORD,
+    .srcWidth       = DL_DMA_WIDTH_WORD,
+    .trigger        = SPI_LCD_INST_DMA_TRIGGER_0,
+    .triggerType    = DL_DMA_TRIGGER_TYPE_EXTERNAL,
+};
+
+SYSCONFIG_WEAK void SYSCFG_DL_DMA_CH0_init(void)
+{
+    DL_DMA_clearInterruptStatus(DMA, DL_DMA_INTERRUPT_CHANNEL1);
+    DL_DMA_enableInterrupt(DMA, DL_DMA_INTERRUPT_CHANNEL1);
+    DL_DMA_initChannel(DMA, DMA_CH0_CHAN_ID , (DL_DMA_Config *) &gDMA_CH0Config);
+}
+static const DL_DMA_Config gDMA_CH1Config = {
+    .transferMode   = DL_DMA_SINGLE_TRANSFER_MODE,
+    .extendedMode   = DL_DMA_NORMAL_MODE,
+    .destIncrement  = DL_DMA_ADDR_UNCHANGED,
+    .srcIncrement   = DL_DMA_ADDR_UNCHANGED,
+    .destWidth      = DL_DMA_WIDTH_WORD,
+    .srcWidth       = DL_DMA_WIDTH_WORD,
+    .trigger        = SPI_LCD_INST_DMA_TRIGGER_1,
+    .triggerType    = DL_DMA_TRIGGER_TYPE_EXTERNAL,
+};
+
+SYSCONFIG_WEAK void SYSCFG_DL_DMA_CH1_init(void)
+{
+    DL_DMA_clearInterruptStatus(DMA, DL_DMA_INTERRUPT_CHANNEL0);
+    DL_DMA_enableInterrupt(DMA, DL_DMA_INTERRUPT_CHANNEL0);
+    DL_DMA_initChannel(DMA, DMA_CH1_CHAN_ID , (DL_DMA_Config *) &gDMA_CH1Config);
+}
+SYSCONFIG_WEAK void SYSCFG_DL_DMA_init(void){
+    SYSCFG_DL_DMA_CH0_init();
+    SYSCFG_DL_DMA_CH1_init();
 }
 
 
