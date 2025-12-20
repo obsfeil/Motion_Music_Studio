@@ -1,15 +1,13 @@
 /**
  * @file main.c
- * @brief MSPM0G3507 Synthesizer with LCD Display - FIXED
- * @version 1.3.2-fixed
+ * @brief MSPM0G3507 Synthesizer - STATE INITIALIZATION FIX
+ * @version 1.3.4-state-fix
  * @date 2025-12-19
  * 
- * CRITICAL FIXES:
- * - Removed floating point printf (causes Hard Fault on M0+ without proper config)
- * - Using manual float conversion as per technical report section 6.4
- * - Enabled LCD_Init() 
- * - Added missing ADC_ACCEL interrupt handler
- * - Proper initialization sequence
+ * CRITICAL FIX:
+ * - Explicit zero-initialization of g_synthState in .data section
+ * - Removed all global initializers (moved to main())
+ * - Fixed GPIO_LCD pin usage in lcd_driver.c compatibility
  */
 
 #include <math.h>
@@ -23,54 +21,11 @@
 #include "ti_msp_dl_config.h"
 
 //=============================================================================
-// STACK MONITORING
+// GLOBAL STATE - CRITICAL: Zero-initialized
 //=============================================================================
 
-#define STACK_CANARY_VALUE 0xDEADBEEF
-volatile uint32_t stack_canary __attribute__((section(".stack"))) = STACK_CANARY_VALUE;
-
-// Forward declarations
-void check_stack_canary(void);
-
-//=============================================================================
-// SAFE FLOAT TO STRING (No printf %f - prevents Hard Fault)
-//=============================================================================
-
-/**
- * @brief Converts float to string without using printf %f
- * @note As per technical report section 6.4, this avoids Hard Faults
- */
-void float_to_string(float value, char *buffer, uint8_t buffer_size, uint8_t decimals) {
-    int integer_part = (int)value;
-    int decimal_part = (int)((value - integer_part) * 100);
-    if (decimal_part < 0) decimal_part = -decimal_part;
-    
-    snprintf(buffer, buffer_size, "%d.%02d", integer_part, decimal_part);
-}
-
-//=============================================================================
-// GLOBAL STATE
-//=============================================================================
-
-SynthState_t g_synthState = {
-    .waveform = WAVE_SINE,
-    .mode = MODE_SYNTH,
-    .frequency = FREQ_DEFAULT,
-    .volume = VOLUME_DEFAULT,
-    .pitchBend = 0,
-    .audio_playing = false,
-    .display_update_needed = false,
-    .joy_x = JOY_ADC_CENTER,
-    .joy_y = JOY_ADC_CENTER,
-    .joy_pressed = false,
-    .btn_s1 = false,
-    .btn_s2 = false,
-    .accel_x = ACCEL_ZERO_G,
-    .accel_y = ACCEL_ZERO_G,
-    .accel_z = ACCEL_ZERO_G,
-    .mic_level = 0,
-    .light_lux = 0.0f
-};
+// CRITICAL FIX: Declare without initializer to force .bss placement
+SynthState_t g_synthState;
 
 //=============================================================================
 // AUDIO SYNTHESIS
@@ -79,8 +34,6 @@ static uint32_t phase = 0;
 static uint32_t phase_increment = 0;
 
 static void Update_Phase_Increment(void) {
-    // f_out = (MCLK / Period) * (Inc / 2^32)
-    // Forenklet for 44.1kHz interrupt:
     phase_increment = (uint32_t)((g_synthState.frequency * 4294967296.0) / SAMPLE_RATE);
 }
 
@@ -186,7 +139,6 @@ static void Process_Input(void) {
         g_synthState.display_update_needed = true;
         g_synthState.btn_s1 = false;
 
-        // Clear all RGB LEDs
         DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
         DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
         DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
@@ -235,8 +187,15 @@ static void Process_Input(void) {
 }
 
 //=============================================================================
-// DISPLAY UPDATE (FIXED - No float printf)
+// DISPLAY UPDATE
 //=============================================================================
+
+static void float_to_string(float value, char *buffer, uint8_t buffer_size, uint8_t decimals) {
+    int integer_part = (int)value;
+    int decimal_part = (int)((value - integer_part) * 100);
+    if (decimal_part < 0) decimal_part = -decimal_part;
+    snprintf(buffer, buffer_size, "%d.%02d", integer_part, decimal_part);
+}
 
 static void Update_Display(void) {
     char str[32];
@@ -254,7 +213,6 @@ static void Update_Display(void) {
         LCD_DrawRect(111, 6, 8, 8, COLOR_GRAY);
     }
 
-    // CRITICAL FIX: Use manual float conversion instead of %.1f
     float_to_string(g_synthState.frequency, freq_str, sizeof(freq_str), 1);
     snprintf(str, sizeof(str), "F: %s Hz", freq_str);
     LCD_DrawString(LCD_MARGIN_LEFT, LCD_Y_FREQ, str, COLOR_CYAN);
@@ -308,7 +266,6 @@ void ADC0_IRQHandler(void) {
     }
 }
 
-// CRITICAL FIX: Added missing interrupt handler for ADC_ACCEL
 void ADC1_IRQHandler(void) {
     switch (DL_ADC12_getPendingInterrupt(ADC_ACCEL_INST)) {
         case DL_ADC12_IIDX_MEM0_RESULT_LOADED:
@@ -346,52 +303,27 @@ void GPIOA_IRQHandler(void) {
     }
 }
 
-// Forbedret HardFault handler med bedre diagnostikk
 void HardFault_Handler(void) {
-    // Disable alle interrupts
     __disable_irq();
     
-    // Prøv å vise feilinfo på LCD (hvis mulig)
-    LCD_Clear(COLOR_BLACK);
-    LCD_DrawString(10, 40, "HARD FAULT!", COLOR_RED);
-    LCD_DrawString(10, 60, "Stack overflow?", COLOR_YELLOW);
-    LCD_DrawString(10, 80, "Check linker cfg", COLOR_WHITE);
-    
-    // Blink rød LED for å signalisere feil
     while(1) {
         DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
-        
-        // Software delay (siden timers kan være korrupte)
         for(volatile uint32_t i = 0; i < 100000; i++);
     }
 }
 
 //=============================================================================
-// STACK MONITORING FUNCTIONS
-//=============================================================================
-
-void check_stack_canary(void) {
-    if (stack_canary != STACK_CANARY_VALUE) {
-        // Stack overflow detektert!
-        LCD_Clear(COLOR_BLACK);
-        LCD_DrawString(10, 50, "STACK OVERFLOW!", COLOR_RED);
-        
-        while(1) {
-            DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_RED_PIN);
-            delay_ms(100);
-        }
-    }
-}
-
-//=============================================================================
-// MAIN
+// MAIN - CRITICAL STATE INITIALIZATION
 //=============================================================================
 
 int main(void) {
-    // Step 1: Initialize hardware configuration
+    // Step 1: Hardware init
     SYSCFG_DL_init();
 
-    // Step 2: CRITICAL - Explicit state initialization (per technical report)
+    // Step 2: CRITICAL - Zero-initialize entire state structure
+    memset(&g_synthState, 0, sizeof(SynthState_t));
+    
+    // Step 3: Set initial values AFTER memset
     g_synthState.waveform = WAVE_SINE;
     g_synthState.mode = MODE_SYNTH;
     g_synthState.frequency = FREQ_DEFAULT;
@@ -409,42 +341,40 @@ int main(void) {
     g_synthState.accel_z = ACCEL_ZERO_G;
     g_synthState.mic_level = 0;
     g_synthState.light_lux = 0.0f;
-
-    // Step 3: CRITICAL FIX - Initialize LCD (was commented out!)
-    // Per technical report section 5, proper initialization sequence is essential
+    
+    delay_ms(100);
+    // Step 4: Initialize LCD
     LCD_Init();
     LCD_Clear(COLOR_BLACK);
     
-    // Step 4: Show splash screen
+    // Step 5: Show splash
     LCD_DrawString(20, 50, "MSPM0G3507", COLOR_CYAN);
     LCD_DrawString(15, 70, "Synthesizer", COLOR_WHITE);
-    LCD_DrawString(35, 90, "v1.3.2", COLOR_YELLOW);
+    LCD_DrawString(35, 90, "v1.3.4", COLOR_YELLOW);
     delay_ms(2000);
 
-    // Step 5: Enable ADC conversions
+    // Step 6: Enable ADC
     DL_ADC12_enableConversions(ADC_MIC_JOY_INST);
     DL_ADC12_startConversion(ADC_MIC_JOY_INST);
     
     DL_ADC12_enableConversions(ADC_ACCEL_INST);
     DL_ADC12_startConversion(ADC_ACCEL_INST);
     
-    // Step 6: Enable interrupts (proper order per report)
+    // Step 7: Enable interrupts
     NVIC_EnableIRQ(TIMER_SAMPLE_INST_INT_IRQN);
     NVIC_EnableIRQ(GPIOA_INT_IRQn);
     NVIC_EnableIRQ(ADC_MIC_JOY_INST_INT_IRQN);
     NVIC_EnableIRQ(ADC_ACCEL_INST_INT_IRQN);
-
     __enable_irq();
     
-    // Step 7: Initialize audio synthesis
+    // Step 8: Initialize audio
     Update_Phase_Increment();
     
-    // Step 8: Initial display
+    // Step 9: Initial display
     Update_Display();
 
     // Main loop
     while (1) {
-        check_stack_canary();  // Monitor stack health
         Process_Input();
 
         static uint32_t last_display = 0;

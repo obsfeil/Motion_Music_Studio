@@ -53,6 +53,7 @@
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g352x.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g511x.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g518x.o"
+"./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx218_gx207.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx51x.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0h321x.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l111x.o"

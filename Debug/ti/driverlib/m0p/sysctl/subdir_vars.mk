@@ -12,6 +12,7 @@ C_SRCS += \
 ../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g352x.c \
 ../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g511x.c \
 ../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g518x.c \
+../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx218_gx207.c \
 ../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx51x.c \
 ../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0h321x.c \
 ../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l111x.c \
@@ -26,6 +27,7 @@ C_DEPS += \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g352x.d \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g511x.d \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g518x.d \
+./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx218_gx207.d \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx51x.d \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0h321x.d \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l111x.d \
@@ -40,6 +42,7 @@ OBJS += \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g352x.o \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g511x.o \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g518x.o \
+./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx218_gx207.o \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx51x.o \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0h321x.o \
 ./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l111x.o \
@@ -54,6 +57,7 @@ OBJS__QUOTED += \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0g352x.o" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0g511x.o" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0g518x.o" \
+"ti\driverlib\m0p\sysctl\dl_sysctl_mspm0gx218_gx207.o" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0gx51x.o" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0h321x.o" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0l111x.o" \
@@ -68,6 +72,7 @@ C_DEPS__QUOTED += \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0g352x.d" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0g511x.d" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0g518x.d" \
+"ti\driverlib\m0p\sysctl\dl_sysctl_mspm0gx218_gx207.d" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0gx51x.d" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0h321x.d" \
 "ti\driverlib\m0p\sysctl\dl_sysctl_mspm0l111x.d" \
@@ -82,6 +87,7 @@ C_SRCS__QUOTED += \
 "../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g352x.c" \
 "../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g511x.c" \
 "../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g518x.c" \
+"../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx218_gx207.c" \
 "../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx51x.c" \
 "../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0h321x.c" \
 "../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l111x.c" \

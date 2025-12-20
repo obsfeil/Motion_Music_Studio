@@ -1,14 +1,9 @@
 /**
  * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
  * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
- * @cliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.08.00.03"
- * @v2CliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.08.00.03"
+ * @cliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.09.00.02"
+ * @v2CliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.09.00.02"
  * @versions {"tool":"1.25.0+4268"}
- * 
- * FINAL CORRECT CONFIGURATION
- * Hardware: MSPM0G3507 LaunchPad + Educational BoosterPack MKII (BOOSTXL-EDUMKII)
- * Based on TI SLAU599B User Guide
- * Date: 2025-12-19
  */
 
 /**
@@ -38,37 +33,23 @@ const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 /**
  * Write custom configuration values to the imported modules.
  */
-
-// =============================================================================
-// ADC0 - Mikrofor + Joystick (Educational BoosterPack MKII)
-// Based on TI SLAU599B Table 2-8 and 2-9
-// =============================================================================
 ADC121.$name                             = "ADC_MIC_JOY";
 ADC121.sampleTime0                       = "125 us";
 ADC121.samplingOperationMode             = "sequence";
 ADC121.repeatMode                        = true;
 ADC121.endAdd                            = 2;
 ADC121.enabledInterrupts                 = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
-
-// CRITICAL: Correct channel mapping based on BoosterPack MKII pinout
-ADC121.adcMem0chansel                    = "DL_ADC12_INPUT_CHAN_0";  // J1.6  - Microphone
-ADC121.adcMem1chansel                    = "DL_ADC12_INPUT_CHAN_1";  // J3.26 - Joystick Y
-ADC121.adcMem2chansel                    = "DL_ADC12_INPUT_CHAN_2";  // J1.2  - Joystick X
-
+ADC121.adcMem1chansel                    = "DL_ADC12_INPUT_CHAN_1";
+ADC121.adcMem2chansel                    = "DL_ADC12_INPUT_CHAN_2";
 ADC121.adcPin0Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric0";
 ADC121.adcPin0Config.hideOutputInversion = scripting.forceWrite(false);
 ADC121.adcPin1Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric10";
+ADC121.peripheral.$assign                = "ADC0";
+ADC121.peripheral.adcPin0.$assign        = "boosterpack.8";
+ADC121.peripheral.adcPin1.$assign        = "boosterpack.5";
+ADC121.peripheral.adcPin2.$assign        = "boosterpack.2";
 ADC121.adcPin2Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric9";
 
-ADC121.peripheral.$assign                = "ADC0";
-ADC121.peripheral.adcPin0.$assign        = "PA27";  // CH0 - Microphone (J1.6)
-ADC121.peripheral.adcPin1.$assign        = "PA26";  // CH1 - Joystick Y (J3.26)
-ADC121.peripheral.adcPin2.$assign        = "PA25";  // CH2 - Joystick X (J1.2)
-
-// =============================================================================
-// ADC1 - 3-Axis Accelerometer (KXTC9-2050)
-// Based on TI SLAU599B Table 2-4
-// =============================================================================
 ADC122.$name                      = "ADC_ACCEL";
 ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
 ADC122.sampleTime0                = "125 us";
@@ -76,191 +57,132 @@ ADC122.samplingOperationMode      = "sequence";
 ADC122.repeatMode                 = true;
 ADC122.endAdd                     = 2;
 ADC122.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
-
-// Channel mapping for accelerometer
-ADC122.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";  // J3.23 - Accel X
-ADC122.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_3";  // J3.24 - Accel Y
-ADC122.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_7";  // J3.25 - Accel Z
-
-// Use VREF for accurate accelerometer readings
+ADC122.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
+ADC122.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_3";
+ADC122.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_7";
 ADC122.adcMem0vref                = "VREF";
 ADC122.adcMem1vref                = "VREF";
 ADC122.adcMem2vref                = "VREF";
-
 ADC122.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric11";
 ADC122.adcPin3Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric12";
+ADC122.peripheral.$assign         = "ADC1";
+ADC122.peripheral.adcPin2.$assign = "boosterpack.28";
+ADC122.peripheral.adcPin3.$assign = "boosterpack.26";
+ADC122.peripheral.adcPin7.$assign = "j17_expansion.8";
 ADC122.adcPin7Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
 
-ADC122.peripheral.$assign         = "ADC1";
-ADC122.peripheral.adcPin2.$assign = "PA17";  // CH2 - Accelerometer X (J3.23)
-ADC122.peripheral.adcPin3.$assign = "PA18";  // CH3 - Accelerometer Y (J3.24)
-ADC122.peripheral.adcPin7.$assign = "PA21";  // CH7 - Accelerometer Z (J3.25)
-
-// =============================================================================
-// Board Configuration
-// =============================================================================
 Board.genPeriphPinFile            = true;
 Board.genResourceCSV              = true;
 Board.configureVDDA               = true;
 Board.globalFastWakeEn            = true;
 Board.configureUnused             = true;
 Board.peripheral.$assign          = "DEBUGSS";
-Board.peripheral.swclkPin.$assign = "PA20";  // Debug Clock
-Board.peripheral.swdioPin.$assign = "PA19";  // Debug Data
+Board.peripheral.swclkPin.$assign = "j25_expansion.16";
+Board.peripheral.swdioPin.$assign = "j25_expansion.14";
 Board.genFileMod.$name            = "ti_driverlib_BoardPins0";
 Board.genFileCSV.$name            = "ti_driverlib_ResourcesCSV0";
 
-// =============================================================================
-// GPIO - Buttons (BoosterPack MKII + Joystick Select)
-// Based on TI SLAU599B Table 2-10 and 2-9
-// =============================================================================
 GPIO1.$name                              = "GPIO_BUTTONS";
 GPIO1.associatedPins.create(3);
-
 GPIO1.associatedPins[0].$name            = "S1";
 GPIO1.associatedPins[0].direction        = "INPUT";
 GPIO1.associatedPins[0].internalResistor = "PULL_UP";
 GPIO1.associatedPins[0].interruptEn      = true;
 GPIO1.associatedPins[0].polarity         = "RISE";
-GPIO1.associatedPins[0].pin.$assign      = "PA15";  // J4.33 - S1 button
-
+GPIO1.associatedPins[0].pin.$assign      = "boosterpack.30";
 GPIO1.associatedPins[1].$name            = "S2";
 GPIO1.associatedPins[1].direction        = "INPUT";
 GPIO1.associatedPins[1].internalResistor = "PULL_UP";
 GPIO1.associatedPins[1].interruptEn      = true;
 GPIO1.associatedPins[1].polarity         = "FALL";
-GPIO1.associatedPins[1].pin.$assign      = "PA14";  // J4.32 - S2 button
-
+GPIO1.associatedPins[1].pin.$assign      = "j17_expansion.7";
 GPIO1.associatedPins[2].$name            = "JOY_SEL";
 GPIO1.associatedPins[2].direction        = "INPUT";
 GPIO1.associatedPins[2].internalResistor = "PULL_UP";
 GPIO1.associatedPins[2].interruptEn      = true;
 GPIO1.associatedPins[2].polarity         = "FALL";
-GPIO1.associatedPins[2].pin.$assign      = "PA13";  // J1.5 - Joystick select
+GPIO1.associatedPins[2].pin.$assign      = "boosterpack.31";
 
-// =============================================================================
-// GPIO - RGB LED (LaunchPad Onboard)
-// Using LaunchPad onboard RGB LED (PB22/26/27) - Keep J5/J6/J7 jumpers installed
-// Note: BoosterPack MKII RGB LED uses J4.37/38/39 which are not easily accessible
-// =============================================================================
 GPIO2.$name                          = "GPIO_RGB";
 GPIO2.associatedPins.create(3);
-
 GPIO2.associatedPins[0].$name        = "RED";
-GPIO2.associatedPins[0].initialValue = "SET";  // Active low - OFF at startup
-GPIO2.associatedPins[0].pin.$assign  = "PB26";  // LaunchPad onboard LED (J6 jumper)
-
+GPIO2.associatedPins[0].initialValue = "SET";
+GPIO2.associatedPins[0].pin.$assign  = "j19_expansion.8";
 GPIO2.associatedPins[1].$name        = "GREEN";
-GPIO2.associatedPins[1].initialValue = "SET";  // Active low - OFF at startup
-GPIO2.associatedPins[1].pin.$assign  = "PB27";  // LaunchPad onboard LED (J7 jumper)
-
+GPIO2.associatedPins[1].initialValue = "SET";
+GPIO2.associatedPins[1].pin.$assign  = "j19_expansion.10";
 GPIO2.associatedPins[2].$name        = "BLUE";
-GPIO2.associatedPins[2].initialValue = "SET";  // Active low - OFF at startup
-GPIO2.associatedPins[2].pin.$assign  = "PB22";  // LaunchPad onboard LED (J5 jumper)
+GPIO2.associatedPins[2].initialValue = "SET";
+GPIO2.associatedPins[2].pin.$assign  = "j19_expansion.5";
 
-// =============================================================================
-// GPIO - LCD Control Pins
-// Based on TI SLAU599B Table 2-7
-// =============================================================================
 GPIO3.$name                          = "GPIO_LCD";
 GPIO3.associatedPins.create(2);
-
 GPIO3.associatedPins[0].$name        = "RST";
 GPIO3.associatedPins[0].initialValue = "SET";
-GPIO3.associatedPins[0].ioStructure  = "SD";  // Standard drive
-GPIO3.associatedPins[0].pin.$assign  = "PB13";  // J4.17 - LCD Reset
-
+GPIO3.associatedPins[0].ioStructure  = "SD";
+GPIO3.associatedPins[0].pin.$assign  = "boosterpack.35";
 GPIO3.associatedPins[1].$name        = "DC";
 GPIO3.associatedPins[1].initialValue = "SET";
-GPIO3.associatedPins[1].ioStructure  = "SD";  // Standard drive
-GPIO3.associatedPins[1].pin.$assign  = "PB14";  // J4.31 - LCD Register Select (D/C)
+GPIO3.associatedPins[1].ioStructure  = "SD";
+GPIO3.associatedPins[1].pin.$assign  = "j21_expansion.3";
 
-// =============================================================================
-// I2C0 - OPT3001 Light Sensor
-// Based on TI SLAU599B Table 2-1
-// =============================================================================
 I2C1.$name                     = "I2C_0";
 I2C1.basicEnableController     = true;
 I2C1.peripheral.$assign        = "I2C0";
-I2C1.peripheral.sdaPin.$assign = "PA0";   // I2C0 SDA
-I2C1.peripheral.sclPin.$assign = "PA1";   // I2C0 SCL
+I2C1.peripheral.sdaPin.$assign = "j19_expansion.9";
+I2C1.peripheral.sclPin.$assign = "j17_expansion.9";
 I2C1.sdaPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric13";
 I2C1.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric14";
 
-// =============================================================================
-// I2C1 - TMP006 Temperature Sensor (discontinued but kept for compatibility)
-// Based on TI SLAU599B Table 2-2
-// =============================================================================
 I2C2.$name                     = "I2C_1";
 I2C2.basicEnableController     = true;
 I2C2.peripheral.$assign        = "I2C1";
-I2C2.peripheral.sdaPin.$assign = "PA10";  // I2C1 SDA
-I2C2.peripheral.sclPin.$assign = "PA11";  // I2C1 SCL
+I2C2.peripheral.sdaPin.$assign = "boosterpack.34";
+I2C2.peripheral.sclPin.$assign = "boosterpack.33";
 I2C2.sdaPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric15";
 I2C2.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric16";
 
-// =============================================================================
-// PWM - Audio Output (Buzzer + Synthesizer)
-// Based on TI SLAU599B Table 2-6
-// =============================================================================
 PWM1.$name                              = "PWM_AUDIO";
 PWM1.timerStartTimer                    = true;
-PWM1.timerCount                         = 4095;  // 12-bit resolution for audio
+PWM1.timerCount                         = 4095;
 PWM1.interrupts                         = ["ZERO_EVENT"];
 PWM1.ccIndex                            = [0];
 PWM1.pwmMode                            = "EDGE_ALIGN_UP";
-PWM1.retentionRestoreCnt                = true;
-
 PWM1.PWM_CHANNEL_0.$name                = "ti_driverlib_pwm_PWMTimerCC0";
 PWM1.PWM_CHANNEL_0.dutyCycle            = 50;
-
 PWM1.ccp0PinConfig.direction            = scripting.forceWrite("OUTPUT");
 PWM1.ccp0PinConfig.hideOutputInversion  = scripting.forceWrite(false);
 PWM1.ccp0PinConfig.onlyInternalResistor = scripting.forceWrite(false);
 PWM1.ccp0PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 PWM1.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric2";
-
 PWM1.peripheral.$assign                 = "TIMG0";
-PWM1.peripheral.ccp0Pin.$assign         = "PA12";  // J4.40 - Buzzer/Audio output
+PWM1.peripheral.ccp0Pin.$assign         = "boosterpack.32";
 
-// =============================================================================
-// SPI - LCD Display (ST7735 128x128 TFT)
-// Based on TI SLAU599B Table 2-7
-// =============================================================================
 SPI1.$name                              = "SPI_LCD";
-SPI1.targetBitRate                      = 10000000;  // 10 MHz for LCD
-
+SPI1.targetBitRate                      = 10000000;
 SPI1.peripheral.$assign                 = "SPI1";
-SPI1.peripheral.sclkPin.$assign         = "PB16";  // J1.7  - LCD SPI Clock
-SPI1.peripheral.mosiPin.$assign         = "PB15";  // J2.15 - LCD SPI MOSI
-SPI1.peripheral.misoPin.$assign         = "PA16";  // Not used by LCD but needed for SPI
-SPI1.peripheral.cs0Pin.$assign          = "PA2";   // J2.13 - LCD SPI CS
-
+SPI1.peripheral.sclkPin.$assign         = "boosterpack.11";
+SPI1.peripheral.mosiPin.$assign         = "boosterpack.17";
+SPI1.peripheral.misoPin.$assign         = "boosterpack.29";
+SPI1.peripheral.cs0Pin.$assign          = "j17_expansion.1";
 SPI1.sclkPinConfig.direction            = scripting.forceWrite("OUTPUT");
 SPI1.sclkPinConfig.onlyInternalResistor = scripting.forceWrite(false);
 SPI1.sclkPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 SPI1.sclkPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric4";
-
 SPI1.mosiPinConfig.direction            = scripting.forceWrite("OUTPUT");
 SPI1.mosiPinConfig.hideOutputInversion  = scripting.forceWrite(false);
 SPI1.mosiPinConfig.onlyInternalResistor = scripting.forceWrite(false);
 SPI1.mosiPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 SPI1.mosiPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric5";
-
 SPI1.misoPinConfig.onlyInternalResistor = scripting.forceWrite(false);
 SPI1.misoPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 SPI1.misoPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric6";
-
 SPI1.cs0PinConfig.direction             = scripting.forceWrite("OUTPUT");
 SPI1.cs0PinConfig.hideOutputInversion   = scripting.forceWrite(false);
 SPI1.cs0PinConfig.onlyInternalResistor  = scripting.forceWrite(false);
 SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite("Digital");
 SPI1.cs0PinConfig.$name                 = "ti_driverlib_gpio_GPIOPinGeneric7";
 
-// =============================================================================
-// SYSCTL - System Clock Configuration
-// 32 MHz MCLK from SYSPLL for audio synthesis
-// =============================================================================
 SYSCTL.MFPCLKEn               = true;
 SYSCTL.MFCLKEn                = true;
 SYSCTL.powerPolicy            = "STANDBY0";
@@ -282,12 +204,8 @@ SYSCTL.clockInterrupts        = ["HSCLK_GOOD","SYSPLL_GOOD"];
 SYSCTL.vboostMode             = "ONALWAYS";
 SYSCTL.peripheral.$assign     = "SYSCTL";
 
-// =============================================================================
-// TIMER - Sample Timer for Audio Synthesis
-// 8 kHz sample rate (125 us period)
-// =============================================================================
 TIMER1.$name               = "TIMER_SAMPLE";
-TIMER1.timerPeriod         = "125 us";  // 8 kHz sample rate
+TIMER1.timerPeriod         = "125 us";
 TIMER1.interrupts          = ["ZERO"];
 TIMER1.interruptPriority   = "1";
 TIMER1.timerStartTimer     = true;
@@ -295,21 +213,15 @@ TIMER1.timerMode           = "PERIODIC_UP";
 TIMER1.retentionRestoreCnt = true;
 TIMER1.peripheral.$assign  = "TIMG7";
 
-// =============================================================================
-// VREF - Voltage Reference for ADC (Accelerometer)
-// 2.5V reference for accurate analog readings
-// =============================================================================
 VREF.basicIntVolt                  = "DL_VREF_BUFCONFIG_OUTPUT_2_5V";
 VREF.checkVREFReady                = true;
 VREF.advClkSrc                     = "DL_VREF_CLOCK_BUSCLK";
 VREF.peripheral.$assign            = "VREF";
-VREF.peripheral.vrefPosPin.$assign = "PA23";  // 2.5V output for accelerometer
+VREF.peripheral.vrefPosPin.$assign = "j17_expansion.10";
 VREF.vrefPosPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric8";
 
-// =============================================================================
-// Project Configuration
-// =============================================================================
 ProjectConfig.genLibDrivers      = true;
 ProjectConfig.genLibCMSIS        = true;
 ProjectConfig.migrationCondition = true;
 ProjectConfig.genLibGC           = true;
+ProjectConfig.genLibMC           = true;

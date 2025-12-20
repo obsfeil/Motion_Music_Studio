@@ -15,6 +15,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "ti_msp_dl_config.h" 
+#include <math.h>
+#include "ti/driverlib/dl_mathacl.h"
+
+//=============================================================================
+// MEMORY CONSTANTS (Reflecting project settings)
+//=============================================================================
+#define STACK_SIZE_BYTES    0x2000  // 8KB - matches linker --stack_size
+#define HEAP_SIZE_BYTES     0x1000  // 4KB - matches linker --heap_size
+
+//=============================================================================
+// AUDIO BUFFER (For din DCT/Wavetable)
+//=============================================================================
+#define AUDIO_BUFFER_SIZE   512
+// Ved å bruke en global buffer i .bss sparer vi stack-plass
+extern float gAudioWavetable[AUDIO_BUFFER_SIZE];
 
 //=============================================================================
 // SYSTEM CONSTANTS
@@ -82,7 +97,7 @@
 #define CLAMP(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 
 //=============================================================================
-// ENUMERATIONS
+// GLOBAL STATE ACCESS
 //=============================================================================
 
 typedef enum {
@@ -98,52 +113,39 @@ typedef enum {
     MODE_THEREMIN,
     MODE_DRUM
 } Mode_t;
-
-//=============================================================================
-// STATE STRUCTURES
-//=============================================================================
-
-typedef struct {
-    // Audio parameters
+// 1. Først definerer du typen (Strukturen)
+typedef struct SynthState {
     volatile Waveform_t waveform;
     volatile Mode_t mode;
     volatile float frequency;
     volatile uint8_t volume;
     volatile int8_t pitchBend;
     volatile bool audio_playing;
-    
-    // UI flags
     volatile bool display_update_needed;
     
-    // Joystick inputs (volatile - modified in ISR)
     volatile uint16_t joy_x;
     volatile uint16_t joy_y;
     volatile bool joy_pressed;
-    
-    // Button states (volatile - modified in ISR)
     volatile bool btn_s1;
     volatile bool btn_s2;
     
-    // Accelerometer (volatile - modified in ISR)
-    volatile uint16_t accel_x;
-    volatile uint16_t accel_y;
-    volatile uint16_t accel_z;
-    
-    // Microphone level (volatile - modified in ISR)
+    volatile int16_t accel_x;  // signed!
+    volatile int16_t accel_y;  // signed!
+    volatile int16_t accel_z;  // signed!
     volatile uint16_t mic_level;
-    
-    // Light sensor
     volatile float light_lux;
-
     
-    
+    // Debug counters (NEW!)
+    volatile uint32_t adc0_count;
+    volatile uint32_t adc1_count;
+    volatile uint32_t timer_count;
 } SynthState_t;
 
-//=============================================================================
-// GLOBAL VARIABLES (defined in main.c)
-//=============================================================================
-
-
+extern volatile SynthState_t gSynthState;
+// ... ved funksjonsprototyper
+void System_Init(void);
+void UI_UpdateDisplay(void);
+void Synth_ProcessAudio(void);
 
 //=============================================================================
 // FUNCTION PROTOTYPES

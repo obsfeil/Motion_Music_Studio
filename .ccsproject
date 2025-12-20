@@ -14,6 +14,6 @@
 	<isTargetConfigurationManual value="false"/>
 	<sourceLookupPath value="${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/ti/driverlib"/>
 	<origin value="C:\ti\mspm0_sdk_2_08_00_04\examples\nortos\LP_MSPM0G3507\driverlib\empty_driverlib_src\ticlang\empty_driverlib_src_LP_MSPM0G3507_nortos_ticlang.projectspec"/>
-	<filesToOpen value="README.md,empty.syscfg"/>
+	<filesToOpen value="README.md,ti_msp_dl_config.syscfg"/>
 	<convertedVirtualResources value=""/>
 </projectOptions>
