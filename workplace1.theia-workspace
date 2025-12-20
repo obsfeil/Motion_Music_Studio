@@ -11,6 +11,7 @@
     }
   ],
   "settings": {
-    "CCS.debug.breakpoint.showCore": false
+    "CCS.debug.breakpoint.showCore": false,
+    "CCS.debug.variable.showType": true
   }
 }
