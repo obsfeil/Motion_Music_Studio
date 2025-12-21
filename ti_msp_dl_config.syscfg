@@ -20,10 +20,8 @@ const GPIO3         = GPIO.addInstance();
 const I2C           = scripting.addModule("/ti/driverlib/I2C", {}, false);
 const I2C1          = I2C.addInstance();
 const I2C2          = I2C.addInstance();
-const MATHACL       = scripting.addModule("/ti/driverlib/MATHACL");
 const PWM           = scripting.addModule("/ti/driverlib/PWM", {}, false);
 const PWM1          = PWM.addInstance();
-const RTC           = scripting.addModule("/ti/driverlib/RTC");
 const SPI           = scripting.addModule("/ti/driverlib/SPI", {}, false);
 const SPI1          = SPI.addInstance();
 const SYSCTL        = scripting.addModule("/ti/driverlib/SYSCTL");
@@ -31,8 +29,7 @@ const TIMER         = scripting.addModule("/ti/driverlib/TIMER", {}, false);
 const TIMER1        = TIMER.addInstance();
 const VREF          = scripting.addModule("/ti/driverlib/VREF");
 const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
-const DMA    = scripting.addModule("/ti/driverlib/DMA");
-const DMA1   = DMA.addInstance();
+
 /**
  * Write custom configuration values to the imported modules.
  */
@@ -46,7 +43,6 @@ ADC121.adcMem1chansel                    = "DL_ADC12_INPUT_CHAN_1";
 ADC121.adcMem2chansel                    = "DL_ADC12_INPUT_CHAN_2";
 ADC121.enabledEvents                     = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
 ADC121.adcMem2vref                       = "VREF";
-ADC121.adcMem0vref                       = "VREF";
 ADC121.adcMem1vref                       = "VREF";
 ADC121.subChanID                         = 1;
 ADC121.adcPin0Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric0";
@@ -54,9 +50,9 @@ ADC121.adcPin0Config.hideOutputInversion = scripting.forceWrite(false);
 ADC121.adcPin1Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric10";
 ADC121.adcPin1Config.enableConfig        = true;
 ADC121.peripheral.$assign                = "ADC0";
-ADC121.peripheral.adcPin0.$assign        = "PA27";
-ADC121.peripheral.adcPin1.$assign        = "PA26";
-ADC121.peripheral.adcPin2.$assign        = "PA";
+ADC121.peripheral.adcPin0.$assign        = "boosterpack.8";
+ADC121.peripheral.adcPin1.$assign        = "boosterpack.5";
+ADC121.peripheral.adcPin2.$assign        = "boosterpack.2";
 ADC121.adcPin2Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric9";
 ADC121.adcPin2Config.enableConfig        = true;
 
@@ -71,8 +67,8 @@ ADC122.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_3";
 ADC122.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_7";
 ADC122.adcMem2vref                = "VREF";
 ADC122.adcMem1vref                = "VREF";
-ADC122.adcMem0vref                = "VREF";
 ADC122.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
+ADC122.adcMem0vref                = "VREF";
 ADC122.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric11";
 ADC122.adcPin3Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric12";
 ADC122.peripheral.$assign         = "ADC1";
@@ -90,8 +86,6 @@ Board.peripheral.swclkPin.$assign = "j25_expansion.16";
 Board.peripheral.swdioPin.$assign = "j25_expansion.14";
 Board.genFileMod.$name            = "ti_driverlib_BoardPins0";
 Board.genFileCSV.$name            = "ti_driverlib_ResourcesCSV0";
-
-DMA1.$name = "DMA_CH0";
 
 GPIO1.$name                              = "GPIO_BUTTONS";
 GPIO1.port                               = "PORTA";
@@ -179,7 +173,6 @@ PWM1.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric2";
 PWM1.peripheral.$assign                 = "TIMG0";
 PWM1.peripheral.ccp0Pin.$assign         = "boosterpack.32";
 
-
 SPI1.$name                              = "SPI_LCD";
 SPI1.enableDMAEvent1                    = false;
 SPI1.enableDMAEvent2                    = false;
@@ -257,11 +250,3 @@ ProjectConfig.genLibIQ             = true;
 ProjectConfig.genLibIQVersion      = "MATHACL";
 ProjectConfig.genLibGC             = true;
 ProjectConfig.genLibGaugeL2Version = "MATHACL";
-ProjectConfig.genLibSMBUS          = false;
-
-/**
- * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
- * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
- * re-solve from scratch.
- */
-RTC.peripheral.$suggestSolution = "RTC";
