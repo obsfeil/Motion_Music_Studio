@@ -20,6 +20,7 @@ const GPIO3         = GPIO.addInstance();
 const I2C           = scripting.addModule("/ti/driverlib/I2C", {}, false);
 const I2C1          = I2C.addInstance();
 const I2C2          = I2C.addInstance();
+const MATHACL       = scripting.addModule("/ti/driverlib/MATHACL");
 const PWM           = scripting.addModule("/ti/driverlib/PWM", {}, false);
 const PWM1          = PWM.addInstance();
 const RTC           = scripting.addModule("/ti/driverlib/RTC");
@@ -30,33 +31,34 @@ const TIMER         = scripting.addModule("/ti/driverlib/TIMER", {}, false);
 const TIMER1        = TIMER.addInstance();
 const VREF          = scripting.addModule("/ti/driverlib/VREF");
 const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
-
+const DMA    = scripting.addModule("/ti/driverlib/DMA");
+const DMA1   = DMA.addInstance();
 /**
  * Write custom configuration values to the imported modules.
  */
-ADC121.$name                      = "ADC_MIC_JOY";
-ADC121.sampleTime0                = "125 us";
-ADC121.samplingOperationMode      = "sequence";
-ADC121.repeatMode                 = true;
-ADC121.endAdd                     = 2;
-ADC121.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
-ADC121.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_1";
-ADC121.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_2";
-ADC121.enabledEvents              = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
-ADC121.adcMem2vref                = "VREF";
-ADC121.adcMem0vref                = "VREF";
-ADC121.adcMem1vref                = "VREF";
-ADC121.trigSrc                    = "DL_ADC12_TRIG_SRC_EVENT";
-ADC121.subChanID                  = 1;
-ADC121.adcPin1Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric10";
-ADC121.adcPin1Config.enableConfig = true;
-ADC121.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric9";
-ADC121.adcPin2Config.enableConfig = true;
-ADC121.peripheral.$assign         = "ADC0";
-ADC121.peripheral.adcPin1.$assign = "boosterpack.5";
-ADC121.peripheral.adcPin2.$assign = "boosterpack.2";
-ADC121.adcPin0Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";
-ADC121.adcPin0Config.enableConfig = true;
+ADC121.$name                             = "ADC_MIC_JOY";
+ADC121.sampleTime0                       = "125 us";
+ADC121.samplingOperationMode             = "sequence";
+ADC121.repeatMode                        = true;
+ADC121.endAdd                            = 2;
+ADC121.enabledInterrupts                 = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
+ADC121.adcMem1chansel                    = "DL_ADC12_INPUT_CHAN_1";
+ADC121.adcMem2chansel                    = "DL_ADC12_INPUT_CHAN_2";
+ADC121.enabledEvents                     = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
+ADC121.adcMem2vref                       = "VREF";
+ADC121.adcMem0vref                       = "VREF";
+ADC121.adcMem1vref                       = "VREF";
+ADC121.subChanID                         = 1;
+ADC121.adcPin0Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric0";
+ADC121.adcPin0Config.hideOutputInversion = scripting.forceWrite(false);
+ADC121.adcPin1Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric10";
+ADC121.adcPin1Config.enableConfig        = true;
+ADC121.peripheral.$assign                = "ADC0";
+ADC121.peripheral.adcPin0.$assign        = "PA27";
+ADC121.peripheral.adcPin1.$assign        = "PA26";
+ADC121.peripheral.adcPin2.$assign        = "PA";
+ADC121.adcPin2Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric9";
+ADC121.adcPin2Config.enableConfig        = true;
 
 ADC122.$name                      = "ADC_ACCEL";
 ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
@@ -72,20 +74,16 @@ ADC122.adcMem1vref                = "VREF";
 ADC122.adcMem0vref                = "VREF";
 ADC122.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
 ADC122.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric11";
-ADC122.adcPin2Config.enableConfig = true;
 ADC122.adcPin3Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric12";
-ADC122.adcPin3Config.enableConfig = true;
 ADC122.peripheral.$assign         = "ADC1";
 ADC122.peripheral.adcPin2.$assign = "boosterpack.28";
 ADC122.peripheral.adcPin3.$assign = "boosterpack.26";
 ADC122.peripheral.adcPin7.$assign = "j17_expansion.8";
 ADC122.adcPin7Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
-ADC122.adcPin7Config.enableConfig = true;
 
 Board.genPeriphPinFile            = true;
 Board.genResourceCSV              = true;
 Board.configureVDDA               = true;
-Board.globalFastWakeEn            = true;
 Board.configureUnused             = true;
 Board.peripheral.$assign          = "DEBUGSS";
 Board.peripheral.swclkPin.$assign = "j25_expansion.16";
@@ -93,28 +91,36 @@ Board.peripheral.swdioPin.$assign = "j25_expansion.14";
 Board.genFileMod.$name            = "ti_driverlib_BoardPins0";
 Board.genFileCSV.$name            = "ti_driverlib_ResourcesCSV0";
 
+DMA1.$name = "DMA_CH0";
+
 GPIO1.$name                              = "GPIO_BUTTONS";
+GPIO1.port                               = "PORTA";
 GPIO1.associatedPins.create(3);
 GPIO1.associatedPins[0].$name            = "S1";
 GPIO1.associatedPins[0].direction        = "INPUT";
 GPIO1.associatedPins[0].internalResistor = "PULL_UP";
 GPIO1.associatedPins[0].interruptEn      = true;
 GPIO1.associatedPins[0].polarity         = "FALL";
+GPIO1.associatedPins[0].fastWakeEn       = true;
 GPIO1.associatedPins[0].pin.$assign      = "boosterpack.30";
 GPIO1.associatedPins[1].$name            = "S2";
 GPIO1.associatedPins[1].direction        = "INPUT";
 GPIO1.associatedPins[1].internalResistor = "PULL_UP";
 GPIO1.associatedPins[1].interruptEn      = true;
 GPIO1.associatedPins[1].polarity         = "RISE";
+GPIO1.associatedPins[1].fastWakeEn       = true;
 GPIO1.associatedPins[1].pin.$assign      = "j17_expansion.7";
 GPIO1.associatedPins[2].$name            = "JOY_SEL";
 GPIO1.associatedPins[2].direction        = "INPUT";
 GPIO1.associatedPins[2].internalResistor = "PULL_UP";
 GPIO1.associatedPins[2].interruptEn      = true;
 GPIO1.associatedPins[2].polarity         = "FALL";
+GPIO1.associatedPins[2].pubChanID        = 1;
+GPIO1.associatedPins[2].fastWakeEn       = true;
 GPIO1.associatedPins[2].pin.$assign      = "boosterpack.31";
 
 GPIO2.$name                          = "GPIO_RGB";
+GPIO2.port                           = "PORTB";
 GPIO2.associatedPins.create(3);
 GPIO2.associatedPins[0].$name        = "RED";
 GPIO2.associatedPins[0].initialValue = "SET";
@@ -127,6 +133,7 @@ GPIO2.associatedPins[2].initialValue = "SET";
 GPIO2.associatedPins[2].pin.$assign  = "j19_expansion.5";
 
 GPIO3.$name                          = "GPIO_LCD";
+GPIO3.port                           = "PORTB";
 GPIO3.associatedPins.create(2);
 GPIO3.associatedPins[0].$name        = "RST";
 GPIO3.associatedPins[0].initialValue = "SET";
@@ -245,16 +252,16 @@ VREF.peripheral.$assign            = "VREF";
 VREF.peripheral.vrefPosPin.$assign = "j17_expansion.10";
 VREF.vrefPosPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric8";
 
-ProjectConfig.genLibDrivers      = true;
-ProjectConfig.genLibCMSIS        = true;
-ProjectConfig.migrationCondition = true;
-ProjectConfig.genLibIQ           = true;
-ProjectConfig.genLibIQVersion    = "MATHACL";
+ProjectConfig.migrationCondition   = true;
+ProjectConfig.genLibIQ             = true;
+ProjectConfig.genLibIQVersion      = "MATHACL";
+ProjectConfig.genLibGC             = true;
+ProjectConfig.genLibGaugeL2Version = "MATHACL";
+ProjectConfig.genLibSMBUS          = false;
 
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
-ADC121.peripheral.adcPin0.$suggestSolution = "boosterpack.8";
-RTC.peripheral.$suggestSolution            = "RTC";
+RTC.peripheral.$suggestSolution = "RTC";

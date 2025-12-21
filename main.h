@@ -38,13 +38,13 @@
 // AUDIO CONFIGURATION
 //=============================================================================
 #define SAMPLE_RATE_HZ          8000.0    // 8 kHz sampling
-#define PWM_RESOLUTION          4096    // 12-bit PWM
-#define PWM_CENTER              2048    // Center value (silence)
+#define PWM_RESOLUTION          4096.0    // 12-bit PWM
+#define PWM_CENTER              2048.0    // Center value (silence)
 #define WAVETABLE_SIZE          256     // Power of 2 for efficient indexing
 
 // DDS (Direct Digital Synthesis) phase accumulator
-#define PHASE_BITS              32      // 32-bit phase accumulator
-#define PHASE_TO_INDEX_SHIFT    24      // Top 8 bits = table index
+#define PHASE_BITS              32     // 32-bit phase accumulator
+#define PHASE_TO_INDEX_SHIFT    24     // Top 8 bits = table index
 
 // Frequency limits (in Hz, converted to IQ at runtime)
 #define FREQ_MIN_HZ             20.0
