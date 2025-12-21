@@ -458,6 +458,9 @@ SYSCONFIG_WEAK void SYSCFG_DL_TIMER_SAMPLE_init(void) {
     DL_TimerG_enableClock(TIMER_SAMPLE_INST);
 
 
+    DL_TimerG_enableEvent(TIMER_SAMPLE_INST, DL_TIMERG_EVENT_ROUTE_1, (DL_TIMERG_EVENT_ZERO_EVENT));
+
+    DL_TimerG_setPublisherChanID(TIMER_SAMPLE_INST, DL_TIMERG_PUBLISHER_INDEX_0, TIMER_SAMPLE_INST_PUB_0_CH);
 
 
 
@@ -564,7 +567,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_MIC_JOY_init(void)
     DL_ADC12_setClockConfig(ADC_MIC_JOY_INST, (DL_ADC12_ClockConfig *) &gADC_MIC_JOYClockConfig);
 
     DL_ADC12_initSeqSample(ADC_MIC_JOY_INST,
-        DL_ADC12_REPEAT_MODE_ENABLED, DL_ADC12_SAMPLING_SOURCE_AUTO, DL_ADC12_TRIG_SRC_SOFTWARE,
+        DL_ADC12_REPEAT_MODE_ENABLED, DL_ADC12_SAMPLING_SOURCE_AUTO, DL_ADC12_TRIG_SRC_EVENT,
         DL_ADC12_SEQ_START_ADDR_00, DL_ADC12_SEQ_END_ADDR_02, DL_ADC12_SAMP_CONV_RES_12_BIT,
         DL_ADC12_SAMP_CONV_DATA_FORMAT_UNSIGNED);
     DL_ADC12_configConversionMem(ADC_MIC_JOY_INST, ADC_MIC_JOY_ADCMEM_0,
@@ -622,10 +625,6 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_ACCEL_init(void)
 }
 
 
-static const DL_VREF_ClockConfig gVREFClockConfig = {
-    .clockSel = DL_VREF_CLOCK_BUSCLK,
-    .divideRatio = DL_VREF_CLOCK_DIVIDE_1,
-};
 static const DL_VREF_Config gVREFConfig = {
     .vrefEnable     = DL_VREF_ENABLE_ENABLE,
     .bufConfig      = DL_VREF_BUFCONFIG_OUTPUT_2_5V,
@@ -635,8 +634,6 @@ static const DL_VREF_Config gVREFConfig = {
 };
 
 SYSCONFIG_WEAK void SYSCFG_DL_VREF_init(void) {
-    DL_VREF_setClockConfig(VREF,
-        (DL_VREF_ClockConfig *) &gVREFClockConfig);
     DL_VREF_configReference(VREF,
         (DL_VREF_Config *) &gVREFConfig);
     delay_cycles(VREF_READY_DELAY);

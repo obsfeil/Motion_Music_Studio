@@ -103,6 +103,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define TIMER_SAMPLE_INST_IRQHandler                            TIMG7_IRQHandler
 #define TIMER_SAMPLE_INST_INT_IRQN                              (TIMG7_INT_IRQn)
 #define TIMER_SAMPLE_INST_LOAD_VALUE                                     (9999U)
+#define TIMER_SAMPLE_INST_PUB_0_CH                                           (1)
 
 
 
