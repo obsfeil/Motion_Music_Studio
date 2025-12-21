@@ -34,30 +34,29 @@ const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 /**
  * Write custom configuration values to the imported modules.
  */
-ADC121.$name                             = "ADC_MIC_JOY";
-ADC121.sampleTime0                       = "125 us";
-ADC121.samplingOperationMode             = "sequence";
-ADC121.repeatMode                        = true;
-ADC121.endAdd                            = 2;
-ADC121.enabledInterrupts                 = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
-ADC121.adcMem1chansel                    = "DL_ADC12_INPUT_CHAN_1";
-ADC121.adcMem2chansel                    = "DL_ADC12_INPUT_CHAN_2";
-ADC121.enabledEvents                     = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
-ADC121.adcMem2vref                       = "VREF";
-ADC121.adcMem0vref                       = "VREF";
-ADC121.adcMem1vref                       = "VREF";
-ADC121.trigSrc                           = "DL_ADC12_TRIG_SRC_EVENT";
-ADC121.adcPin0Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric0";
-ADC121.adcPin0Config.hideOutputInversion = scripting.forceWrite(false);
-ADC121.adcPin0Config.enableConfig        = true;
-ADC121.adcPin1Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric10";
-ADC121.adcPin1Config.enableConfig        = true;
-ADC121.peripheral.$assign                = "ADC0";
-ADC121.peripheral.adcPin0.$assign        = "boosterpack.8";
-ADC121.peripheral.adcPin1.$assign        = "boosterpack.5";
-ADC121.peripheral.adcPin2.$assign        = "boosterpack.2";
-ADC121.adcPin2Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric9";
-ADC121.adcPin2Config.enableConfig        = true;
+ADC121.$name                      = "ADC_MIC_JOY";
+ADC121.sampleTime0                = "125 us";
+ADC121.samplingOperationMode      = "sequence";
+ADC121.repeatMode                 = true;
+ADC121.endAdd                     = 2;
+ADC121.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
+ADC121.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_1";
+ADC121.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_2";
+ADC121.enabledEvents              = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
+ADC121.adcMem2vref                = "VREF";
+ADC121.adcMem0vref                = "VREF";
+ADC121.adcMem1vref                = "VREF";
+ADC121.trigSrc                    = "DL_ADC12_TRIG_SRC_EVENT";
+ADC121.subChanID                  = 1;
+ADC121.adcPin1Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric10";
+ADC121.adcPin1Config.enableConfig = true;
+ADC121.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric9";
+ADC121.adcPin2Config.enableConfig = true;
+ADC121.peripheral.$assign         = "ADC0";
+ADC121.peripheral.adcPin1.$assign = "boosterpack.5";
+ADC121.peripheral.adcPin2.$assign = "boosterpack.2";
+ADC121.adcPin0Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";
+ADC121.adcPin0Config.enableConfig = true;
 
 ADC122.$name                      = "ADC_ACCEL";
 ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
@@ -73,12 +72,15 @@ ADC122.adcMem1vref                = "VREF";
 ADC122.adcMem0vref                = "VREF";
 ADC122.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
 ADC122.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric11";
+ADC122.adcPin2Config.enableConfig = true;
 ADC122.adcPin3Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric12";
+ADC122.adcPin3Config.enableConfig = true;
 ADC122.peripheral.$assign         = "ADC1";
 ADC122.peripheral.adcPin2.$assign = "boosterpack.28";
 ADC122.peripheral.adcPin3.$assign = "boosterpack.26";
 ADC122.peripheral.adcPin7.$assign = "j17_expansion.8";
 ADC122.adcPin7Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
+ADC122.adcPin7Config.enableConfig = true;
 
 Board.genPeriphPinFile            = true;
 Board.genResourceCSV              = true;
@@ -247,10 +249,12 @@ ProjectConfig.genLibDrivers      = true;
 ProjectConfig.genLibCMSIS        = true;
 ProjectConfig.migrationCondition = true;
 ProjectConfig.genLibIQ           = true;
+ProjectConfig.genLibIQVersion    = "MATHACL";
 
 /**
  * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
-RTC.peripheral.$suggestSolution = "RTC";
+ADC121.peripheral.adcPin0.$suggestSolution = "boosterpack.8";
+RTC.peripheral.$suggestSolution            = "RTC";

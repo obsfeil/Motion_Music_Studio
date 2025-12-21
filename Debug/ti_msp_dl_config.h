@@ -174,6 +174,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_MIC_JOY_ADCMEM_2                                  DL_ADC12_MEM_IDX_2
 #define ADC_MIC_JOY_ADCMEM_2_REF               DL_ADC12_REFERENCE_VOLTAGE_INTREF
 #define ADC_MIC_JOY_ADCMEM_2_REF_VOLTAGE_V                                    2.50
+#define ADC_MIC_JOY_INST_SUB_CH                                              (1)
 #define GPIO_ADC_MIC_JOY_C0_PORT                                           GPIOA
 #define GPIO_ADC_MIC_JOY_C0_PIN                                   DL_GPIO_PIN_27
 #define GPIO_ADC_MIC_JOY_IOMUX_C0                                (IOMUX_PINCM60)
