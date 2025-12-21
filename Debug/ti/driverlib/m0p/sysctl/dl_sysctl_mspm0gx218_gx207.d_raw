@@ -1,4 +1,0 @@
-ti/driverlib/m0p/sysctl/dl_sysctl_mspm0gx218_gx207.o: \
-  ..\ti\driverlib\m0p\sysctl\dl_sysctl_mspm0gx218_gx207.c \
-  C:\ti\mspm0_sdk_2_09_00_01\source\ti\devices\DeviceFamily.h
-C:\ti\mspm0_sdk_2_09_00_01\source\ti\devices\DeviceFamily.h:
