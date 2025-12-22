@@ -6,7 +6,7 @@
  * ARCHITECTURAL IMPROVEMENTS:
  * - IQMath fixed-point (MATHACL accelerated)
  * - Event Fabric for zero-CPU triggering
- * - DMA-driven audio pipeline
+ * - Interrupt-driven audio pipeline
  * - Sleep mode with __WFI()
  * - Zero float operations
  * - Deterministic timing
@@ -68,7 +68,7 @@ typedef enum {
 typedef struct {
     // Audio parameters (IQ24 fixed-point)
     _iq frequency;              // Current frequency (Hz)
-    _iq phase_increment;        // DDS phase increment per sample
+    uint32_t phase_increment;      // DDS phase increment per sample
     
     // Volume control (8-bit integer, 0-100%)
     uint8_t volume;
@@ -105,15 +105,6 @@ typedef struct {
 } SynthState_t;
 
 //=============================================================================
-// DMA BUFFER CONFIGURATION
-//=============================================================================
-#define DMA_BUFFER_SIZE     64      // Ping-pong buffer size
-
-// Ping-pong buffers for DMA audio output
-extern uint16_t dma_audio_buffer_a[DMA_BUFFER_SIZE];
-extern uint16_t dma_audio_buffer_b[DMA_BUFFER_SIZE];
-
-//=============================================================================
 // GLOBAL STATE (extern, defined in main.c)
 //=============================================================================
 extern volatile SynthState_t gSynthState;
@@ -133,7 +124,6 @@ extern const int16_t wavetable_triangle[WAVETABLE_SIZE];
 // System initialization
 void System_Init(void);
 void Audio_Init(void);
-void DMA_Init(void);
 
 // Audio engine (DMA-driven, CPU-free)
 void Audio_Update_Frequency(_iq new_freq);
@@ -170,21 +160,6 @@ static inline void System_Sleep(void)
     __WFI();  // Wait For Interrupt
 }
 
-
-#ifndef DMA_CH0_CHAN_ID
-    #define DMA_CH0_CHAN_ID 0
-#endif
-
-/**
- * @brief Get current active DMA buffer
- * @return Pointer to active audio buffer
- */
-static inline uint16_t* Audio_Get_Active_Buffer(void)
-{
-    // Check DMA channel 0 status to determine active buffer
-    return (DL_DMA_isChannelEnabled(DMA, DMA_CH0_CHAN_ID)) ? 
-           dma_audio_buffer_b : dma_audio_buffer_a;
-}
 
 /**
  * @brief Convert 12-bit ADC value to IQ24 frequency

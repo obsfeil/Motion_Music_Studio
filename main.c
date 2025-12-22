@@ -19,9 +19,8 @@
  * └──────────────────────────────────────────────────┘
  *          ↕ (Zero-latency hardware paths)
  * ┌──────────────────────────────────────────────────┐
- * │ DMA (7-channel controller)                       │
- * │   CH0: Wavetable → PWM (Audio output)           │
- * │   CH1: ADC → Input buffer                       │
+ * │ AUDIO OUTPUT                                     │
+ * │   Timer Interrupt → PWM Update (CPU driven)      │
  * └──────────────────────────────────────────────────┘
  * 
  * EXPECTED PERFORMANCE:
@@ -101,12 +100,6 @@ const int16_t wavetable_triangle[WAVETABLE_SIZE] = {
 };
 
 //=============================================================================
-// DMA BUFFERS (Ping-Pong for continuous audio)
-//=============================================================================
-uint16_t dma_audio_buffer_a[DMA_BUFFER_SIZE] __attribute__((aligned(4)));
-uint16_t dma_audio_buffer_b[DMA_BUFFER_SIZE] __attribute__((aligned(4)));
-
-//=============================================================================
 // GLOBAL STATE
 //=============================================================================
 volatile SynthState_t gSynthState;
@@ -157,18 +150,18 @@ void Audio_Init(void)
 //=============================================================================
 void Audio_Update_Frequency(_iq new_freq)
 {
-    // Critical section: update phase increment atomically
     uint32_t primask = Critical_Enter();
     
     gSynthState.frequency = new_freq;
     
-    // Calculate phase increment using MATHACL-accelerated IQMath
-    // phase_inc = (freq * 2^32) / sample_rate
+    // Calculate phase increment using only integer math
+    // phase_inc = (freq / sample_rate) * 2^32
     _iq sample_rate_iq = _IQ(SAMPLE_RATE_HZ);
-    _iq phase_inc = _IQdiv(new_freq, sample_rate_iq);  // Uses MATHACL!
+    _iq phase_ratio = _IQdiv(new_freq, sample_rate_iq);
     
-    // Convert IQ24 to 32-bit integer phase increment
-    gSynthState.phase_increment = _IQtoF(phase_inc * 4294967296.0);
+    // Convert from IQ24 to Q32 by shifting left 8 bits
+    // IQ24 has 24 fractional bits, we need 32
+    gSynthState.phase_increment = (uint32_t)phase_ratio << 8;
     
     Critical_Exit(primask);
     
@@ -479,8 +472,8 @@ int main(void)
         //---------------------------------------------------------------------
         // SLEEP MODE - CPU idles here 90% of time!
         //---------------------------------------------------------------------
-        System_Sleep();  // __WFI() - wakes on any interrupt
-        
+        //System_Sleep();  // __WFI() - wakes on any interrupt
+        __NOP(); 
         gSynthState.cpu_idle_count++;
         
         //---------------------------------------------------------------------

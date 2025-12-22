@@ -166,8 +166,8 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_MIC_JOY_INST_IRQHandler                              ADC0_IRQHandler
 #define ADC_MIC_JOY_INST_INT_IRQN                                (ADC0_INT_IRQn)
 #define ADC_MIC_JOY_ADCMEM_0                                  DL_ADC12_MEM_IDX_0
-#define ADC_MIC_JOY_ADCMEM_0_REF                 DL_ADC12_REFERENCE_VOLTAGE_VDDA
-#define ADC_MIC_JOY_ADCMEM_0_REF_VOLTAGE_V                                     3.3
+#define ADC_MIC_JOY_ADCMEM_0_REF               DL_ADC12_REFERENCE_VOLTAGE_INTREF
+#define ADC_MIC_JOY_ADCMEM_0_REF_VOLTAGE_V                                    2.50
 #define ADC_MIC_JOY_ADCMEM_1                                  DL_ADC12_MEM_IDX_1
 #define ADC_MIC_JOY_ADCMEM_1_REF               DL_ADC12_REFERENCE_VOLTAGE_INTREF
 #define ADC_MIC_JOY_ADCMEM_1_REF_VOLTAGE_V                                    2.50
@@ -261,7 +261,9 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 /* Defines for DC: GPIOB.14 with pinCMx 31 on package pin 2 */
 #define GPIO_LCD_DC_PIN                                         (DL_GPIO_PIN_14)
 #define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM31)
-#define GPIOA_EVENT_PUBLISHER_0_CHANNEL                                      (1)
+
+
+
 
 
 /* clang-format on */
@@ -282,6 +284,7 @@ void SYSCFG_DL_ADC_MIC_JOY_init(void);
 void SYSCFG_DL_ADC_ACCEL_init(void);
 void SYSCFG_DL_VREF_init(void);
 
+void SYSCFG_DL_RTC_init(void);
 
 bool SYSCFG_DL_saveConfiguration(void);
 bool SYSCFG_DL_restoreConfiguration(void);
