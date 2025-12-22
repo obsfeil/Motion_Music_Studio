@@ -157,7 +157,7 @@ uint16_t Map_Range(uint16_t value, uint16_t in_min, uint16_t in_max,
  */
 static inline void System_Sleep(void)
 {
-    __WFI();  // Wait For Interrupt
+   __WFI();  // Wait For Interrupt
 }
 
 

@@ -470,8 +470,9 @@ int main(void)
         //---------------------------------------------------------------------
         // SLEEP MODE - CPU idles here 90% of time!
         //---------------------------------------------------------------------
-        //System_Sleep();  // __WFI() - wakes on any interrupt
-        __NOP(); 
+        //System_Sleep();  
+         __WFI(); //- wakes on any interrupt
+        // __NOP(); 
         gSynthState.cpu_idle_count++;
         
         //---------------------------------------------------------------------
