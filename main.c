@@ -154,14 +154,12 @@ void Audio_Update_Frequency(_iq new_freq)
     
     gSynthState.frequency = new_freq;
     
-    // Calculate phase increment using only integer math
-    // phase_inc = (freq / sample_rate) * 2^32
-    _iq sample_rate_iq = _IQ(SAMPLE_RATE_HZ);
-    _iq phase_ratio = _IQdiv(new_freq, sample_rate_iq);
+    // Convert IQ24 to float for calculation
+    float freq_hz = _IQtoF(new_freq);
     
-    // Convert from IQ24 to Q32 by shifting left 8 bits
-    // IQ24 has 24 fractional bits, we need 32
-    gSynthState.phase_increment = (uint32_t)phase_ratio << 8;
+    // Calculate phase increment: (freq / sample_rate) * 2^32
+    float phase_ratio = freq_hz / SAMPLE_RATE_HZ;
+    gSynthState.phase_increment = (uint32_t)(phase_ratio * 4294967296.0f);
     
     Critical_Exit(primask);
     
