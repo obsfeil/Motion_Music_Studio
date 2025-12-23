@@ -119,7 +119,6 @@ GEN_OPTS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
-lcd \
 ti/driverlib \
 ti/driverlib/m0p \
 ti/driverlib/m0p/sysctl \

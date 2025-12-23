@@ -150,11 +150,16 @@ void Audio_Init(void)
 //=============================================================================
 void Audio_Update_Frequency(_iq new_freq)
 {
+    // FIX: Hvis frekvensen er 0, hopp ut! 
+    // Dette hindrer "infinite loop" i _IQtoF
+    if (new_freq == 0) {
+        return; 
+    }
+
     uint32_t primask = Critical_Enter();
-    
     gSynthState.frequency = new_freq;
     
-    // Convert IQ24 to float for calculation
+    // Her er linjen som henger hvis new_freq er 0:
     float freq_hz = _IQtoF(new_freq);
     
     // Calculate phase increment: (freq / sample_rate) * 2^32

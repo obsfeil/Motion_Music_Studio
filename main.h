@@ -28,6 +28,10 @@
 //=============================================================================
 #include "ti/iqmath/include/IQmathLib.h"
 
+#ifdef GLOBAL_IQ
+    #undef GLOBAL_IQ
+#endif
+
 // Use Q24 format: 8 bits integer, 24 bits fractional
 #define GLOBAL_IQ 24
 
@@ -48,7 +52,7 @@
 
 // Frequency limits (in Hz, converted to IQ at runtime)
 #define FREQ_MIN_HZ             20.0
-#define FREQ_MAX_HZ             2000.0
+#define FREQ_MAX_HZ             20000.0
 #define FREQ_DEFAULT_HZ         440.0
 
 //=============================================================================

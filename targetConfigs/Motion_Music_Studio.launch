@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="com.ti.ccstudio.debug.launchType.device.debugging">
+
+<!-- ========== PROJECT ========== -->
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT_NAME" value="Motion_Music_Studio"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROGRAM_NAME" value="${workspace_loc:Motion_Music_Studio/Debug/Motion_Music_Studio.out}"/>
+
+<!-- ========== TARGET ========== -->
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${workspace_loc:Motion_Music_Studio/targetConfigs/MSPM0G3507.ccxml}"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_CPUS_WITH_PROJECT" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;cpus_with_project&gt;&lt;id id=&quot;MSPM0G3507&quot; isa=&quot;CORTEX_M0PLUS&quot;/&gt;&lt;/cpus_with_project&gt;"/>
+
+<!-- ========== CONNECTION ========== -->
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_CONNECTION" value="Texas Instruments XDS110 USB Debug Probe"/>
+
+<!-- ========== JTAG/SWD SETTINGS ========== -->
+<mapAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_CONNECTION_PROPERTIES">
+    <!-- CRITICAL: Fixed 2 MHz, not Auto! -->
+    <mapEntry key="JTAG Clock Frequency" value="2000000"/>
+    
+    <!-- SWD Interface (not JTAG) -->
+    <mapEntry key="Debug Interface" value="SWD"/>
+    
+    <!-- Power settings -->
+    <mapEntry key="Supply voltage" value="3.3"/>
+</mapAttribute>
+
+<!-- ========== RESET & BOOT ========== -->
+<booleanAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_ENABLE_BOOT_ON_CONNECT" value="false"/>
+<booleanAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_RESET_TARGET_ON_CONNECT" value="true"/>
+
+<!-- CRITICAL: For WFI sleep debugging! -->
+<booleanAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_ENABLE_WAIT_FOR_DEBUG" value="true"/>
+
+<!-- ========== PROGRAM LOADING ========== -->
+<booleanAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_LOAD_PROGRAM" value="true"/>
+<booleanAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_LOAD_PROGRAM_LOAD_SYMBOLS_ONLY" value="false"/>
+<booleanAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_VERIFY_PROGRAM" value="true"/>
+
+<!-- ========== AUTO RUN ========== -->
+<booleanAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_AUTO_RUN_TO_MAIN" value="true"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_MAIN_SYMBOL" value="main"/>
+
+<!-- ========== GPIO & PERIPHERAL STATE ========== -->
+<booleanAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_RETAIN_GPIOS_STATE" value="true"/>
+
+<!-- ========== TIMEOUTS ========== -->
+<intAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_CONNECT_TIMEOUT" value="60000"/>
+
+<!-- ========== OTHER ========== -->
+<booleanAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="false"/>
+<booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
+
+</launchConfiguration>
