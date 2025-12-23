@@ -60,7 +60,6 @@
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l122x_l222x.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l211x_l112x.o"
 -l"syscfg/device_linker.cmd"
--ldriverlib.a
--llibiqmath_MATHACL.a
+-l"C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/lib/ticlang/m0p/mspm0g1x0x_g3x0x/driverlib.a"
+-l"C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/lib/ticlang/m0p/mathacl/mspm0g1x0x_g3x0x/iqmath.a"
 -llibc.a
--ldevice.cmd.genlibs

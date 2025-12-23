@@ -72,10 +72,9 @@ ORDERED_OBJS += \
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l122x_l222x.o" \
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l211x_l112x.o" \
 $(GEN_CMDS__FLAG) \
--Wl,-ldriverlib.a \
--Wl,-llibiqmath_MATHACL.a \
+-Wl,-l"C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/lib/ticlang/m0p/mspm0g1x0x_g3x0x/driverlib.a" \
+-Wl,-l"C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/lib/ticlang/m0p/mathacl/mspm0g1x0x_g3x0x/iqmath.a" \
 -Wl,-llibc.a \
--Wl,-ldevice.cmd.genlibs \
 
 -include ../makefile.init
 
@@ -196,7 +195,7 @@ all: $(OBJS) $(GEN_CMDS)
 Motion_Music_studio.out: $(OBJS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: Arm Linker'
-	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O0 -D__MSPM0G3507__ -DDEVICE_IS_MSPM0G3507 -gdwarf-3 -fno-common -Wl,-m"Motion_Music_studio.map" -Wl,--heap_size=0x1000 -Wl,--stack_size=0x2000 -Wl,-i"C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/lib/ticlang/m0p/mspm0g1x0x_g3x0x" -Wl,-i"C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/lib/ticlang/m0p/mathacl" -Wl,-i"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -Wl,-i"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug/syscfg" -Wl,-i"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/lib" -Wl,--reread_libs -Wl,--diag_wrap=off -Wl,--display_error_number -Wl,--warn_sections -Wl,--xml_link_info="Motion_Music_studio_linkInfo.xml" -Wl,--rom_model -o "Motion_Music_studio.out" $(ORDERED_OBJS)
+	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/bin/tiarmclang.exe" -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O0 -D__MSPM0G3507__ -DDEVICE_IS_MSPM0G3507 -gdwarf-3 -fno-common -Wl,-m"Motion_Music_studio.map" -Wl,--heap_size=0x1000 -Wl,--stack_size=0x2000 -Wl,-i"C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/lib/ticlang/m0p/mspm0g1x0x_g3x0x" -Wl,-i"C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/lib/ticlang/m0p/mathacl/mspm0g1x0x_g3x0x" -Wl,-i"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio" -Wl,-i"C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/Debug/syscfg" -Wl,-i"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-armllvm_4.0.4.LTS/lib" -Wl,--reread_libs -Wl,--diag_wrap=off -Wl,--display_error_number -Wl,--warn_sections -Wl,--xml_link_info="Motion_Music_studio_linkInfo.xml" -Wl,--rom_model -o "Motion_Music_studio.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
