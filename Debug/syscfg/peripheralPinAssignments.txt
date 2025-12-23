@@ -1,36 +1,35 @@
 
 - GPIOA:
-	+ Standard Input with internal pull-up: PA15
-	+ High-Speed Input with internal pull-up: PA14
-	+ High-Speed Input with internal pull-up: PA13
+	+ High-Drive Input with internal pull-up: PA11
+	+ High-Speed Input with internal pull-up: PA12
+	+ Standard Input with internal pull-up: PA26
 - GPIOB:
 	+ Standard Output: PB26
 	+ Standard Output: PB27
 	+ Standard Output: PB22
+	+ Standard Output: PB15
 	+ Standard Output: PB13
-	+ Standard Output: PB14
 - SYSCTL
-- TIMG0:
-	+ Capture/Compare Pin 0: PA12
+- TIMA1:
+	+ Capture/Compare Pin 0: PB4
 - TIMG7
 - I2C0:
 	+ I2C Serial Data line (SDA): PA0
 	+ I2C Serial Clock line (SCL): PA1
 - I2C1:
 	+ I2C Serial Data line (SDA): PA10
-	+ I2C Serial Clock line (SCL): PA11
+	+ I2C Serial Clock line (SCL): PA17
 - SPI1:
-	+ SPI SCLK (Clock): PB16
-	+ SPI PICO (Peripheral In, Controller Out): PB15
-	+ SPI POCI (Peripheral Out, Controller In): PA16
-	+ SPI CS0 (Chip Select 0): PA2
+	+ SPI SCLK (Clock): PB9
+	+ SPI PICO (Peripheral In, Controller Out): PB8
+	+ SPI POCI (Peripheral Out, Controller In): PB7
 - ADC0:
 	+ ADC12 Channel 0 Pin: PA27
-	+ ADC12 Channel 1 Pin: PA26
 	+ ADC12 Channel 2 Pin: PA25
+	+ ADC12 Channel 7 Pin: PA22
 - ADC1:
-	+ ADC12 Channel 2 Pin: PA17
 	+ ADC12 Channel 3 Pin: PA18
+	+ ADC12 Channel 0 Pin: PA15
 	+ ADC12 Channel 7 Pin: PA21
 - VREF:
 	+ VREF Positive (VREF+): PA23

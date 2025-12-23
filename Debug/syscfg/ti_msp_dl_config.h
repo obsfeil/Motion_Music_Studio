@@ -85,15 +85,15 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 
 
 /* Defines for PWM_AUDIO */
-#define PWM_AUDIO_INST                                                     TIMG0
-#define PWM_AUDIO_INST_IRQHandler                               TIMG0_IRQHandler
-#define PWM_AUDIO_INST_INT_IRQN                                 (TIMG0_INT_IRQn)
-#define PWM_AUDIO_INST_CLK_FREQ                                         40000000
+#define PWM_AUDIO_INST                                                     TIMA1
+#define PWM_AUDIO_INST_IRQHandler                               TIMA1_IRQHandler
+#define PWM_AUDIO_INST_INT_IRQN                                 (TIMA1_INT_IRQn)
+#define PWM_AUDIO_INST_CLK_FREQ                                         80000000
 /* GPIO defines for channel 0 */
-#define GPIO_PWM_AUDIO_C0_PORT                                             GPIOA
-#define GPIO_PWM_AUDIO_C0_PIN                                     DL_GPIO_PIN_12
-#define GPIO_PWM_AUDIO_C0_IOMUX                                  (IOMUX_PINCM34)
-#define GPIO_PWM_AUDIO_C0_IOMUX_FUNC                 IOMUX_PINCM34_PF_TIMG0_CCP0
+#define GPIO_PWM_AUDIO_C0_PORT                                             GPIOB
+#define GPIO_PWM_AUDIO_C0_PIN                                      DL_GPIO_PIN_4
+#define GPIO_PWM_AUDIO_C0_IOMUX                                  (IOMUX_PINCM17)
+#define GPIO_PWM_AUDIO_C0_IOMUX_FUNC                 IOMUX_PINCM17_PF_TIMA1_CCP0
 #define GPIO_PWM_AUDIO_C0_IDX                                DL_TIMER_CC_0_INDEX
 
 
@@ -132,9 +132,9 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_I2C_1_IOMUX_SDA                                     (IOMUX_PINCM21)
 #define GPIO_I2C_1_IOMUX_SDA_FUNC                      IOMUX_PINCM21_PF_I2C1_SDA
 #define GPIO_I2C_1_SCL_PORT                                                GPIOA
-#define GPIO_I2C_1_SCL_PIN                                        DL_GPIO_PIN_11
-#define GPIO_I2C_1_IOMUX_SCL                                     (IOMUX_PINCM22)
-#define GPIO_I2C_1_IOMUX_SCL_FUNC                      IOMUX_PINCM22_PF_I2C1_SCL
+#define GPIO_I2C_1_SCL_PIN                                        DL_GPIO_PIN_17
+#define GPIO_I2C_1_IOMUX_SCL                                     (IOMUX_PINCM39)
+#define GPIO_I2C_1_IOMUX_SCL_FUNC                      IOMUX_PINCM39_PF_I2C1_SCL
 
 
 /* Defines for SPI_LCD */
@@ -142,22 +142,18 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define SPI_LCD_INST_IRQHandler                                 SPI1_IRQHandler
 #define SPI_LCD_INST_INT_IRQN                                     SPI1_INT_IRQn
 #define GPIO_SPI_LCD_PICO_PORT                                            GPIOB
-#define GPIO_SPI_LCD_PICO_PIN                                    DL_GPIO_PIN_15
-#define GPIO_SPI_LCD_IOMUX_PICO                                 (IOMUX_PINCM32)
-#define GPIO_SPI_LCD_IOMUX_PICO_FUNC                 IOMUX_PINCM32_PF_SPI1_PICO
-#define GPIO_SPI_LCD_POCI_PORT                                            GPIOA
-#define GPIO_SPI_LCD_POCI_PIN                                    DL_GPIO_PIN_16
-#define GPIO_SPI_LCD_IOMUX_POCI                                 (IOMUX_PINCM38)
-#define GPIO_SPI_LCD_IOMUX_POCI_FUNC                 IOMUX_PINCM38_PF_SPI1_POCI
+#define GPIO_SPI_LCD_PICO_PIN                                     DL_GPIO_PIN_8
+#define GPIO_SPI_LCD_IOMUX_PICO                                 (IOMUX_PINCM25)
+#define GPIO_SPI_LCD_IOMUX_PICO_FUNC                 IOMUX_PINCM25_PF_SPI1_PICO
+#define GPIO_SPI_LCD_POCI_PORT                                            GPIOB
+#define GPIO_SPI_LCD_POCI_PIN                                     DL_GPIO_PIN_7
+#define GPIO_SPI_LCD_IOMUX_POCI                                 (IOMUX_PINCM24)
+#define GPIO_SPI_LCD_IOMUX_POCI_FUNC                 IOMUX_PINCM24_PF_SPI1_POCI
 /* GPIO configuration for SPI_LCD */
 #define GPIO_SPI_LCD_SCLK_PORT                                            GPIOB
-#define GPIO_SPI_LCD_SCLK_PIN                                    DL_GPIO_PIN_16
-#define GPIO_SPI_LCD_IOMUX_SCLK                                 (IOMUX_PINCM33)
-#define GPIO_SPI_LCD_IOMUX_SCLK_FUNC                 IOMUX_PINCM33_PF_SPI1_SCLK
-#define GPIO_SPI_LCD_CS0_PORT                                             GPIOA
-#define GPIO_SPI_LCD_CS0_PIN                                      DL_GPIO_PIN_2
-#define GPIO_SPI_LCD_IOMUX_CS0                                   (IOMUX_PINCM7)
-#define GPIO_SPI_LCD_IOMUX_CS0_FUNC                    IOMUX_PINCM7_PF_SPI1_CS0
+#define GPIO_SPI_LCD_SCLK_PIN                                     DL_GPIO_PIN_9
+#define GPIO_SPI_LCD_IOMUX_SCLK                                 (IOMUX_PINCM26)
+#define GPIO_SPI_LCD_IOMUX_SCLK_FUNC                 IOMUX_PINCM26_PF_SPI1_SCLK
 
 
 
@@ -179,14 +175,14 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_ADC_MIC_JOY_C0_PIN                                   DL_GPIO_PIN_27
 #define GPIO_ADC_MIC_JOY_IOMUX_C0                                (IOMUX_PINCM60)
 #define GPIO_ADC_MIC_JOY_IOMUX_C0_FUNC            (IOMUX_PINCM60_PF_UNCONNECTED)
-#define GPIO_ADC_MIC_JOY_C1_PORT                                           GPIOA
-#define GPIO_ADC_MIC_JOY_C1_PIN                                   DL_GPIO_PIN_26
-#define GPIO_ADC_MIC_JOY_IOMUX_C1                                (IOMUX_PINCM59)
-#define GPIO_ADC_MIC_JOY_IOMUX_C1_FUNC            (IOMUX_PINCM59_PF_UNCONNECTED)
 #define GPIO_ADC_MIC_JOY_C2_PORT                                           GPIOA
 #define GPIO_ADC_MIC_JOY_C2_PIN                                   DL_GPIO_PIN_25
 #define GPIO_ADC_MIC_JOY_IOMUX_C2                                (IOMUX_PINCM55)
 #define GPIO_ADC_MIC_JOY_IOMUX_C2_FUNC            (IOMUX_PINCM55_PF_UNCONNECTED)
+#define GPIO_ADC_MIC_JOY_C7_PORT                                           GPIOA
+#define GPIO_ADC_MIC_JOY_C7_PIN                                   DL_GPIO_PIN_22
+#define GPIO_ADC_MIC_JOY_IOMUX_C7                                (IOMUX_PINCM47)
+#define GPIO_ADC_MIC_JOY_IOMUX_C7_FUNC            (IOMUX_PINCM47_PF_UNCONNECTED)
 
 /* Defines for ADC_ACCEL */
 #define ADC_ACCEL_INST                                                      ADC1
@@ -201,14 +197,14 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_ACCEL_ADCMEM_2                                    DL_ADC12_MEM_IDX_2
 #define ADC_ACCEL_ADCMEM_2_REF                 DL_ADC12_REFERENCE_VOLTAGE_INTREF
 #define ADC_ACCEL_ADCMEM_2_REF_VOLTAGE_V                                    2.50
-#define GPIO_ADC_ACCEL_C2_PORT                                             GPIOA
-#define GPIO_ADC_ACCEL_C2_PIN                                     DL_GPIO_PIN_17
-#define GPIO_ADC_ACCEL_IOMUX_C2                                  (IOMUX_PINCM39)
-#define GPIO_ADC_ACCEL_IOMUX_C2_FUNC              (IOMUX_PINCM39_PF_UNCONNECTED)
 #define GPIO_ADC_ACCEL_C3_PORT                                             GPIOA
 #define GPIO_ADC_ACCEL_C3_PIN                                     DL_GPIO_PIN_18
 #define GPIO_ADC_ACCEL_IOMUX_C3                                  (IOMUX_PINCM40)
 #define GPIO_ADC_ACCEL_IOMUX_C3_FUNC              (IOMUX_PINCM40_PF_UNCONNECTED)
+#define GPIO_ADC_ACCEL_C0_PORT                                             GPIOA
+#define GPIO_ADC_ACCEL_C0_PIN                                     DL_GPIO_PIN_15
+#define GPIO_ADC_ACCEL_IOMUX_C0                                  (IOMUX_PINCM37)
+#define GPIO_ADC_ACCEL_IOMUX_C0_FUNC              (IOMUX_PINCM37_PF_UNCONNECTED)
 #define GPIO_ADC_ACCEL_C7_PORT                                             GPIOA
 #define GPIO_ADC_ACCEL_C7_PIN                                     DL_GPIO_PIN_21
 #define GPIO_ADC_ACCEL_IOMUX_C7                                  (IOMUX_PINCM46)
@@ -225,21 +221,21 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 /* Port definition for Pin Group GPIO_BUTTONS */
 #define GPIO_BUTTONS_PORT                                                (GPIOA)
 
-/* Defines for S1: GPIOA.15 with pinCMx 37 on package pin 8 */
+/* Defines for S1: GPIOA.11 with pinCMx 22 on package pin 57 */
 // pins affected by this interrupt request:["S1","S2","JOY_SEL"]
 #define GPIO_BUTTONS_INT_IRQN                                   (GPIOA_INT_IRQn)
 #define GPIO_BUTTONS_INT_IIDX                   (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
-#define GPIO_BUTTONS_S1_IIDX                                (DL_GPIO_IIDX_DIO15)
-#define GPIO_BUTTONS_S1_PIN                                     (DL_GPIO_PIN_15)
-#define GPIO_BUTTONS_S1_IOMUX                                    (IOMUX_PINCM37)
-/* Defines for S2: GPIOA.14 with pinCMx 36 on package pin 7 */
-#define GPIO_BUTTONS_S2_IIDX                                (DL_GPIO_IIDX_DIO14)
-#define GPIO_BUTTONS_S2_PIN                                     (DL_GPIO_PIN_14)
-#define GPIO_BUTTONS_S2_IOMUX                                    (IOMUX_PINCM36)
-/* Defines for JOY_SEL: GPIOA.13 with pinCMx 35 on package pin 6 */
-#define GPIO_BUTTONS_JOY_SEL_IIDX                           (DL_GPIO_IIDX_DIO13)
-#define GPIO_BUTTONS_JOY_SEL_PIN                                (DL_GPIO_PIN_13)
-#define GPIO_BUTTONS_JOY_SEL_IOMUX                               (IOMUX_PINCM35)
+#define GPIO_BUTTONS_S1_IIDX                                (DL_GPIO_IIDX_DIO11)
+#define GPIO_BUTTONS_S1_PIN                                     (DL_GPIO_PIN_11)
+#define GPIO_BUTTONS_S1_IOMUX                                    (IOMUX_PINCM22)
+/* Defines for S2: GPIOA.12 with pinCMx 34 on package pin 5 */
+#define GPIO_BUTTONS_S2_IIDX                                (DL_GPIO_IIDX_DIO12)
+#define GPIO_BUTTONS_S2_PIN                                     (DL_GPIO_PIN_12)
+#define GPIO_BUTTONS_S2_IOMUX                                    (IOMUX_PINCM34)
+/* Defines for JOY_SEL: GPIOA.26 with pinCMx 59 on package pin 30 */
+#define GPIO_BUTTONS_JOY_SEL_IIDX                           (DL_GPIO_IIDX_DIO26)
+#define GPIO_BUTTONS_JOY_SEL_PIN                                (DL_GPIO_PIN_26)
+#define GPIO_BUTTONS_JOY_SEL_IOMUX                               (IOMUX_PINCM59)
 /* Port definition for Pin Group GPIO_RGB */
 #define GPIO_RGB_PORT                                                    (GPIOB)
 
@@ -255,12 +251,12 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 /* Port definition for Pin Group GPIO_LCD */
 #define GPIO_LCD_PORT                                                    (GPIOB)
 
-/* Defines for RST: GPIOB.13 with pinCMx 30 on package pin 1 */
-#define GPIO_LCD_RST_PIN                                        (DL_GPIO_PIN_13)
-#define GPIO_LCD_RST_IOMUX                                       (IOMUX_PINCM30)
-/* Defines for DC: GPIOB.14 with pinCMx 31 on package pin 2 */
-#define GPIO_LCD_DC_PIN                                         (DL_GPIO_PIN_14)
-#define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM31)
+/* Defines for RST: GPIOB.15 with pinCMx 32 on package pin 3 */
+#define GPIO_LCD_RST_PIN                                        (DL_GPIO_PIN_15)
+#define GPIO_LCD_RST_IOMUX                                       (IOMUX_PINCM32)
+/* Defines for DC: GPIOB.13 with pinCMx 30 on package pin 1 */
+#define GPIO_LCD_DC_PIN                                         (DL_GPIO_PIN_13)
+#define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM30)
 
 
 
