@@ -1,5 +1,5 @@
 "./main.o"
-"./ti_msp_dl_config.o"
+"./syscfg/ti_msp_dl_config.o"
 "./startup_mspm0g350x_ticlang.o"
 "./ti/driverlib/dl_adc12.o"
 "./ti/driverlib/dl_aes.o"
@@ -59,6 +59,8 @@
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l11xx_l13xx.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l122x_l222x.o"
 "./ti/driverlib/m0p/sysctl/dl_sysctl_mspm0l211x_l112x.o"
--l"./device_linker.cmd"
--ldevice.cmd.genlibs
+-l"syscfg/device_linker.cmd"
+-ldriverlib.a
+-llibiqmath_MATHACL.a
 -llibc.a
+-ldevice.cmd.genlibs

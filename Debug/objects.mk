@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -Wl,-ldevice.cmd.genlibs -Wl,-llibc.a
+LIBS := -Wl,-ldriverlib.a -Wl,-llibiqmath_MATHACL.a -Wl,-llibc.a -Wl,-ldevice.cmd.genlibs
 

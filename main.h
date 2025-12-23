@@ -108,6 +108,10 @@ typedef struct {
     
 } SynthState_t;
 
+// ========== TIMER WRAP-AROUND FIX ==========
+#define TIMER_ELAPSED(now, start) \
+    (((now) >= (start)) ? ((now) - (start)) : \
+     (UINT32_MAX - (start) + (now) + 1))
 //=============================================================================
 // GLOBAL STATE (extern, defined in main.c)
 //=============================================================================

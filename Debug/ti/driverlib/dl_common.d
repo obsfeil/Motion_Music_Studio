@@ -1,7 +1,7 @@
 # FIXED
 
 ti/driverlib/dl_common.o: ../ti/driverlib/dl_common.c \
- C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/dl_common.h \
+ C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_common.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/DeviceFamily.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/mspm0g350x.h \
@@ -32,7 +32,7 @@ ti/driverlib/dl_common.o: ../ti/driverlib/dl_common.c \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/hw_debugss.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/hw_sysctl.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/sysctl/hw_sysctl_mspm0g1x0x_g3x0x.h
-C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/dl_common.h:
+C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_common.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/DeviceFamily.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/mspm0g350x.h:

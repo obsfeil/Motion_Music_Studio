@@ -3,7 +3,7 @@
 ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.o: \
  ../ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.c \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/DeviceFamily.h \
- C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_core.h \
+ C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_core.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/mspm0g350x.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/third_party/CMSIS/Core/Include/core_cm0plus.h \
@@ -33,11 +33,11 @@ ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.o: \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/hw_debugss.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/hw_sysctl.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/sysctl/hw_sysctl_mspm0g1x0x_g3x0x.h \
- C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.h \
- C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/dl_common.h \
- C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_factoryregion.h
+ C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.h \
+ C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_common.h \
+ C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_factoryregion.h
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/DeviceFamily.h:
-C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_core.h:
+C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_core.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/mspm0g350x.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/third_party/CMSIS/Core/Include/core_cm0plus.h:
@@ -67,6 +67,6 @@ C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/hw_cpuss.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/hw_debugss.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/hw_sysctl.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/peripherals/m0p/sysctl/hw_sysctl_mspm0g1x0x_g3x0x.h:
-C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.h:
-C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/dl_common.h:
-C:/ti/mspm0_sdk_2_09_00_01/source/ti/driverlib/m0p/dl_factoryregion.h:
+C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/sysctl/dl_sysctl_mspm0g1x0x_g3x0x.h:
+C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_common.h:
+C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_factoryregion.h:

@@ -1,6 +1,6 @@
 # FIXED
 
-main.o: ../main.c ../main.h \
+syscfg/ti_msp_dl_config.o: syscfg/ti_msp_dl_config.c \
  syscfg/ti_msp_dl_config.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h \
  C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/DeviceFamily.h \
@@ -83,9 +83,7 @@ main.o: ../main.c ../main.h \
  C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_vref.h \
  C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_wwdt.h \
  C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_interrupt.h \
- C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_systick.h \
- C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/include/IQmathLib.h
-../main.h:
+ C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_systick.h
 syscfg/ti_msp_dl_config.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/DeviceFamily.h:
@@ -169,4 +167,3 @@ C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_vref.h:
 C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_wwdt.h:
 C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_interrupt.h:
 C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_systick.h:
-C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/include/IQmathLib.h:
