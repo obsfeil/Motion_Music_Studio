@@ -132,6 +132,9 @@ void Audio_Init(void)
 //=============================================================================
 void Audio_Update_Frequency(_iq new_freq)
 {
+    if (new_freq <= 100) { // 100 er et veldig lite tall i IQ-verdenen
+        return; // Avbryt! Ikke rør _IQtoF!
+    }
     uint32_t primask = Critical_Enter();
     
     gSynthState.frequency = new_freq;

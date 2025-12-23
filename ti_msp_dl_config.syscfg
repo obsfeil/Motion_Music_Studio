@@ -34,118 +34,126 @@ const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 /**
  * Write custom configuration values to the imported modules.
  */
-
-// ============================================================================
-// ADC0: MICROPHONE + JOYSTICK (CRITICAL CONFIGURATION!)
-// ============================================================================
 ADC121.$name                             = "ADC_MIC_JOY";
-ADC121.sampClkDiv                        = "DL_ADC12_CLOCK_DIVIDE_1";
 ADC121.sampleTime0                       = "125 us";
 ADC121.samplingOperationMode             = "sequence";
 ADC121.repeatMode                        = true;
 ADC121.endAdd                            = 2;
-
-// CRITICAL: These lines often disappear! They MUST be here!
-ADC121.adcMem0chansel                    = "DL_ADC12_INPUT_CHAN_0";
 ADC121.adcMem1chansel                    = "DL_ADC12_INPUT_CHAN_1";
 ADC121.adcMem2chansel                    = "DL_ADC12_INPUT_CHAN_2";
-
-// CRITICAL: Use VREF (external 2.5V), not INTREF!
 ADC121.adcMem0vref                       = "VREF";
 ADC121.adcMem1vref                       = "VREF";
 ADC121.adcMem2vref                       = "VREF";
-
-// CRITICAL: Event Fabric configuration
 ADC121.trigSrc                           = "DL_ADC12_TRIG_SRC_EVENT";
 ADC121.subChanID                         = 1;
-
-// Interrupts
 ADC121.enabledInterrupts                 = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
-
-// Event publishing (for future expansion)
 ADC121.enabledEvents                     = ["DL_ADC12_EVENT_MEM0_RESULT_LOADED"];
-
-// CRITICAL: Pin configuration - enables analog mode!
 ADC121.adcPin0Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric0";
 ADC121.adcPin0Config.hideOutputInversion = scripting.forceWrite(false);
 ADC121.adcPin0Config.enableConfig        = true;
-
 ADC121.adcPin1Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric10";
 ADC121.adcPin1Config.enableConfig        = true;
-
+ADC121.peripheral.$assign                = "ADC0";
+ADC121.peripheral.adcPin0.$assign        = "boosterpack.8";
+ADC121.peripheral.adcPin1.$assign        = "boosterpack.5";
+ADC121.peripheral.adcPin2.$assign        = "boosterpack.2";
 ADC121.adcPin2Config.$name               = "ti_driverlib_gpio_GPIOPinGeneric9";
 ADC121.adcPin2Config.enableConfig        = true;
 
-// Pin assignments (BoosterPack compatible)
-ADC121.peripheral.$assign                = "ADC0";
-ADC121.peripheral.adcPin0.$assign        = "boosterpack.8";  // PA27/J1.6 - Microphone
-ADC121.peripheral.adcPin1.$assign        = "boosterpack.5";  // PA26/J3.26 - Joystick Y
-ADC121.peripheral.adcPin2.$assign        = "boosterpack.2";  // PA25/J1.2 - Joystick X
-
-// ============================================================================
-// ADC1: ACCELEROMETER
-// ============================================================================
 ADC122.$name                      = "ADC_ACCEL";
 ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
 ADC122.sampleTime0                = "125 us";
 ADC122.samplingOperationMode      = "sequence";
 ADC122.repeatMode                 = true;
 ADC122.endAdd                     = 2;
-
-// Channel mapping
 ADC122.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
 ADC122.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_3";
 ADC122.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_7";
-
-// Use VREF for all channels
 ADC122.adcMem0vref                = "VREF";
 ADC122.adcMem1vref                = "VREF";
 ADC122.adcMem2vref                = "VREF";
-
-// Interrupts
 ADC122.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM0_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED","DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
-
-// Pin configuration
 ADC122.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric11";
 ADC122.adcPin3Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric12";
+ADC122.peripheral.$assign         = "ADC1";
+ADC122.peripheral.adcPin2.$assign = "boosterpack.28";
+ADC122.peripheral.adcPin3.$assign = "boosterpack.26";
+ADC122.peripheral.adcPin7.$assign = "j17_expansion.8";
 ADC122.adcPin7Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
 
-// Pin assignments
-ADC122.peripheral.$assign         = "ADC1";
-ADC122.peripheral.adcPin2.$assign = "boosterpack.28";  // PA24 - Accel X
-ADC122.peripheral.adcPin3.$assign = "boosterpack.26";  // PA23 - Accel Y
-ADC122.peripheral.adcPin7.$assign = "j17_expansion.8"; // PA18 - Accel Z
+Board.genPeriphPinFile            = true;
+Board.genResourceCSV              = true;
+Board.configureVDDA               = true;
+Board.globalFastWakeEn            = true;
+Board.configureUnused             = true;
+Board.peripheral.$assign          = "DEBUGSS";
+Board.peripheral.swclkPin.$assign = "j25_expansion.16";
+Board.peripheral.swdioPin.$assign = "j25_expansion.14";
+Board.genFileMod.$name            = "ti_driverlib_BoardPins0";
+Board.genFileCSV.$name            = "ti_driverlib_ResourcesCSV0";
 
-// ============================================================================
-// VREF: 2.5V REFERENCE (CRITICAL - MUST BE BEFORE ADC!)
-// ============================================================================
-VREF.basicIntVolt                  = "DL_VREF_BUFCONFIG_OUTPUT_2_5V";
-VREF.checkVREFReady                = true;
-VREF.advClkSrc                     = "DL_VREF_CLOCK_BUSCLK";
-VREF.advClkDiv                     = "DL_VREF_CLOCK_DIVIDE_2";
-VREF.peripheral.$assign            = "VREF";
-VREF.peripheral.vrefPosPin.$assign = "j17_expansion.10";  // PA23 - VREF output
-VREF.vrefPosPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric8";
+GPIO1.$name                              = "GPIO_BUTTONS";
+GPIO1.associatedPins.create(3);
+GPIO1.associatedPins[0].$name            = "S1";
+GPIO1.associatedPins[0].direction        = "INPUT";
+GPIO1.associatedPins[0].internalResistor = "PULL_UP";
+GPIO1.associatedPins[0].interruptEn      = true;
+GPIO1.associatedPins[0].polarity         = "FALL";
+GPIO1.associatedPins[0].pin.$assign      = "boosterpack.30";
+GPIO1.associatedPins[1].$name            = "S2";
+GPIO1.associatedPins[1].direction        = "INPUT";
+GPIO1.associatedPins[1].internalResistor = "PULL_UP";
+GPIO1.associatedPins[1].interruptEn      = true;
+GPIO1.associatedPins[1].polarity         = "RISE";
+GPIO1.associatedPins[1].pin.$assign      = "j17_expansion.7";
+GPIO1.associatedPins[2].$name            = "JOY_SEL";
+GPIO1.associatedPins[2].direction        = "INPUT";
+GPIO1.associatedPins[2].internalResistor = "PULL_UP";
+GPIO1.associatedPins[2].interruptEn      = true;
+GPIO1.associatedPins[2].polarity         = "FALL";
+GPIO1.associatedPins[2].pin.$assign      = "boosterpack.31";
 
-// ============================================================================
-// TIMER_SAMPLE: ADC TRIGGER (8 kHz sampling rate)
-// ============================================================================
-TIMER1.$name                       = "TIMER_SAMPLE";
-TIMER1.timerPeriod                 = "125 us";
-TIMER1.timerMode                   = "PERIODIC_UP";
-TIMER1.interrupts                  = ["ZERO"];
-TIMER1.interruptPriority           = "1";
-TIMER1.timerStartTimer             = true;
-TIMER1.retentionRestoreCnt         = true;
+GPIO2.$name                          = "GPIO_RGB";
+GPIO2.associatedPins.create(3);
+GPIO2.associatedPins[0].$name        = "RED";
+GPIO2.associatedPins[0].initialValue = "SET";
+GPIO2.associatedPins[0].pin.$assign  = "j19_expansion.8";
+GPIO2.associatedPins[1].$name        = "GREEN";
+GPIO2.associatedPins[1].initialValue = "SET";
+GPIO2.associatedPins[1].pin.$assign  = "j19_expansion.10";
+GPIO2.associatedPins[2].$name        = "BLUE";
+GPIO2.associatedPins[2].initialValue = "SET";
+GPIO2.associatedPins[2].pin.$assign  = "j19_expansion.5";
 
-// Event Fabric: Publish to channel 1
-TIMER1.event1PublisherChannel      = 1;
-TIMER1.event1ControllerInterruptEn = ["ZERO_EVENT"];
-TIMER1.peripheral.$assign          = "TIMG7";
+GPIO3.$name                          = "GPIO_LCD";
+GPIO3.associatedPins.create(2);
+GPIO3.associatedPins[0].$name        = "RST";
+GPIO3.associatedPins[0].initialValue = "SET";
+GPIO3.associatedPins[0].ioStructure  = "SD";
+GPIO3.associatedPins[0].pin.$assign  = "boosterpack.35";
+GPIO3.associatedPins[1].$name        = "DC";
+GPIO3.associatedPins[1].initialValue = "SET";
+GPIO3.associatedPins[1].ioStructure  = "SD";
+GPIO3.associatedPins[1].pin.$assign  = "j21_expansion.3";
 
-// ============================================================================
-// PWM_AUDIO: Audio output (12-bit PWM @ ~9.77 kHz)
-// ============================================================================
+I2C1.$name                     = "I2C_0";
+I2C1.basicEnableController     = true;
+I2C1.peripheral.$assign        = "I2C0";
+I2C1.peripheral.sdaPin.$assign = "j19_expansion.9";
+I2C1.peripheral.sclPin.$assign = "j17_expansion.9";
+I2C1.sdaPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric13";
+I2C1.sdaPinConfig.enableConfig = true;
+I2C1.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric14";
+I2C1.sclPinConfig.enableConfig = true;
+
+I2C2.$name                     = "I2C_1";
+I2C2.basicEnableController     = true;
+I2C2.peripheral.$assign        = "I2C1";
+I2C2.peripheral.sdaPin.$assign = "boosterpack.34";
+I2C2.peripheral.sclPin.$assign = "boosterpack.33";
+I2C2.sdaPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric15";
+I2C2.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric16";
+
 PWM1.$name                              = "PWM_AUDIO";
 PWM1.timerStartTimer                    = true;
 PWM1.timerCount                         = 4095;
@@ -161,122 +169,35 @@ PWM1.ccp0PinConfig.onlyInternalResistor = scripting.forceWrite(false);
 PWM1.ccp0PinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 PWM1.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric2";
 PWM1.peripheral.$assign                 = "TIMG0";
-PWM1.peripheral.ccp0Pin.$assign         = "boosterpack.32";  // PA31/J1.32 - Audio out
+PWM1.peripheral.ccp0Pin.$assign         = "boosterpack.32";
 
-// ============================================================================
-// GPIO: BUTTONS (S1, S2, Joystick select)
-// ============================================================================
-GPIO1.$name                              = "GPIO_BUTTONS";
-GPIO1.associatedPins.create(3);
-GPIO1.associatedPins[0].$name            = "S1";
-GPIO1.associatedPins[0].direction        = "INPUT";
-GPIO1.associatedPins[0].internalResistor = "PULL_UP";
-GPIO1.associatedPins[0].interruptEn      = true;
-GPIO1.associatedPins[0].polarity         = "FALL";
-GPIO1.associatedPins[0].pin.$assign      = "boosterpack.30";  // PA15/J1.30
+RTC.peripheral.$assign = "RTC";
 
-GPIO1.associatedPins[1].$name            = "S2";
-GPIO1.associatedPins[1].direction        = "INPUT";
-GPIO1.associatedPins[1].internalResistor = "PULL_UP";
-GPIO1.associatedPins[1].interruptEn      = true;
-GPIO1.associatedPins[1].polarity         = "RISE";
-GPIO1.associatedPins[1].pin.$assign      = "j17_expansion.7";  // PA14
-
-GPIO1.associatedPins[2].$name            = "JOY_SEL";
-GPIO1.associatedPins[2].direction        = "INPUT";
-GPIO1.associatedPins[2].internalResistor = "PULL_UP";
-GPIO1.associatedPins[2].interruptEn      = true;
-GPIO1.associatedPins[2].polarity         = "FALL";
-GPIO1.associatedPins[2].pin.$assign      = "boosterpack.31";  // PA13/J1.31
-
-// ============================================================================
-// GPIO: RGB LED (Status indicators)
-// ============================================================================
-GPIO2.$name                          = "GPIO_RGB";
-GPIO2.associatedPins.create(3);
-GPIO2.associatedPins[0].$name        = "RED";
-GPIO2.associatedPins[0].initialValue = "SET";
-GPIO2.associatedPins[0].pin.$assign  = "j19_expansion.8";   // PB22 - Red LED
-
-GPIO2.associatedPins[1].$name        = "GREEN";
-GPIO2.associatedPins[1].initialValue = "SET";
-GPIO2.associatedPins[1].pin.$assign  = "j19_expansion.10";  // PB26 - Green LED
-
-GPIO2.associatedPins[2].$name        = "BLUE";
-GPIO2.associatedPins[2].initialValue = "SET";
-GPIO2.associatedPins[2].pin.$assign  = "j19_expansion.5";   // PB27 - Blue LED
-
-// ============================================================================
-// GPIO: LCD Control (RST, DC)
-// ============================================================================
-GPIO3.$name                          = "GPIO_LCD";
-GPIO3.associatedPins.create(2);
-GPIO3.associatedPins[0].$name        = "RST";
-GPIO3.associatedPins[0].initialValue = "SET";
-GPIO3.associatedPins[0].ioStructure  = "SD";
-GPIO3.associatedPins[0].pin.$assign  = "boosterpack.35";  // PB20 - LCD Reset
-
-GPIO3.associatedPins[1].$name        = "DC";
-GPIO3.associatedPins[1].initialValue = "SET";
-GPIO3.associatedPins[1].ioStructure  = "SD";
-GPIO3.associatedPins[1].pin.$assign  = "j21_expansion.3";  // PB17 - LCD D/C
-
-// ============================================================================
-// I2C0: Light sensor (optional)
-// ============================================================================
-I2C1.$name                     = "I2C_0";
-I2C1.basicEnableController     = true;
-I2C1.peripheral.$assign        = "I2C0";
-I2C1.peripheral.sdaPin.$assign = "j19_expansion.9";
-I2C1.peripheral.sclPin.$assign = "j17_expansion.9";
-I2C1.sdaPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric13";
-I2C1.sdaPinConfig.enableConfig = true;
-I2C1.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric14";
-I2C1.sclPinConfig.enableConfig = true;
-
-// ============================================================================
-// I2C1: Temperature sensor (optional)
-// ============================================================================
-I2C2.$name                     = "I2C_1";
-I2C2.basicEnableController     = true;
-I2C2.peripheral.$assign        = "I2C1";
-I2C2.peripheral.sdaPin.$assign = "boosterpack.34";
-I2C2.peripheral.sclPin.$assign = "boosterpack.33";
-I2C2.sdaPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric15";
-I2C2.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric16";
-
-// ============================================================================
-// SPI1: LCD Display
-// ============================================================================
 SPI1.$name                              = "SPI_LCD";
 SPI1.enableDMAEvent1                    = false;
 SPI1.enableDMAEvent2                    = false;
 SPI1.targetBitRate                      = 16000000;
 SPI1.enableInternalLoopback             = true;
 SPI1.peripheral.$assign                 = "SPI1";
-SPI1.peripheral.sclkPin.$assign         = "boosterpack.11";  // PB9 - SCLK
-SPI1.peripheral.mosiPin.$assign         = "boosterpack.17";  // PB1 - MOSI
-SPI1.peripheral.misoPin.$assign         = "boosterpack.29";  // PB7 - MISO
-SPI1.peripheral.cs0Pin.$assign          = "j17_expansion.1"; // PB6 - CS
-
+SPI1.peripheral.sclkPin.$assign         = "boosterpack.11";
+SPI1.peripheral.mosiPin.$assign         = "boosterpack.17";
+SPI1.peripheral.misoPin.$assign         = "boosterpack.29";
+SPI1.peripheral.cs0Pin.$assign          = "j17_expansion.1";
 SPI1.sclkPinConfig.direction            = scripting.forceWrite("OUTPUT");
 SPI1.sclkPinConfig.onlyInternalResistor = scripting.forceWrite(false);
 SPI1.sclkPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 SPI1.sclkPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric4";
 SPI1.sclkPinConfig.enableConfig         = true;
-
 SPI1.mosiPinConfig.direction            = scripting.forceWrite("OUTPUT");
 SPI1.mosiPinConfig.hideOutputInversion  = scripting.forceWrite(false);
 SPI1.mosiPinConfig.onlyInternalResistor = scripting.forceWrite(false);
 SPI1.mosiPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 SPI1.mosiPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric5";
 SPI1.mosiPinConfig.enableConfig         = true;
-
 SPI1.misoPinConfig.onlyInternalResistor = scripting.forceWrite(false);
 SPI1.misoPinConfig.passedPeripheralType = scripting.forceWrite("Digital");
 SPI1.misoPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric6";
 SPI1.misoPinConfig.enableConfig         = true;
-
 SPI1.cs0PinConfig.direction             = scripting.forceWrite("OUTPUT");
 SPI1.cs0PinConfig.hideOutputInversion   = scripting.forceWrite(false);
 SPI1.cs0PinConfig.onlyInternalResistor  = scripting.forceWrite(false);
@@ -284,9 +205,6 @@ SPI1.cs0PinConfig.passedPeripheralType  = scripting.forceWrite("Digital");
 SPI1.cs0PinConfig.$name                 = "ti_driverlib_gpio_GPIOPinGeneric3";
 SPI1.cs0PinConfig.enableConfig          = true;
 
-// ============================================================================
-// SYSCTL: System Clock (80 MHz)
-// ============================================================================
 SYSCTL.MFPCLKEn               = true;
 SYSCTL.MFCLKEn                = true;
 SYSCTL.powerPolicy            = "STANDBY0";
@@ -305,35 +223,32 @@ SYSCTL.EXCLKSource            = "ULPCLK";
 SYSCTL.enableIntDone          = true;
 SYSCTL.flashInterruptPriority = "0";
 SYSCTL.clockInterrupts        = ["HSCLK_GOOD","SYSPLL_GOOD"];
-SYSCTL.vboostMode             = "ONALWAYS";  // Required for 80 MHz!
+SYSCTL.vboostMode             = "ONALWAYS";
 SYSCTL.peripheral.$assign     = "SYSCTL";
 
-// ============================================================================
-// BOARD: Debug & pin configuration
-// ============================================================================
-Board.genPeriphPinFile            = true;
-Board.genResourceCSV              = true;
-Board.configureVDDA               = true;
-Board.globalFastWakeEn            = true;
-Board.configureUnused             = true;
-Board.peripheral.$assign          = "DEBUGSS";
-Board.peripheral.swclkPin.$assign = "j25_expansion.16";
-Board.peripheral.swdioPin.$assign = "j25_expansion.14";
-Board.genFileMod.$name            = "ti_driverlib_BoardPins0";
-Board.genFileCSV.$name            = "ti_driverlib_ResourcesCSV0";
+TIMER1.$name                       = "TIMER_SAMPLE";
+TIMER1.timerPeriod                 = "125 us";
+TIMER1.timerMode                   = "PERIODIC_UP";
+TIMER1.interrupts                  = ["ZERO"];
+TIMER1.interruptPriority           = "1";
+TIMER1.timerStartTimer             = true;
+TIMER1.retentionRestoreCnt         = true;
+TIMER1.event1PublisherChannel      = 1;
+TIMER1.event1ControllerInterruptEn = ["ZERO_EVENT"];
+TIMER1.peripheral.$assign          = "TIMG7";
 
-// ============================================================================
-// RTC: Real-time clock (for future timestamping)
-// ============================================================================
-RTC.peripheral.$suggestSolution = "RTC";
+VREF.basicIntVolt                  = "DL_VREF_BUFCONFIG_OUTPUT_2_5V";
+VREF.checkVREFReady                = true;
+VREF.advClkSrc                     = "DL_VREF_CLOCK_BUSCLK";
+VREF.advClkDiv                     = "DL_VREF_CLOCK_DIVIDE_2";
+VREF.peripheral.$assign            = "VREF";
+VREF.peripheral.vrefPosPin.$assign = "j17_expansion.10";
+VREF.vrefPosPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric8";
 
-// ============================================================================
-// PROJECT CONFIG: Libraries
-// ============================================================================
-ProjectConfig.genLibDrivers      = true;
-ProjectConfig.genLibCMSIS        = true;
-ProjectConfig.migrationCondition = true;
-ProjectConfig.genLibIQ           = true;
-ProjectConfig.genLibIQVersion    = "MATHACL";  // CRITICAL: Hardware acceleration!
-ProjectConfig.genLibGC           = true;
+ProjectConfig.genLibDrivers        = true;
+ProjectConfig.genLibCMSIS          = true;
+ProjectConfig.migrationCondition   = true;
+ProjectConfig.genLibIQ             = true;
+ProjectConfig.genLibIQVersion      = "MATHACL";
+ProjectConfig.genLibGC             = true;
 ProjectConfig.genLibGaugeL2Version = "MATHACL";
