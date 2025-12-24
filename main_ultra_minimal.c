@@ -1,12 +1,8 @@
-**
- * DIAGNOSTIC VERSION - Minimal Test
- * Test hver del systematisk
- */
-
 #include <stdint.h>
 #include <stdbool.h>
 #include "ti_msp_dl_config.h"
-#include "lcd/lcd_driver.h"
+#include "main.h"
+#include "lcd_driver.h"
 
 // Test 1: Blink LED
 void test_led_blink(void) {

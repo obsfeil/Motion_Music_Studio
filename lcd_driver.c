@@ -1,7 +1,12 @@
 /**
  * @file lcd_driver.c
- * @brief ST7735S LCD Driver Implementation
+ * @brief ST7735S LCD Driver Implementation - FIXED VERSION
  * @details Complete driver for CFAF128128B-0145T (128x128 TFT)
+ * 
+ * FIXES APPLIED:
+ * 1. Removed all duplicate SPI sends
+ * 2. Proper delays for LCD initialization
+ * 3. Correct RAMWR command handling
  */
 
 #include "lcd_driver.h"
@@ -9,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ti_msp_dl_config.h"
+#include "main.h"
 
 //=============================================================================
 // ST7735S COMMANDS
@@ -60,22 +66,26 @@
 #define ST7735_GMCTRN1 0xE1
 
 //=============================================================================
-// INTERNAL HELPER MACROS
+// INTERNAL HELPER MACROS - CORRECTED WITH INDIVIDUAL PORT NAMES
 //=============================================================================
-#define LCD_DC_COMMAND() DL_GPIO_clearPins(GPIO_LCD_DC_PORT, GPIO_LCD_DC_PIN)
-#define LCD_DC_DATA()    DL_GPIO_setPins(GPIO_LCD_DC_PORT, GPIO_LCD_DC_PIN)
+
+// RST pin (on PORTB pin 17)
 #define LCD_RST_LOW()    DL_GPIO_clearPins(GPIO_LCD_RST_PORT, GPIO_LCD_RST_PIN)
 #define LCD_RST_HIGH()   DL_GPIO_setPins(GPIO_LCD_RST_PORT, GPIO_LCD_RST_PIN)
-// Manuell CS-styring
-#define LCD_CS_LOW()     DL_GPIO_clearPins(GPIO_LCD_CS_PORT, GPIO_LCD_CS_PIN)
-#define LCD_CS_HIGH()    DL_GPIO_setPins(GPIO_LCD_CS_PORT, GPIO_LCD_CS_PIN)
 
-// Makro for å skru på bakgrunnslyset (Backlight)
+// DC pin (on PORTA pin 13)
+#define LCD_DC_COMMAND() DL_GPIO_clearPins(GPIO_LCD_DC_PORT, GPIO_LCD_DC_PIN)
+#define LCD_DC_DATA()    DL_GPIO_setPins(GPIO_LCD_DC_PORT, GPIO_LCD_DC_PIN)
+
+// CS pin (on PORTA pin 2)
+#define LCD_CS_LOW()     DL_GPIO_clearPins(LCD_CS_PIN_PORT, LCD_CS_PIN_LCD_CS_PIN)
+#define LCD_CS_HIGH()    DL_GPIO_setPins(LCD_CS_PIN_PORT, LCD_CS_PIN_LCD_CS_PIN)
+
+// Backlight pin
 #define LCD_BL_ON()      DL_GPIO_setPins(LCD_BACKLIGHT_PORT, LCD_BACKLIGHT_PIN_0_PIN)
 
-// Simple delay (blocking)
-#define LCD_DELAY_MS(ms) delay_cycles((uint32_t)(ms * 32000UL))
-#define LCD_DELAY_MS(ms) DL_Common_delayCycles((uint32_t)(ms * 80000UL))
+// Delay macro (80 MHz clock: 80,000 cycles = 1 ms)
+#define LCD_DELAY_MS(ms) delay_cycles((uint32_t)(ms * 80000UL))
 
 //=============================================================================
 // SIMPLE 6x8 FONT (ASCII 32-127)
@@ -174,82 +184,77 @@ static const uint8_t font_6x8[] = {
     0x44, 0x64, 0x54, 0x4C, 0x44, 0x00, // z
 };
 
-
-
 //=============================================================================
-// INTERNAL FUNCTIONS
+// INTERNAL FUNCTIONS - FIXED: NO DUPLICATES!
 //=============================================================================
-
-/**
- * @brief Internal helper to send byte without toggling CS automatically
- */
-static void LCD_SPI_Send(uint8_t data) {
-    DL_SPI_transmitData8(SPI_LCD_INST, data);
-    while (DL_SPI_isBusy(SPI_LCD_INST));
-}
 
 /**
  * @brief Write a command byte to LCD
+ * FIXED: Only sends byte ONCE!
  */
 static void LCD_WriteCommand(uint8_t cmd) {
-  LCD_CS_LOW();
-  LCD_DC_COMMAND();
-  DL_SPI_transmitData8(SPI_LCD_INST, cmd);
-  while (DL_SPI_isBusy(SPI_LCD_INST))
-    ;
-  LCD_SPI_Send(cmd);
-  LCD_CS_HIGH();
+    LCD_CS_LOW();
+    LCD_DC_COMMAND();
+    
+    // Send command (ONLY ONCE!)
+    DL_SPI_transmitData8(SPI_LCD_INST, cmd);
+    while (DL_SPI_isBusy(SPI_LCD_INST));
+    
+    LCD_CS_HIGH();
 }
 
 /**
  * @brief Write a data byte to LCD
+ * FIXED: Only sends byte ONCE!
  */
 static void LCD_WriteData(uint8_t data) {
-  LCD_CS_LOW();
-  LCD_DC_DATA();
-  DL_SPI_transmitData8(SPI_LCD_INST, data);
-  while (DL_SPI_isBusy(SPI_LCD_INST))
-    ;
-  LCD_SPI_Send(data);
-  LCD_CS_HIGH();
+    LCD_CS_LOW();
+    LCD_DC_DATA();
+    
+    // Send data (ONLY ONCE!)
+    DL_SPI_transmitData8(SPI_LCD_INST, data);
+    while (DL_SPI_isBusy(SPI_LCD_INST));
+    
+    LCD_CS_HIGH();
 }
 
 /**
  * @brief Write multiple data bytes to LCD
+ * FIXED: Only sends each byte ONCE!
  */
 static void LCD_WriteDataBuffer(const uint8_t *buffer, uint32_t length) {
-  LCD_CS_LOW();
-  LCD_DC_DATA();
-  for (uint32_t i = 0; i < length; i++) {
-    DL_SPI_transmitData8(SPI_LCD_INST, buffer[i]);
-    while (DL_SPI_isBusy(SPI_LCD_INST))
-      ;
-    LCD_SPI_Send(buffer[i]);
-  }
-  LCD_CS_HIGH();
+    LCD_CS_LOW();
+    LCD_DC_DATA();
+    
+    for (uint32_t i = 0; i < length; i++) {
+        // Send each byte ONLY ONCE!
+        DL_SPI_transmitData8(SPI_LCD_INST, buffer[i]);
+        while (DL_SPI_isBusy(SPI_LCD_INST));
+    }
+    
+    LCD_CS_HIGH();
 }
 
 /**
  * @brief Set address window for pixel drawing
  */
 static void LCD_SetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-  // Column address set
-  LCD_WriteCommand(ST7735_CASET);
-  LCD_WriteData(0x00);
-  LCD_WriteData(x0);
-  LCD_WriteData(0x00);
-  LCD_WriteData(x1);
+    // Column address set
+    LCD_WriteCommand(ST7735_CASET);
+    LCD_WriteData(0x00);
+    LCD_WriteData(x0);
+    LCD_WriteData(0x00);
+    LCD_WriteData(x1);
 
-  // Row address set
-  LCD_WriteCommand(ST7735_RASET);
-  LCD_WriteData(0x00);
-  LCD_WriteData(y0);
-  LCD_WriteData(0x00);
-  LCD_WriteData(y1);
+    // Row address set
+    LCD_WriteCommand(ST7735_RASET);
+    LCD_WriteData(0x00);
+    LCD_WriteData(y0);
+    LCD_WriteData(0x00);
+    LCD_WriteData(y1);
 
-  // Write to RAM
-  LCD_WriteCommand(ST7735_RAMWR);
-  // Merk: Vi sender IKKE RAMWR her lenger. Det må gjøres sammen med pikseldataene.
+    // Memory write command
+    LCD_WriteCommand(ST7735_RAMWR);
 }
 
 //=============================================================================
@@ -257,343 +262,333 @@ static void LCD_SetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 //=============================================================================
 
 void LCD_Init(void) {
-  // Hardware reset
-  LCD_RST_HIGH();
-  LCD_DELAY_MS(10);
-  LCD_RST_LOW();
-  LCD_DELAY_MS(10);
-  LCD_RST_HIGH();
-  LCD_DELAY_MS(120);
-  LCD_BL_ON();
+    // Hardware reset with proper delays
+    LCD_RST_HIGH();
+    LCD_DELAY_MS(10);
+    LCD_RST_LOW();
+    LCD_DELAY_MS(10);
+    LCD_RST_HIGH();
+    LCD_DELAY_MS(200);  // CRITICAL: Wait for LCD to power up
+    
+    LCD_BL_ON();
 
-  // Software reset
-  LCD_WriteCommand(0x01);
-  LCD_DELAY_MS(120);
+    // Software reset
+    LCD_WriteCommand(ST7735_SWRESET);
+    LCD_DELAY_MS(150);  // CRITICAL: Wait for reset to complete
 
-  // Out of sleep mode
-  LCD_WriteCommand(ST7735_SLPOUT);
-  LCD_DELAY_MS(500);
+    // Out of sleep mode
+    LCD_WriteCommand(ST7735_SLPOUT);
+    LCD_DELAY_MS(200);  // CRITICAL: Wait for sleep out
 
-  // Frame rate control - normal mode
-  LCD_WriteCommand(ST7735_FRMCTR1);
-  LCD_WriteData(0x01);
-  LCD_WriteData(0x2C);
-  LCD_WriteData(0x2D);
+    // Frame rate control - normal mode
+    LCD_WriteCommand(ST7735_FRMCTR1);
+    LCD_WriteData(0x01);
+    LCD_WriteData(0x2C);
+    LCD_WriteData(0x2D);
 
-  // Frame rate control - idle mode
-  LCD_WriteCommand(ST7735_FRMCTR2);
-  LCD_WriteData(0x01);
-  LCD_WriteData(0x2C);
-  LCD_WriteData(0x2D);
+    // Frame rate control - idle mode
+    LCD_WriteCommand(ST7735_FRMCTR2);
+    LCD_WriteData(0x01);
+    LCD_WriteData(0x2C);
+    LCD_WriteData(0x2D);
 
-  // Frame rate control - partial mode
-  LCD_WriteCommand(ST7735_FRMCTR3);
-  LCD_WriteData(0x01);
-  LCD_WriteData(0x2C);
-  LCD_WriteData(0x2D);
-  LCD_WriteData(0x01);
-  LCD_WriteData(0x2C);
-  LCD_WriteData(0x2D);
+    // Frame rate control - partial mode
+    LCD_WriteCommand(ST7735_FRMCTR3);
+    LCD_WriteData(0x01);
+    LCD_WriteData(0x2C);
+    LCD_WriteData(0x2D);
+    LCD_WriteData(0x01);
+    LCD_WriteData(0x2C);
+    LCD_WriteData(0x2D);
 
-  // Display inversion control
-  LCD_WriteCommand(ST7735_INVCTR);
-  LCD_WriteData(0x07);
+    // Display inversion control
+    LCD_WriteCommand(ST7735_INVCTR);
+    LCD_WriteData(0x07);
 
-  // Power control
-  LCD_WriteCommand(ST7735_PWCTR1);
-  LCD_WriteData(0xA2);
-  LCD_WriteData(0x02);
-  LCD_WriteData(0x84);
+    // Power control
+    LCD_WriteCommand(ST7735_PWCTR1);
+    LCD_WriteData(0xA2);
+    LCD_WriteData(0x02);
+    LCD_WriteData(0x84);
 
-  LCD_WriteCommand(ST7735_PWCTR2);
-  LCD_WriteData(0xC5);
+    LCD_WriteCommand(ST7735_PWCTR2);
+    LCD_WriteData(0xC5);
 
-  LCD_WriteCommand(ST7735_PWCTR3);
-  LCD_WriteData(0x0A);
-  LCD_WriteData(0x00);
+    LCD_WriteCommand(ST7735_PWCTR3);
+    LCD_WriteData(0x0A);
+    LCD_WriteData(0x00);
 
-  LCD_WriteCommand(ST7735_PWCTR4);
-  LCD_WriteData(0x8A);
-  LCD_WriteData(0x2A);
+    LCD_WriteCommand(ST7735_PWCTR4);
+    LCD_WriteData(0x8A);
+    LCD_WriteData(0x2A);
 
-  LCD_WriteCommand(ST7735_PWCTR5);
-  LCD_WriteData(0x8A);
-  LCD_WriteData(0xEE);
+    LCD_WriteCommand(ST7735_PWCTR5);
+    LCD_WriteData(0x8A);
+    LCD_WriteData(0xEE);
 
-  // VCOM control
-  LCD_WriteCommand(ST7735_VMCTR1);
-  LCD_WriteData(0x0E);
+    // VCOM control
+    LCD_WriteCommand(ST7735_VMCTR1);
+    LCD_WriteData(0x0E);
 
-  // Display settings
-  LCD_WriteCommand(ST7735_INVOFF);
+    // Display settings
+    LCD_WriteCommand(ST7735_INVOFF);
 
-  // Memory access control (rotation/mirror)
-  LCD_WriteCommand(ST7735_MADCTL);
-  LCD_WriteData(0xC8); // RGB order, row/col exchange
+    // Memory access control (rotation/mirror)
+    LCD_WriteCommand(ST7735_MADCTL);
+    LCD_WriteData(0xC8); // RGB order, row/col exchange
 
-  // Color mode: 16-bit color (RGB565)
-  LCD_WriteCommand(ST7735_COLMOD);
-  LCD_WriteData(0x05);
+    // Color mode: 16-bit color (RGB565)
+    LCD_WriteCommand(ST7735_COLMOD);
+    LCD_WriteData(0x05);
 
-  // Gamma correction
-  LCD_WriteCommand(ST7735_GMCTRP1);
-  LCD_WriteData(0x02);
-  LCD_WriteData(0x1c);
-  LCD_WriteData(0x07);
-  LCD_WriteData(0x12);
-  LCD_WriteData(0x37);
-  LCD_WriteData(0x32);
-  LCD_WriteData(0x29);
-  LCD_WriteData(0x2d);
-  LCD_WriteData(0x29);
-  LCD_WriteData(0x25);
-  LCD_WriteData(0x2B);
-  LCD_WriteData(0x39);
-  LCD_WriteData(0x00);
-  LCD_WriteData(0x01);
-  LCD_WriteData(0x03);
-  LCD_WriteData(0x10);
+    // Gamma correction
+    LCD_WriteCommand(ST7735_GMCTRP1);
+    LCD_WriteData(0x02);
+    LCD_WriteData(0x1c);
+    LCD_WriteData(0x07);
+    LCD_WriteData(0x12);
+    LCD_WriteData(0x37);
+    LCD_WriteData(0x32);
+    LCD_WriteData(0x29);
+    LCD_WriteData(0x2d);
+    LCD_WriteData(0x29);
+    LCD_WriteData(0x25);
+    LCD_WriteData(0x2B);
+    LCD_WriteData(0x39);
+    LCD_WriteData(0x00);
+    LCD_WriteData(0x01);
+    LCD_WriteData(0x03);
+    LCD_WriteData(0x10);
 
-  LCD_WriteCommand(ST7735_GMCTRN1);
-  LCD_WriteData(0x03);
-  LCD_WriteData(0x1d);
-  LCD_WriteData(0x07);
-  LCD_WriteData(0x06);
-  LCD_WriteData(0x2E);
-  LCD_WriteData(0x2C);
-  LCD_WriteData(0x29);
-  LCD_WriteData(0x2D);
-  LCD_WriteData(0x2E);
-  LCD_WriteData(0x2E);
-  LCD_WriteData(0x37);
-  LCD_WriteData(0x3F);
-  LCD_WriteData(0x00);
-  LCD_WriteData(0x00);
-  LCD_WriteData(0x02);
-  LCD_WriteData(0x10);
+    LCD_WriteCommand(ST7735_GMCTRN1);
+    LCD_WriteData(0x03);
+    LCD_WriteData(0x1d);
+    LCD_WriteData(0x07);
+    LCD_WriteData(0x06);
+    LCD_WriteData(0x2E);
+    LCD_WriteData(0x2C);
+    LCD_WriteData(0x29);
+    LCD_WriteData(0x2D);
+    LCD_WriteData(0x2E);
+    LCD_WriteData(0x2E);
+    LCD_WriteData(0x37);
+    LCD_WriteData(0x3F);
+    LCD_WriteData(0x00);
+    LCD_WriteData(0x00);
+    LCD_WriteData(0x02);
+    LCD_WriteData(0x10);
 
-  // Normal display mode
-  LCD_WriteCommand(ST7735_NORON);
-  LCD_DELAY_MS(10);
+    // Normal display mode
+    LCD_WriteCommand(ST7735_NORON);
+    LCD_DELAY_MS(10);
 
-  // Display on
-  LCD_WriteCommand(ST7735_DISPON);
-  LCD_DELAY_MS(100);
+    // Display on
+    LCD_WriteCommand(ST7735_DISPON);
+    LCD_DELAY_MS(100);  // CRITICAL: Wait for display to turn on
 
-  // Clear screen
-  LCD_FillScreen(LCD_COLOR_BLACK);
+    // Clear screen
+    LCD_FillScreen(LCD_COLOR_BLACK);
 }
 
 void LCD_FillScreen(uint16_t color) {
-  LCD_DrawRect(0, 0, LCD_WIDTH, LCD_HEIGHT, color);
+    LCD_SetWindow(0, 0, LCD_WIDTH - 1, LCD_HEIGHT - 1);
+
+    uint8_t color_high = color >> 8;
+    uint8_t color_low = color & 0xFF;
+
+    LCD_CS_LOW();
+    LCD_DC_DATA();
+    
+    // FIXED: Send each byte ONLY ONCE!
+    for (uint32_t i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++) {
+        DL_SPI_transmitData8(SPI_LCD_INST, color_high);
+        while (DL_SPI_isBusy(SPI_LCD_INST));
+        DL_SPI_transmitData8(SPI_LCD_INST, color_low);
+        while (DL_SPI_isBusy(SPI_LCD_INST));
+    }
+    
+    LCD_CS_HIGH();
 }
 
 void LCD_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
-  if (x >= LCD_WIDTH || y >= LCD_HEIGHT)
-    return;
+    if (x >= LCD_WIDTH || y >= LCD_HEIGHT)
+        return;
 
-  LCD_SetWindow(x, y, x, y);
-  LCD_WriteData(color >> 8);
-  LCD_WriteData(color & 0xFF);
-  
-  // Manuell CS-kontroll for å binde kommando og data sammen
-  LCD_CS_LOW();
-  LCD_DC_COMMAND();
-  LCD_SPI_Send(ST7735_RAMWR);
-  
-  LCD_DC_DATA();
-  LCD_SPI_Send(color >> 8);
-  LCD_SPI_Send(color & 0xFF);
-  LCD_CS_HIGH();
+    LCD_SetWindow(x, y, x, y);
+    
+    // FIXED: Send color bytes ONLY ONCE!
+    LCD_WriteData(color >> 8);
+    LCD_WriteData(color & 0xFF);
 }
 
 void LCD_DrawRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                   uint16_t color) {
-  if (x >= LCD_WIDTH || y >= LCD_HEIGHT)
-    return;
-  if (x + width > LCD_WIDTH)
-    width = LCD_WIDTH - x;
-  if (y + height > LCD_HEIGHT)
-    height = LCD_HEIGHT - y;
+    if (x >= LCD_WIDTH || y >= LCD_HEIGHT)
+        return;
+    if (x + width > LCD_WIDTH)
+        width = LCD_WIDTH - x;
+    if (y + height > LCD_HEIGHT)
+        height = LCD_HEIGHT - y;
 
-  LCD_SetWindow(x, y, x + width - 1, y + height - 1);
+    LCD_SetWindow(x, y, x + width - 1, y + height - 1);
 
-  uint8_t color_high = color >> 8;
-  uint8_t color_low = color & 0xFF;
+    uint8_t color_high = color >> 8;
+    uint8_t color_low = color & 0xFF;
 
-  LCD_CS_LOW();
-  
-  LCD_DC_COMMAND();
-  LCD_SPI_Send(ST7735_RAMWR);
-
-  LCD_DC_DATA();
-  for (uint32_t i = 0; i < width * height; i++) {
-    DL_SPI_transmitData8(SPI_LCD_INST, color_high);
-    while (DL_SPI_isBusy(SPI_LCD_INST))
-      ;
-    DL_SPI_transmitData8(SPI_LCD_INST, color_low);
-    while (DL_SPI_isBusy(SPI_LCD_INST))
-      ;
-    LCD_SPI_Send(color_high);
-    LCD_SPI_Send(color_low);
-  }
-  LCD_CS_HIGH();
+    LCD_CS_LOW();
+    LCD_DC_DATA();
+    
+    // FIXED: Send each pixel ONLY ONCE (2 bytes per pixel)!
+    for (uint32_t i = 0; i < width * height; i++) {
+        DL_SPI_transmitData8(SPI_LCD_INST, color_high);
+        while (DL_SPI_isBusy(SPI_LCD_INST));
+        DL_SPI_transmitData8(SPI_LCD_INST, color_low);
+        while (DL_SPI_isBusy(SPI_LCD_INST));
+    }
+    
+    LCD_CS_HIGH();
 }
 
 void LCD_DrawHLine(uint16_t x, uint16_t y, uint16_t length, uint16_t color) {
-  LCD_DrawRect(x, y, length, 1, color);
+    LCD_DrawRect(x, y, length, 1, color);
 }
 
 void LCD_DrawVLine(uint16_t x, uint16_t y, uint16_t length, uint16_t color) {
-  LCD_DrawRect(x, y, 1, length, color);
+    LCD_DrawRect(x, y, 1, length, color);
 }
 
 void LCD_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
                   uint16_t color) {
-  int16_t dx = abs(x1 - x0);
-  int16_t dy = -abs(y1 - y0);
-  int16_t sx = x0 < x1 ? 1 : -1;
-  int16_t sy = y0 < y1 ? 1 : -1;
-  int16_t err = dx + dy;
+    int16_t dx = abs(x1 - x0);
+    int16_t dy = -abs(y1 - y0);
+    int16_t sx = x0 < x1 ? 1 : -1;
+    int16_t sy = y0 < y1 ? 1 : -1;
+    int16_t err = dx + dy;
 
-  while (1) {
-    LCD_DrawPixel(x0, y0, color);
+    while (1) {
+        LCD_DrawPixel(x0, y0, color);
 
-    if (x0 == x1 && y0 == y1)
-      break;
+        if (x0 == x1 && y0 == y1)
+            break;
 
-    int16_t e2 = 2 * err;
-    if (e2 >= dy) {
-      err += dy;
-      x0 += sx;
+        int16_t e2 = 2 * err;
+        if (e2 >= dy) {
+            err += dy;
+            x0 += sx;
+        }
+        if (e2 <= dx) {
+            err += dx;
+            y0 += sy;
+        }
     }
-    if (e2 <= dx) {
-      err += dx;
-      y0 += sy;
-    }
-  }
 }
 
 void LCD_DrawCircle(uint16_t x0, uint16_t y0, uint16_t radius, uint16_t color) {
-  int16_t f = 1 - radius;
-  int16_t ddF_x = 1;
-  int16_t ddF_y = -2 * radius;
-  int16_t x = 0;
-  int16_t y = radius;
+    int16_t f = 1 - radius;
+    int16_t ddF_x = 1;
+    int16_t ddF_y = -2 * radius;
+    int16_t x = 0;
+    int16_t y = radius;
 
-  LCD_DrawPixel(x0, y0 + radius, color);
-  LCD_DrawPixel(x0, y0 - radius, color);
-  LCD_DrawPixel(x0 + radius, y0, color);
-  LCD_DrawPixel(x0 - radius, y0, color);
+    LCD_DrawPixel(x0, y0 + radius, color);
+    LCD_DrawPixel(x0, y0 - radius, color);
+    LCD_DrawPixel(x0 + radius, y0, color);
+    LCD_DrawPixel(x0 - radius, y0, color);
 
-  while (x < y) {
-    if (f >= 0) {
-      y--;
-      ddF_y += 2;
-      f += ddF_y;
+    while (x < y) {
+        if (f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x;
+
+        LCD_DrawPixel(x0 + x, y0 + y, color);
+        LCD_DrawPixel(x0 - x, y0 + y, color);
+        LCD_DrawPixel(x0 + x, y0 - y, color);
+        LCD_DrawPixel(x0 - x, y0 - y, color);
+        LCD_DrawPixel(x0 + y, y0 + x, color);
+        LCD_DrawPixel(x0 - y, y0 + x, color);
+        LCD_DrawPixel(x0 + y, y0 - x, color);
+        LCD_DrawPixel(x0 - y, y0 - x, color);
     }
-    x++;
-    ddF_x += 2;
-    f += ddF_x;
-
-    LCD_DrawPixel(x0 + x, y0 + y, color);
-    LCD_DrawPixel(x0 - x, y0 + y, color);
-    LCD_DrawPixel(x0 + x, y0 - y, color);
-    LCD_DrawPixel(x0 - x, y0 - y, color);
-    LCD_DrawPixel(x0 + y, y0 + x, color);
-    LCD_DrawPixel(x0 - y, y0 + x, color);
-    LCD_DrawPixel(x0 + y, y0 - x, color);
-    LCD_DrawPixel(x0 - y, y0 - x, color);
-  }
 }
 
 void LCD_PrintString(uint16_t x, uint16_t y, const char *str, uint16_t fg_color,
                      uint16_t bg_color, LCD_FontSize_t size) {
-  uint16_t char_width = 6 * size;
-  uint16_t char_height = 8 * size;
+    uint16_t char_width = 6 * size;
+    uint16_t char_height = 8 * size;
 
-  while (*str) {
-    uint8_t c = *str++;
-    if (c < 32 || c > 127)
-      c = 32; // Replace invalid chars with space
+    while (*str) {
+        uint8_t c = *str++;
+        if (c < 32 || c > 127)
+            c = 32; // Replace invalid chars with space
 
-    // Get font data for this character
-    const uint8_t *font_char = &font_6x8[(c - 32) * 6];
+        // Get font data for this character
+        const uint8_t *font_char = &font_6x8[(c - 32) * 6];
 
-    // Draw each column of the character
-    for (uint8_t col = 0; col < 6; col++) {
-      uint8_t col_data = font_char[col];
+        // Draw each column of the character
+        for (uint8_t col = 0; col < 6; col++) {
+            uint8_t col_data = font_char[col];
 
-      // Draw each pixel in this column
-      for (uint8_t row = 0; row < 8; row++) {
-        uint16_t color = (col_data & (1 << row)) ? fg_color : bg_color;
+            // Draw each pixel in this column
+            for (uint8_t row = 0; row < 8; row++) {
+                uint16_t color = (col_data & (1 << row)) ? fg_color : bg_color;
 
-        // Scale pixel if size > 1
-        for (uint8_t sx = 0; sx < size; sx++) {
-          for (uint8_t sy = 0; sy < size; sy++) {
-            LCD_DrawPixel(x + col * size + sx, y + row * size + sy, color);
-          }
+                // Scale pixel if size > 1
+                for (uint8_t sx = 0; sx < size; sx++) {
+                    for (uint8_t sy = 0; sy < size; sy++) {
+                        LCD_DrawPixel(x + col * size + sx, y + row * size + sy, color);
+                    }
+                }
+            }
         }
-      }
-    }
 
-    x += char_width;
-    if (x + char_width > LCD_WIDTH)
-      break; // Stop if text goes off screen
-  }
+        x += char_width;
+        if (x + char_width > LCD_WIDTH)
+            break; // Stop if text goes off screen
+    }
 }
 
 void LCD_PrintNumber(uint16_t x, uint16_t y, int32_t num, uint16_t fg_color,
                      uint16_t bg_color, LCD_FontSize_t size) {
-  char buffer[12];
-  snprintf(buffer, sizeof(buffer), "%d", (int)num);
-  LCD_PrintString(x, y, buffer, fg_color, bg_color, size);
+    char buffer[12];
+    snprintf(buffer, sizeof(buffer), "%ld", (long)num);
+    LCD_PrintString(x, y, buffer, fg_color, bg_color, size);
 }
 
 void LCD_PrintFloat(uint16_t x, uint16_t y, float num, uint8_t decimals,
                     uint16_t fg_color, uint16_t bg_color, LCD_FontSize_t size) {
-  char buffer[16];
-
-  // Manual float to string (avoid sprintf %f which is heavy)
-  int32_t int_part = (int32_t)num;
-  float frac_part = num - int_part;
-  if (frac_part < 0)
-    frac_part = -frac_part;
-
-  uint32_t multiplier = 1;
-  for (uint8_t i = 0; i < decimals; i++)
-    multiplier *= 10;
-
-  int32_t frac_int = (int32_t)(frac_part * multiplier);
-
-  snprintf(buffer, sizeof(buffer), "%d", (int)num);
-  LCD_PrintString(x, y, buffer, fg_color, bg_color, size);
+    char buffer[16];
+    snprintf(buffer, sizeof(buffer), "%d", (int)num);
+    LCD_PrintString(x, y, buffer, fg_color, bg_color, size);
 }
 
 void LCD_SetBacklight(uint8_t brightness) {
-  // If PWM is configured for backlight control, adjust duty cycle here
-  // For now, this is a placeholder
-  (void)brightness;
+    // Placeholder for PWM backlight control
+    (void)brightness;
 }
 
 void LCD_SetDisplay(bool on) {
-  LCD_WriteCommand(on ? ST7735_DISPON : ST7735_DISPOFF);
+    LCD_WriteCommand(on ? ST7735_DISPON : ST7735_DISPOFF);
 }
 
 void LCD_SetRotation(uint8_t rotation) {
-  LCD_WriteCommand(ST7735_MADCTL);
-  switch (rotation % 4) {
-  case 0:
-    LCD_WriteData(0xC8); // 0° (default)
-    break;
-  case 1:
-    LCD_WriteData(0x68); // 90°
-    break;
-  case 2:
-    LCD_WriteData(0x08); // 180°
-    break;
-  case 3:
-    LCD_WriteData(0xA8); // 270°
-    break;
-  }
+    LCD_WriteCommand(ST7735_MADCTL);
+    switch (rotation % 4) {
+    case 0:
+        LCD_WriteData(0xC8); // 0° (default)
+        break;
+    case 1:
+        LCD_WriteData(0x68); // 90°
+        break;
+    case 2:
+        LCD_WriteData(0x08); // 180°
+        break;
+    case 3:
+        LCD_WriteData(0xA8); // 270°
+        break;
+    }
 }

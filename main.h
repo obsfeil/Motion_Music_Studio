@@ -137,7 +137,7 @@ extern volatile SynthState_t gSynthState;
  * @param ms Milliseconds to delay
  * @note Assumes 32MHz CPU clock
  */
-#define LCD_DELAY_MS(ms) delay_cycles((uint32_t)((ms) * 32000UL))
+
 
 //=============================================================================
 // INLINE HELPER FUNCTIONS

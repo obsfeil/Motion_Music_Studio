@@ -17,9 +17,10 @@
  * CPU USAGE: ~4-6% (slightly more for graphics)
  */
 
-#include <string.h>
+
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "ti_msp_dl_config.h"
 #include "main.h"
 #include "lcd_driver.h"
@@ -218,7 +219,7 @@ static void Draw_Header(void);
     LCD_PrintString(15, 60, "Multi-Synth", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
     LCD_PrintString(30, 85, "v8.5.0", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_SMALL);
     LCD_PrintString(25, 100, "Enhanced!", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
-    LCD_DELAY_MS(2000);
+    delay_cycles(2000 * 80000UL);
     LCD_FillScreen(LCD_COLOR_BLACK);
     
     NVIC_EnableIRQ(ADC0_INT_IRQn);
