@@ -154,10 +154,10 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_SPI_LCD_SCLK_PIN                                     DL_GPIO_PIN_9
 #define GPIO_SPI_LCD_IOMUX_SCLK                                 (IOMUX_PINCM26)
 #define GPIO_SPI_LCD_IOMUX_SCLK_FUNC                 IOMUX_PINCM26_PF_SPI1_SCLK
-#define GPIO_SPI_LCD_CS0_PORT                                             GPIOB
-#define GPIO_SPI_LCD_CS0_PIN                                      DL_GPIO_PIN_6
-#define GPIO_SPI_LCD_IOMUX_CS0                                  (IOMUX_PINCM23)
-#define GPIO_SPI_LCD_IOMUX_CS0_FUNC                   IOMUX_PINCM23_PF_SPI1_CS0
+#define GPIO_SPI_LCD_CS0_PORT                                             GPIOA
+#define GPIO_SPI_LCD_CS0_PIN                                      DL_GPIO_PIN_2
+#define GPIO_SPI_LCD_IOMUX_CS0                                   (IOMUX_PINCM7)
+#define GPIO_SPI_LCD_IOMUX_CS0_FUNC                    IOMUX_PINCM7_PF_SPI1_CS0
 
 
 
@@ -226,7 +226,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_BUTTONS_PORT                                                (GPIOA)
 
 /* Defines for S1: GPIOA.11 with pinCMx 22 on package pin 57 */
-// pins affected by this interrupt request:["S1","S2"]
+// pins affected by this interrupt request:["S1","S2","JOY_SEL"]
 #define GPIO_BUTTONS_INT_IRQN                                   (GPIOA_INT_IRQn)
 #define GPIO_BUTTONS_INT_IIDX                   (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
 #define GPIO_BUTTONS_S1_IIDX                                (DL_GPIO_IIDX_DIO11)
@@ -237,6 +237,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_BUTTONS_S2_PIN                                     (DL_GPIO_PIN_17)
 #define GPIO_BUTTONS_S2_IOMUX                                    (IOMUX_PINCM39)
 /* Defines for JOY_SEL: GPIOA.10 with pinCMx 21 on package pin 56 */
+#define GPIO_BUTTONS_JOY_SEL_IIDX                           (DL_GPIO_IIDX_DIO10)
 #define GPIO_BUTTONS_JOY_SEL_PIN                                (DL_GPIO_PIN_10)
 #define GPIO_BUTTONS_JOY_SEL_IOMUX                               (IOMUX_PINCM21)
 /* Port definition for Pin Group GPIO_RGB */

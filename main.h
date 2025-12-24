@@ -26,16 +26,16 @@
 //=============================================================================
 // AUDIO CONFIGURATION
 //=============================================================================
-#define SAMPLE_RATE_HZ          20000.0    // 8 kHz sampling
-#define PWM_RESOLUTION          4096.0    // 12-bit PWM
-#define PWM_CENTER              2048.0    // Center value (silence)
+#define SAMPLE_RATE_HZ          8000.0f    // 8 kHz sampling
+#define PWM_RESOLUTION          4096.0f    // 12-bit PWM
+#define PWM_CENTER              2048.0f    // Center value (silence)
 #define WAVETABLE_SIZE          256       // Power of 2 for efficient indexing
 
 // Frequency limits (in Hz)
-#define FREQ_MIN_HZ             100.0
-#define FREQ_MAX_HZ             10000.0
-#define FREQ_DEFAULT_HZ         440.0
-#define VOLUME_DEFAULT          50
+#define FREQ_MIN_HZ             10.0f
+#define FREQ_MAX_HZ             8000.0f
+#define FREQ_DEFAULT_HZ         440.0f
+#define VOLUME_DEFAULT          80
 
 
 //=============================================================================
@@ -54,7 +54,9 @@ typedef enum {
 //=============================================================================
 typedef enum {
     MODE_SYNTH = 0,
-    MODE_THEREMIN
+    MODE_THEREMIN,
+    MODE_DRUMS,
+    MODE_COUNT
 } SynthMode_t;
 
 //=============================================================================

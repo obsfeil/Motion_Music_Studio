@@ -42,6 +42,11 @@
 #define LCD_COLOR_PURPLE    0x801F
 #define LCD_COLOR_GRAY      0x8410
 #define LCD_COLOR_DARKGRAY  0x4208
+#define LCD_COLOR_NAVY       0x000F   // Dark blue
+#define LCD_COLOR_ORANGE     0xFD20   // Orange
+#define LCD_COLOR_DARKRED    0x8800   // Dark red
+#define LCD_COLOR_DARKGREEN  0x03E0   // Dark green
+#define LCD_COLOR_DARKGRAY   0x4208   // Dark gray
 
 //=============================================================================
 // FONT SIZE ENUM
