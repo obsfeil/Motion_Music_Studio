@@ -128,13 +128,13 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define I2C_1_INST_INT_IRQN                                        I2C1_INT_IRQn
 #define I2C_1_BUS_SPEED_HZ                                                100000
 #define GPIO_I2C_1_SDA_PORT                                                GPIOA
-#define GPIO_I2C_1_SDA_PIN                                        DL_GPIO_PIN_10
-#define GPIO_I2C_1_IOMUX_SDA                                     (IOMUX_PINCM21)
-#define GPIO_I2C_1_IOMUX_SDA_FUNC                      IOMUX_PINCM21_PF_I2C1_SDA
+#define GPIO_I2C_1_SDA_PIN                                        DL_GPIO_PIN_16
+#define GPIO_I2C_1_IOMUX_SDA                                     (IOMUX_PINCM38)
+#define GPIO_I2C_1_IOMUX_SDA_FUNC                      IOMUX_PINCM38_PF_I2C1_SDA
 #define GPIO_I2C_1_SCL_PORT                                                GPIOA
-#define GPIO_I2C_1_SCL_PIN                                        DL_GPIO_PIN_17
-#define GPIO_I2C_1_IOMUX_SCL                                     (IOMUX_PINCM39)
-#define GPIO_I2C_1_IOMUX_SCL_FUNC                      IOMUX_PINCM39_PF_I2C1_SCL
+#define GPIO_I2C_1_SCL_PIN                                        DL_GPIO_PIN_29
+#define GPIO_I2C_1_IOMUX_SCL                                      (IOMUX_PINCM4)
+#define GPIO_I2C_1_IOMUX_SCL_FUNC                       IOMUX_PINCM4_PF_I2C1_SCL
 
 
 /* Defines for SPI_LCD */
@@ -146,14 +146,18 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_SPI_LCD_IOMUX_PICO                                 (IOMUX_PINCM25)
 #define GPIO_SPI_LCD_IOMUX_PICO_FUNC                 IOMUX_PINCM25_PF_SPI1_PICO
 #define GPIO_SPI_LCD_POCI_PORT                                            GPIOB
-#define GPIO_SPI_LCD_POCI_PIN                                     DL_GPIO_PIN_7
-#define GPIO_SPI_LCD_IOMUX_POCI                                 (IOMUX_PINCM24)
-#define GPIO_SPI_LCD_IOMUX_POCI_FUNC                 IOMUX_PINCM24_PF_SPI1_POCI
+#define GPIO_SPI_LCD_POCI_PIN                                    DL_GPIO_PIN_14
+#define GPIO_SPI_LCD_IOMUX_POCI                                 (IOMUX_PINCM31)
+#define GPIO_SPI_LCD_IOMUX_POCI_FUNC                 IOMUX_PINCM31_PF_SPI1_POCI
 /* GPIO configuration for SPI_LCD */
 #define GPIO_SPI_LCD_SCLK_PORT                                            GPIOB
 #define GPIO_SPI_LCD_SCLK_PIN                                     DL_GPIO_PIN_9
 #define GPIO_SPI_LCD_IOMUX_SCLK                                 (IOMUX_PINCM26)
 #define GPIO_SPI_LCD_IOMUX_SCLK_FUNC                 IOMUX_PINCM26_PF_SPI1_SCLK
+#define GPIO_SPI_LCD_CS0_PORT                                             GPIOB
+#define GPIO_SPI_LCD_CS0_PIN                                      DL_GPIO_PIN_6
+#define GPIO_SPI_LCD_IOMUX_CS0                                  (IOMUX_PINCM23)
+#define GPIO_SPI_LCD_IOMUX_CS0_FUNC                   IOMUX_PINCM23_PF_SPI1_CS0
 
 
 
@@ -162,101 +166,99 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_MIC_JOY_INST_IRQHandler                              ADC0_IRQHandler
 #define ADC_MIC_JOY_INST_INT_IRQN                                (ADC0_INT_IRQn)
 #define ADC_MIC_JOY_ADCMEM_0                                  DL_ADC12_MEM_IDX_0
-#define ADC_MIC_JOY_ADCMEM_0_REF               DL_ADC12_REFERENCE_VOLTAGE_INTREF
-#define ADC_MIC_JOY_ADCMEM_0_REF_VOLTAGE_V                                    2.50
+#define ADC_MIC_JOY_ADCMEM_0_REF                 DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_MIC_JOY_ADCMEM_0_REF_VOLTAGE_V                                     3.3
 #define ADC_MIC_JOY_ADCMEM_1                                  DL_ADC12_MEM_IDX_1
-#define ADC_MIC_JOY_ADCMEM_1_REF               DL_ADC12_REFERENCE_VOLTAGE_INTREF
-#define ADC_MIC_JOY_ADCMEM_1_REF_VOLTAGE_V                                    2.50
-#define ADC_MIC_JOY_ADCMEM_2                                  DL_ADC12_MEM_IDX_2
-#define ADC_MIC_JOY_ADCMEM_2_REF               DL_ADC12_REFERENCE_VOLTAGE_INTREF
-#define ADC_MIC_JOY_ADCMEM_2_REF_VOLTAGE_V                                    2.50
+#define ADC_MIC_JOY_ADCMEM_1_REF                 DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_MIC_JOY_ADCMEM_1_REF_VOLTAGE_V                                     3.3
 #define ADC_MIC_JOY_INST_SUB_CH                                              (1)
-#define GPIO_ADC_MIC_JOY_C0_PORT                                           GPIOA
-#define GPIO_ADC_MIC_JOY_C0_PIN                                   DL_GPIO_PIN_27
-#define GPIO_ADC_MIC_JOY_IOMUX_C0                                (IOMUX_PINCM60)
-#define GPIO_ADC_MIC_JOY_IOMUX_C0_FUNC            (IOMUX_PINCM60_PF_UNCONNECTED)
+#define GPIO_ADC_MIC_JOY_C1_PORT                                           GPIOA
+#define GPIO_ADC_MIC_JOY_C1_PIN                                   DL_GPIO_PIN_26
+#define GPIO_ADC_MIC_JOY_IOMUX_C1                                (IOMUX_PINCM59)
+#define GPIO_ADC_MIC_JOY_IOMUX_C1_FUNC            (IOMUX_PINCM59_PF_UNCONNECTED)
 #define GPIO_ADC_MIC_JOY_C2_PORT                                           GPIOA
 #define GPIO_ADC_MIC_JOY_C2_PIN                                   DL_GPIO_PIN_25
 #define GPIO_ADC_MIC_JOY_IOMUX_C2                                (IOMUX_PINCM55)
 #define GPIO_ADC_MIC_JOY_IOMUX_C2_FUNC            (IOMUX_PINCM55_PF_UNCONNECTED)
-#define GPIO_ADC_MIC_JOY_C7_PORT                                           GPIOA
-#define GPIO_ADC_MIC_JOY_C7_PIN                                   DL_GPIO_PIN_22
-#define GPIO_ADC_MIC_JOY_IOMUX_C7                                (IOMUX_PINCM47)
-#define GPIO_ADC_MIC_JOY_IOMUX_C7_FUNC            (IOMUX_PINCM47_PF_UNCONNECTED)
 
 /* Defines for ADC_ACCEL */
 #define ADC_ACCEL_INST                                                      ADC1
 #define ADC_ACCEL_INST_IRQHandler                                ADC1_IRQHandler
 #define ADC_ACCEL_INST_INT_IRQN                                  (ADC1_INT_IRQn)
 #define ADC_ACCEL_ADCMEM_0                                    DL_ADC12_MEM_IDX_0
-#define ADC_ACCEL_ADCMEM_0_REF                 DL_ADC12_REFERENCE_VOLTAGE_INTREF
-#define ADC_ACCEL_ADCMEM_0_REF_VOLTAGE_V                                    2.50
+#define ADC_ACCEL_ADCMEM_0_REF                   DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_ACCEL_ADCMEM_0_REF_VOLTAGE_V                                     3.3
 #define ADC_ACCEL_ADCMEM_1                                    DL_ADC12_MEM_IDX_1
-#define ADC_ACCEL_ADCMEM_1_REF                 DL_ADC12_REFERENCE_VOLTAGE_INTREF
-#define ADC_ACCEL_ADCMEM_1_REF_VOLTAGE_V                                    2.50
+#define ADC_ACCEL_ADCMEM_1_REF                   DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_ACCEL_ADCMEM_1_REF_VOLTAGE_V                                     3.3
 #define ADC_ACCEL_ADCMEM_2                                    DL_ADC12_MEM_IDX_2
-#define ADC_ACCEL_ADCMEM_2_REF                 DL_ADC12_REFERENCE_VOLTAGE_INTREF
-#define ADC_ACCEL_ADCMEM_2_REF_VOLTAGE_V                                    2.50
-#define GPIO_ADC_ACCEL_C3_PORT                                             GPIOA
-#define GPIO_ADC_ACCEL_C3_PIN                                     DL_GPIO_PIN_18
-#define GPIO_ADC_ACCEL_IOMUX_C3                                  (IOMUX_PINCM40)
-#define GPIO_ADC_ACCEL_IOMUX_C3_FUNC              (IOMUX_PINCM40_PF_UNCONNECTED)
+#define ADC_ACCEL_ADCMEM_2_REF                   DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_ACCEL_ADCMEM_2_REF_VOLTAGE_V                                     3.3
+#define ADC_ACCEL_ADCMEM_3                                    DL_ADC12_MEM_IDX_3
+#define ADC_ACCEL_ADCMEM_3_REF                   DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_ACCEL_ADCMEM_3_REF_VOLTAGE_V                                     3.3
+#define GPIO_ADC_ACCEL_C6_PORT                                             GPIOB
+#define GPIO_ADC_ACCEL_C6_PIN                                     DL_GPIO_PIN_19
+#define GPIO_ADC_ACCEL_IOMUX_C6                                  (IOMUX_PINCM45)
+#define GPIO_ADC_ACCEL_IOMUX_C6_FUNC              (IOMUX_PINCM45_PF_UNCONNECTED)
+#define GPIO_ADC_ACCEL_C8_PORT                                             GPIOA
+#define GPIO_ADC_ACCEL_C8_PIN                                     DL_GPIO_PIN_22
+#define GPIO_ADC_ACCEL_IOMUX_C8                                  (IOMUX_PINCM47)
+#define GPIO_ADC_ACCEL_IOMUX_C8_FUNC              (IOMUX_PINCM47_PF_UNCONNECTED)
+#define GPIO_ADC_ACCEL_C5_PORT                                             GPIOB
+#define GPIO_ADC_ACCEL_C5_PIN                                     DL_GPIO_PIN_18
+#define GPIO_ADC_ACCEL_IOMUX_C5                                  (IOMUX_PINCM44)
+#define GPIO_ADC_ACCEL_IOMUX_C5_FUNC              (IOMUX_PINCM44_PF_UNCONNECTED)
 #define GPIO_ADC_ACCEL_C0_PORT                                             GPIOA
 #define GPIO_ADC_ACCEL_C0_PIN                                     DL_GPIO_PIN_15
 #define GPIO_ADC_ACCEL_IOMUX_C0                                  (IOMUX_PINCM37)
 #define GPIO_ADC_ACCEL_IOMUX_C0_FUNC              (IOMUX_PINCM37_PF_UNCONNECTED)
-#define GPIO_ADC_ACCEL_C7_PORT                                             GPIOA
-#define GPIO_ADC_ACCEL_C7_PIN                                     DL_GPIO_PIN_21
-#define GPIO_ADC_ACCEL_IOMUX_C7                                  (IOMUX_PINCM46)
-#define GPIO_ADC_ACCEL_IOMUX_C7_FUNC              (IOMUX_PINCM46_PF_UNCONNECTED)
-
-
-/* Defines for VREF */
-#define VREF_VOLTAGE_MV                                                     2500
-#define VREF_READY_DELAY                                                   (800)
 
 
 
+/* Port definition for Pin Group LCD_BACKLIGHT */
+#define LCD_BACKLIGHT_PORT                                               (GPIOB)
 
+/* Defines for PIN_0: GPIOB.1 with pinCMx 13 on package pin 48 */
+#define LCD_BACKLIGHT_PIN_0_PIN                                  (DL_GPIO_PIN_1)
+#define LCD_BACKLIGHT_PIN_0_IOMUX                                (IOMUX_PINCM13)
 /* Port definition for Pin Group GPIO_BUTTONS */
 #define GPIO_BUTTONS_PORT                                                (GPIOA)
 
 /* Defines for S1: GPIOA.11 with pinCMx 22 on package pin 57 */
-// pins affected by this interrupt request:["S1","S2","JOY_SEL"]
+// pins affected by this interrupt request:["S1","S2"]
 #define GPIO_BUTTONS_INT_IRQN                                   (GPIOA_INT_IRQn)
 #define GPIO_BUTTONS_INT_IIDX                   (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
 #define GPIO_BUTTONS_S1_IIDX                                (DL_GPIO_IIDX_DIO11)
 #define GPIO_BUTTONS_S1_PIN                                     (DL_GPIO_PIN_11)
 #define GPIO_BUTTONS_S1_IOMUX                                    (IOMUX_PINCM22)
-/* Defines for S2: GPIOA.12 with pinCMx 34 on package pin 5 */
-#define GPIO_BUTTONS_S2_IIDX                                (DL_GPIO_IIDX_DIO12)
-#define GPIO_BUTTONS_S2_PIN                                     (DL_GPIO_PIN_12)
-#define GPIO_BUTTONS_S2_IOMUX                                    (IOMUX_PINCM34)
-/* Defines for JOY_SEL: GPIOA.26 with pinCMx 59 on package pin 30 */
-#define GPIO_BUTTONS_JOY_SEL_IIDX                           (DL_GPIO_IIDX_DIO26)
-#define GPIO_BUTTONS_JOY_SEL_PIN                                (DL_GPIO_PIN_26)
-#define GPIO_BUTTONS_JOY_SEL_IOMUX                               (IOMUX_PINCM59)
+/* Defines for S2: GPIOA.17 with pinCMx 39 on package pin 10 */
+#define GPIO_BUTTONS_S2_IIDX                                (DL_GPIO_IIDX_DIO17)
+#define GPIO_BUTTONS_S2_PIN                                     (DL_GPIO_PIN_17)
+#define GPIO_BUTTONS_S2_IOMUX                                    (IOMUX_PINCM39)
+/* Defines for JOY_SEL: GPIOA.10 with pinCMx 21 on package pin 56 */
+#define GPIO_BUTTONS_JOY_SEL_PIN                                (DL_GPIO_PIN_10)
+#define GPIO_BUTTONS_JOY_SEL_IOMUX                               (IOMUX_PINCM21)
 /* Port definition for Pin Group GPIO_RGB */
 #define GPIO_RGB_PORT                                                    (GPIOB)
 
-/* Defines for RED: GPIOB.26 with pinCMx 57 on package pin 28 */
-#define GPIO_RGB_RED_PIN                                        (DL_GPIO_PIN_26)
-#define GPIO_RGB_RED_IOMUX                                       (IOMUX_PINCM57)
-/* Defines for GREEN: GPIOB.27 with pinCMx 58 on package pin 29 */
-#define GPIO_RGB_GREEN_PIN                                      (DL_GPIO_PIN_27)
-#define GPIO_RGB_GREEN_IOMUX                                     (IOMUX_PINCM58)
-/* Defines for BLUE: GPIOB.22 with pinCMx 50 on package pin 21 */
-#define GPIO_RGB_BLUE_PIN                                       (DL_GPIO_PIN_22)
-#define GPIO_RGB_BLUE_IOMUX                                      (IOMUX_PINCM50)
-/* Port definition for Pin Group GPIO_LCD */
-#define GPIO_LCD_PORT                                                    (GPIOB)
-
-/* Defines for RST: GPIOB.15 with pinCMx 32 on package pin 3 */
-#define GPIO_LCD_RST_PIN                                        (DL_GPIO_PIN_15)
-#define GPIO_LCD_RST_IOMUX                                       (IOMUX_PINCM32)
-/* Defines for DC: GPIOB.13 with pinCMx 30 on package pin 1 */
+/* Defines for RED: GPIOB.22 with pinCMx 50 on package pin 21 */
+#define GPIO_RGB_RED_PIN                                        (DL_GPIO_PIN_22)
+#define GPIO_RGB_RED_IOMUX                                       (IOMUX_PINCM50)
+/* Defines for GREEN: GPIOB.26 with pinCMx 57 on package pin 28 */
+#define GPIO_RGB_GREEN_PIN                                      (DL_GPIO_PIN_26)
+#define GPIO_RGB_GREEN_IOMUX                                     (IOMUX_PINCM57)
+/* Defines for BLUE: GPIOB.27 with pinCMx 58 on package pin 29 */
+#define GPIO_RGB_BLUE_PIN                                       (DL_GPIO_PIN_27)
+#define GPIO_RGB_BLUE_IOMUX                                      (IOMUX_PINCM58)
+/* Defines for RST: GPIOB.17 with pinCMx 43 on package pin 14 */
+#define GPIO_LCD_RST_PORT                                                (GPIOB)
+#define GPIO_LCD_RST_PIN                                        (DL_GPIO_PIN_17)
+#define GPIO_LCD_RST_IOMUX                                       (IOMUX_PINCM43)
+/* Defines for DC: GPIOA.13 with pinCMx 35 on package pin 6 */
+#define GPIO_LCD_DC_PORT                                                 (GPIOA)
 #define GPIO_LCD_DC_PIN                                         (DL_GPIO_PIN_13)
-#define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM30)
+#define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM35)
 
 
 
@@ -278,7 +280,6 @@ void SYSCFG_DL_I2C_1_init(void);
 void SYSCFG_DL_SPI_LCD_init(void);
 void SYSCFG_DL_ADC_MIC_JOY_init(void);
 void SYSCFG_DL_ADC_ACCEL_init(void);
-void SYSCFG_DL_VREF_init(void);
 
 void SYSCFG_DL_RTC_init(void);
 

@@ -1,27 +1,28 @@
 Pin Number,Device Pin Name,IO Type,Assigned Peripheral,Assigned Function ,User Label
 57,PA11,HD,GPIO,High-Drive Input with internal pull-up,S1
-5,PA12,HS,GPIO,High-Speed Input with internal pull-up,S2
-30,PA26,SD,GPIO,Standard Input with internal pull-up,JOY_SEL
-28,PB26,SD,GPIO,Standard Output,RED
-29,PB27,SD,GPIO,Standard Output,GREEN
-21,PB22,SD,GPIO,Standard Output,BLUE
-3,PB15,SD,GPIO,Standard Output,RST
-1,PB13,SD,GPIO,Standard Output,DC
+10,PA17,SDW,GPIO,Standard with Wake Input with internal pull-up,S2
+56,PA10,HD,GPIO,High-Drive Output with internal pull-up,JOY_SEL
+6,PA13,HS,GPIO,High-Speed Output,DC
+48,PB1,SD,GPIO,Standard Output,PIN_0
+21,PB22,SD,GPIO,Standard Output,RED
+28,PB26,SD,GPIO,Standard Output,GREEN
+29,PB27,SD,GPIO,Standard Output,BLUE
+14,PB17,SD,GPIO,Standard Output,RST
 52,PB4,SD,TIMA1,"Capture/Compare Pin 0",
 33,PA0,OD,I2C0,"I2C Serial Data line (SDA)",
 34,PA1,OD,I2C0,"I2C Serial Clock line (SCL)",
-56,PA10,HD,I2C1,"I2C Serial Data line (SDA)",
-10,PA17,SDW,I2C1,"I2C Serial Clock line (SCL)",
+9,PA16,SD,I2C1,"I2C Serial Data line (SDA)",
+36,PA29,SD,I2C1,"I2C Serial Clock line (SCL)",
 61,PB9,SD,SPI1,"SPI SCLK (Clock)",
 60,PB8,SD,SPI1,"SPI PICO (Peripheral In, Controller Out)",
-59,PB7,SD,SPI1,"SPI POCI (Peripheral Out, Controller In)",
-31,PA27,SD,ADC0,"ADC12 Channel 0 Pin",
+2,PB14,SD,SPI1,"SPI POCI (Peripheral Out, Controller In)",
+58,PB6,SD,SPI1,"SPI CS0 (Chip Select 0)",
+30,PA26,SD,ADC0,"ADC12 Channel 1 Pin",
 26,PA25,SD,ADC0,"ADC12 Channel 2 Pin",
-18,PA22,SD,ADC0,"ADC12 Channel 7 Pin",
-11,PA18,SDW,ADC1,"ADC12 Channel 3 Pin",
+16,PB19,SD,ADC1,"ADC12 Channel 6 Pin",
+18,PA22,SD,ADC1,"ADC12 Channel 8 Pin",
+15,PB18,SD,ADC1,"ADC12 Channel 5 Pin",
 8,PA15,SD,ADC1,"ADC12 Channel 0 Pin",
-17,PA21,SD,ADC1,"ADC12 Channel 7 Pin",
-24,PA23,SD,VREF,"VREF Positive (VREF+)",
 13,PA20,SD,BOARD,"Debug Clock",
 12,PA19,HS,BOARD,"Debug Data In Out",
 

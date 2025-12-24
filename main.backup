@@ -173,18 +173,35 @@ static void Generate_Audio_Sample(void) {
 }
 
 static void Process_Input(void) {
-    // ⭐ INTEGER MATH ONLY - no floating-point!
-    if (gSynthState.joy_x > 100) {
-        uint32_t freq_int = 20 + ((gSynthState.joy_x * 1980) / 4095);
+    uint32_t raw_val;
+    uint32_t freq_int;
+
+    // 1. BESTEM FREKVENS-KILDE
+    if (gSynthState.mode == MODE_THEREMIN) {
+        // Bruk akselerometer X. Mapper råverdi (-2048 til 2047) til 0-4095
+        raw_val = (uint32_t)(gSynthState.accel_x + 2048);
+    } else {
+        // Bruk joystick X
+        raw_val = gSynthState.joy_x;
+    }
+
+    // 2. BEREGN FREKVENS (Heltallsmatematikk for hastighet)
+    if (raw_val > 100) {
+        // Bruker grensene fra main.h (f.eks. 100 Hz til 8000 Hz)
+        freq_int = (uint32_t)FREQ_MIN_HZ + 
+                   ((raw_val * (uint32_t)(FREQ_MAX_HZ - FREQ_MIN_HZ)) / 4095);
+        
         uint32_t curr_freq = (uint32_t)gSynthState.frequency;
         uint32_t diff = (freq_int > curr_freq) ? (freq_int - curr_freq) : (curr_freq - freq_int);
         
-        if (diff > 5) {
+        // Oppdater kun ved signifikant endring for å unngå "jitter"
+        if (diff > 10) {
             gSynthState.frequency = (float)freq_int;
-            Update_Audio_Params();
+            Update_Audio_Params(); // Denne beregner phase_increment for 20kHz
         }
     }
     
+    // 3. VOLUM (Bruker alltid Joystick Y i dette eksempelet)
     if (gSynthState.joy_y > 100) {
         uint8_t new_vol = (uint8_t)((gSynthState.joy_y * 100) / 4095);
         if (new_vol != gSynthState.volume) {
@@ -192,7 +209,6 @@ static void Process_Input(void) {
         }
     }
 }
-
 static void Process_Buttons(void) {
     static uint32_t s1_prev = 1, s2_prev = 1;
     uint32_t s1 = DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);

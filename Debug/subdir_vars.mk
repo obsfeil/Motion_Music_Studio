@@ -9,6 +9,7 @@ SYSCFG_SRCS += \
 ../ti_msp_dl_config.syscfg 
 
 C_SRCS += \
+../lcd_driver.c \
 ../main.c \
 ./syscfg/ti_msp_dl_config.c \
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/startup_system_files/ticlang/startup_mspm0g350x_ticlang.c 
@@ -25,6 +26,7 @@ GEN_MISC_DIRS += \
 ./syscfg 
 
 C_DEPS += \
+./lcd_driver.d \
 ./main.d \
 ./syscfg/ti_msp_dl_config.d \
 ./startup_mspm0g350x_ticlang.d 
@@ -33,6 +35,7 @@ GEN_OPTS += \
 ./syscfg/device.opt 
 
 OBJS += \
+./lcd_driver.o \
 ./main.o \
 ./syscfg/ti_msp_dl_config.o \
 ./startup_mspm0g350x_ticlang.o 
@@ -48,6 +51,7 @@ GEN_MISC_DIRS__QUOTED += \
 "syscfg" 
 
 OBJS__QUOTED += \
+"lcd_driver.o" \
 "main.o" \
 "syscfg\ti_msp_dl_config.o" \
 "startup_mspm0g350x_ticlang.o" 
@@ -60,6 +64,7 @@ GEN_MISC_FILES__QUOTED += \
 "syscfg\Event.dot" 
 
 C_DEPS__QUOTED += \
+"lcd_driver.d" \
 "main.d" \
 "syscfg\ti_msp_dl_config.d" \
 "startup_mspm0g350x_ticlang.d" 
@@ -70,7 +75,7 @@ GEN_FILES__QUOTED += \
 "syscfg\ti_msp_dl_config.c" 
 
 C_SRCS__QUOTED += \
-"../main.c" \
+"../lcd_driver.c" \
 "./syscfg/ti_msp_dl_config.c" \
 "C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/startup_system_files/ticlang/startup_mspm0g350x_ticlang.c" 
 
