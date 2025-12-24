@@ -66,12 +66,16 @@
 #define LCD_DC_DATA()    DL_GPIO_setPins(GPIO_LCD_DC_PORT, GPIO_LCD_DC_PIN)
 #define LCD_RST_LOW()    DL_GPIO_clearPins(GPIO_LCD_RST_PORT, GPIO_LCD_RST_PIN)
 #define LCD_RST_HIGH()   DL_GPIO_setPins(GPIO_LCD_RST_PORT, GPIO_LCD_RST_PIN)
+// Manuell CS-styring
+#define LCD_CS_LOW()     DL_GPIO_clearPins(GPIO_LCD_CS_PORT, GPIO_LCD_CS_PIN)
+#define LCD_CS_HIGH()    DL_GPIO_setPins(GPIO_LCD_CS_PORT, GPIO_LCD_CS_PIN)
 
 // Makro for å skru på bakgrunnslyset (Backlight)
 #define LCD_BL_ON()      DL_GPIO_setPins(LCD_BACKLIGHT_PORT, LCD_BACKLIGHT_PIN_0_PIN)
 
 // Simple delay (blocking)
 #define LCD_DELAY_MS(ms) delay_cycles((uint32_t)(ms * 32000UL))
+#define LCD_DELAY_MS(ms) DL_Common_delayCycles((uint32_t)(ms * 80000UL))
 
 //=============================================================================
 // SIMPLE 6x8 FONT (ASCII 32-127)
@@ -177,35 +181,52 @@ static const uint8_t font_6x8[] = {
 //=============================================================================
 
 /**
+ * @brief Internal helper to send byte without toggling CS automatically
+ */
+static void LCD_SPI_Send(uint8_t data) {
+    DL_SPI_transmitData8(SPI_LCD_INST, data);
+    while (DL_SPI_isBusy(SPI_LCD_INST));
+}
+
+/**
  * @brief Write a command byte to LCD
  */
 static void LCD_WriteCommand(uint8_t cmd) {
+  LCD_CS_LOW();
   LCD_DC_COMMAND();
   DL_SPI_transmitData8(SPI_LCD_INST, cmd);
   while (DL_SPI_isBusy(SPI_LCD_INST))
     ;
+  LCD_SPI_Send(cmd);
+  LCD_CS_HIGH();
 }
 
 /**
  * @brief Write a data byte to LCD
  */
 static void LCD_WriteData(uint8_t data) {
+  LCD_CS_LOW();
   LCD_DC_DATA();
   DL_SPI_transmitData8(SPI_LCD_INST, data);
   while (DL_SPI_isBusy(SPI_LCD_INST))
     ;
+  LCD_SPI_Send(data);
+  LCD_CS_HIGH();
 }
 
 /**
  * @brief Write multiple data bytes to LCD
  */
 static void LCD_WriteDataBuffer(const uint8_t *buffer, uint32_t length) {
+  LCD_CS_LOW();
   LCD_DC_DATA();
   for (uint32_t i = 0; i < length; i++) {
     DL_SPI_transmitData8(SPI_LCD_INST, buffer[i]);
     while (DL_SPI_isBusy(SPI_LCD_INST))
       ;
+    LCD_SPI_Send(buffer[i]);
   }
+  LCD_CS_HIGH();
 }
 
 /**
@@ -228,6 +249,7 @@ static void LCD_SetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 
   // Write to RAM
   LCD_WriteCommand(ST7735_RAMWR);
+  // Merk: Vi sender IKKE RAMWR her lenger. Det må gjøres sammen med pikseldataene.
 }
 
 //=============================================================================
@@ -373,6 +395,16 @@ void LCD_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
   LCD_SetWindow(x, y, x, y);
   LCD_WriteData(color >> 8);
   LCD_WriteData(color & 0xFF);
+  
+  // Manuell CS-kontroll for å binde kommando og data sammen
+  LCD_CS_LOW();
+  LCD_DC_COMMAND();
+  LCD_SPI_Send(ST7735_RAMWR);
+  
+  LCD_DC_DATA();
+  LCD_SPI_Send(color >> 8);
+  LCD_SPI_Send(color & 0xFF);
+  LCD_CS_HIGH();
 }
 
 void LCD_DrawRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
@@ -389,6 +421,11 @@ void LCD_DrawRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
   uint8_t color_high = color >> 8;
   uint8_t color_low = color & 0xFF;
 
+  LCD_CS_LOW();
+  
+  LCD_DC_COMMAND();
+  LCD_SPI_Send(ST7735_RAMWR);
+
   LCD_DC_DATA();
   for (uint32_t i = 0; i < width * height; i++) {
     DL_SPI_transmitData8(SPI_LCD_INST, color_high);
@@ -397,7 +434,10 @@ void LCD_DrawRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
     DL_SPI_transmitData8(SPI_LCD_INST, color_low);
     while (DL_SPI_isBusy(SPI_LCD_INST))
       ;
+    LCD_SPI_Send(color_high);
+    LCD_SPI_Send(color_low);
   }
+  LCD_CS_HIGH();
 }
 
 void LCD_DrawHLine(uint16_t x, uint16_t y, uint16_t length, uint16_t color) {
