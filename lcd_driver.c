@@ -71,10 +71,7 @@
 #define LCD_BL_ON()      DL_GPIO_setPins(LCD_BACKLIGHT_PORT, LCD_BACKLIGHT_PIN_0_PIN)
 
 // Simple delay (blocking)
-#define LCD_BL_ON()      DL_GPIO_setPins(LCD_BACKLIGHT_PORT, LCD_BACKLIGHT_PIN_0_PIN)
-
-// Simple delay (blocking)
-#define LCD_DELAY_MS(ms) DL_Common_delayCycles((uint32_t)(ms * 80000UL))
+#define LCD_DELAY_MS(ms) delay_cycles((uint32_t)(ms * 32000UL))
 
 //=============================================================================
 // SIMPLE 6x8 FONT (ASCII 32-127)

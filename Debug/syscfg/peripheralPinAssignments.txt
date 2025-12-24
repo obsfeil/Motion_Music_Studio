@@ -1,5 +1,6 @@
 
 - GPIOA:
+	+ Standard Output: PA2
 	+ High-Drive Input with internal pull-up: PA11
 	+ Standard with Wake Input with internal pull-up: PA17
 	+ High-Drive Input with internal pull-up: PA10
@@ -24,7 +25,7 @@
 	+ SPI SCLK (Clock): PB9
 	+ SPI PICO (Peripheral In, Controller Out): PB8
 	+ SPI POCI (Peripheral Out, Controller In): PB14
-	+ SPI CS0 (Chip Select 0): PA2
+	+ SPI CS0 (Chip Select 0): PB20
 - ADC0:
 	+ ADC12 Channel 1 Pin: PA26
 	+ ADC12 Channel 2 Pin: PA25

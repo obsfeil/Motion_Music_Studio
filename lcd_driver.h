@@ -5,9 +5,10 @@
  * 
  * Pin Configuration (from SysConfig):
  * - SPI: SPI1 (SPI_LCD)
- * - CS: Auto via SPI peripheral
+ * - CS: GPIO_LCD_CS (Manual GPIO, PA2)
  * - RST: GPIO_LCD_RST
  * - DC: GPIO_LCD_DC
+ * - RST: GPIO_LCD_RST
  * 
  * @version 1.0.0
  * @date 2025-12-23

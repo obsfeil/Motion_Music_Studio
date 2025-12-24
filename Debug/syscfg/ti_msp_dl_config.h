@@ -154,10 +154,10 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_SPI_LCD_SCLK_PIN                                     DL_GPIO_PIN_9
 #define GPIO_SPI_LCD_IOMUX_SCLK                                 (IOMUX_PINCM26)
 #define GPIO_SPI_LCD_IOMUX_SCLK_FUNC                 IOMUX_PINCM26_PF_SPI1_SCLK
-#define GPIO_SPI_LCD_CS0_PORT                                             GPIOA
-#define GPIO_SPI_LCD_CS0_PIN                                      DL_GPIO_PIN_2
-#define GPIO_SPI_LCD_IOMUX_CS0                                   (IOMUX_PINCM7)
-#define GPIO_SPI_LCD_IOMUX_CS0_FUNC                    IOMUX_PINCM7_PF_SPI1_CS0
+#define GPIO_SPI_LCD_CS0_PORT                                             GPIOB
+#define GPIO_SPI_LCD_CS0_PIN                                     DL_GPIO_PIN_20
+#define GPIO_SPI_LCD_IOMUX_CS0                                  (IOMUX_PINCM48)
+#define GPIO_SPI_LCD_IOMUX_CS0_FUNC                   IOMUX_PINCM48_PF_SPI1_CS0
 
 
 
@@ -222,6 +222,12 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 /* Defines for PIN_0: GPIOB.1 with pinCMx 13 on package pin 48 */
 #define LCD_BACKLIGHT_PIN_0_PIN                                  (DL_GPIO_PIN_1)
 #define LCD_BACKLIGHT_PIN_0_IOMUX                                (IOMUX_PINCM13)
+/* Port definition for Pin Group GIPO_LCD_CS */
+#define GIPO_LCD_CS_PORT                                                 (GPIOA)
+
+/* Defines for LCD_CS: GPIOA.2 with pinCMx 7 on package pin 42 */
+#define GIPO_LCD_CS_LCD_CS_PIN                                   (DL_GPIO_PIN_2)
+#define GIPO_LCD_CS_LCD_CS_IOMUX                                  (IOMUX_PINCM7)
 /* Port definition for Pin Group GPIO_BUTTONS */
 #define GPIO_BUTTONS_PORT                                                (GPIOA)
 
