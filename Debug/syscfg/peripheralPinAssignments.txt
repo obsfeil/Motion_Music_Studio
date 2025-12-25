@@ -1,16 +1,15 @@
 
 - GPIOA:
-	+ Standard Output: PA2
-	+ High-Drive Input with internal pull-up: PA11
-	+ Standard with Wake Input with internal pull-up: PA18
-	+ High-Drive Input with internal pull-up: PA10
+	+ High-Drive Input: PA11
+	+ High-Speed Input: PA12
+	+ High-Drive Input: PA10
+	+ High-Drive Output: PA28
+	+ High-Drive Output: PA31
 	+ High-Speed Output: PA13
 - GPIOB:
 	+ Standard Output: PB1
-	+ Standard Output: PB22
-	+ Standard Output: PB26
-	+ Standard Output: PB27
-	+ Standard Output: PB17
+	+ Standard Output: PB6
+	+ Standard Output: PB15
 - SYSCTL
 - TIMA1:
 	+ Capture/Compare Pin 0: PB4
@@ -19,13 +18,13 @@
 	+ I2C Serial Data line (SDA): PA0
 	+ I2C Serial Clock line (SCL): PA1
 - I2C1:
-	+ I2C Serial Data line (SDA): PA16
-	+ I2C Serial Clock line (SCL): PA29
+	+ I2C Serial Data line (SDA): PB3
+	+ I2C Serial Clock line (SCL): PB2
 - SPI1:
 	+ SPI SCLK (Clock): PB9
 	+ SPI PICO (Peripheral In, Controller Out): PB8
 	+ SPI POCI (Peripheral Out, Controller In): PB7
-	+ SPI CS0 (Chip Select 0): PB6
+	+ SPI CS0 (Chip Select 0): PA2
 - ADC0:
 	+ ADC12 Channel 1 Pin: PA26
 	+ ADC12 Channel 2 Pin: PA25

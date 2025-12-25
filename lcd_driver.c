@@ -81,8 +81,8 @@
 #define LCD_CS_LOW()     DL_GPIO_clearPins(LCD_CS_PIN_PORT, LCD_CS_PIN_LCD_CS_PIN)
 #define LCD_CS_HIGH()    DL_GPIO_setPins(LCD_CS_PIN_PORT, LCD_CS_PIN_LCD_CS_PIN)
 
-// Backlight pin
-#define LCD_BL_ON()      DL_GPIO_setPins(LCD_BACKLIGHT_PORT, LCD_BACKLIGHT_PIN_0_PIN)
+#define LCD_BL_ON()   DL_GPIO_setPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN)
+#define LCD_BL_OFF()  DL_GPIO_clearPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN)
 
 // Delay macro (80 MHz clock: 80,000 cycles = 1 ms)
 #define LCD_DELAY_MS(ms) delay_cycles((uint32_t)(ms * 80000UL))

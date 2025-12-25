@@ -9,7 +9,7 @@
  * - RST: GPIO_LCD_RST
  * - DC: GPIO_LCD_DC
  * - RST: GPIO_LCD_RST
- * 
+ * - BL: LCD_BL (PB1 via Jumper J5)
  * @version 1.0.0
  * @date 2025-12-23
  */
@@ -44,10 +44,10 @@
 #define LCD_COLOR_GRAY      0x8410
 #define LCD_COLOR_DARKGRAY  0x4208
 #define LCD_COLOR_NAVY       0x000F   // Dark blue
-#define LCD_COLOR_ORANGE     0xFD20   // Orange
 #define LCD_COLOR_DARKRED    0x8800   // Dark red
 #define LCD_COLOR_DARKGREEN  0x03E0   // Dark green
-#define LCD_COLOR_DARKGRAY   0x4208   // Dark gray
+#define LCD_BL_ON()   DL_GPIO_setPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN)
+#define LCD_BL_OFF()  DL_GPIO_clearPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN)
 
 //=============================================================================
 // FONT SIZE ENUM
@@ -57,6 +57,8 @@ typedef enum {
     FONT_MEDIUM = 2,  // 12x16 pixels
     FONT_LARGE = 3    // 18x24 pixels
 } LCD_FontSize_t;
+
+
 
 //=============================================================================
 // FUNCTION PROTOTYPES
