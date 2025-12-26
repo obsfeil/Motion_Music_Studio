@@ -1,16 +1,11 @@
 /**
  * @file main.c
- * @brief MSPM0G3507 Synthesizer - SENSITIVITY & BUTTON FIX
- * @version 12.0.0 - PRODUCTION READY
+ * @brief ULTIMATE Synthesizer - FIXED PITCH BEND
+ * @version 10.5.1 - SENSITIVITY FIX
  * 
- * 🔧 FIXES APPLIED:
- * 1. ✅ Redusert pitch bend sensitivitet 10x (var /200, nå /2000)
- * 2. ✅ Lagt til dead zone på ±100 ADC-verdier i midten
- * 3. ✅ Fikset knapp-håndtering (fjernet dobbel-håndtering)
- * 4. ✅ Bedre debouncing for S1
- * 5. ✅ LCD viser nå knapp-status for debugging
- * 
- * @date 2025-12-26
+ * 🔧 CHANGE FROM v10.5.0:
+ * - Pitch bend sensitivity: /200 → /2000 (10x less sensitive!)
+ * - Dead zone added: ±150 (more stable at rest)
  */
 
 #include <string.h>
@@ -22,63 +17,15 @@
 #include <stdio.h>
 
 //=============================================================================
-// AUDIO GAIN BOOST
+// CONFIGURATION
 //=============================================================================
-#define AUDIO_GAIN_BOOST    4
-
-//=============================================================================
-// 🔧 NEW: PITCH BEND SENSITIVITY SETTINGS
-//=============================================================================
-#define PITCH_BEND_DEAD_ZONE     100
-#define PITCH_BEND_SENSITIVITY   2000
-#define PITCH_BEND_MAX_SEMITONES 12
-
-//=============================================================================
-// ADVANCED FEATURES CONFIGURATION
-//=============================================================================
-#define ENABLE_NOTE_QUANTIZER   1
-#define ENABLE_CHORD_MODE       1
-#define ENABLE_ARPEGGIATOR      1
 #define ENABLE_WAVEFORM_DISPLAY 1
+#define LED_BRIGHTNESS_LOW 2
 
-//=============================================================================
-// ARPEGGIATOR CONFIGURATION
-//=============================================================================
-#define ARP_TEMPO_BPM       120
-#define ARP_NOTE_LENGTH     8
-
-typedef enum {
-    ARP_OFF = 0,
-    ARP_UP,
-    ARP_DOWN,
-    ARP_UP_DOWN,
-    ARP_RANDOM,
-    ARP_MODE_COUNT
-} ArpMode_t;
-
-typedef struct {
-    ArpMode_t mode;
-    uint8_t current_step;
-    uint32_t step_counter;
-    uint32_t steps_per_note;
-    int8_t pattern[ARP_NOTE_LENGTH];
-} Arpeggiator_t;
-
-//=============================================================================
-// CHORD MODE
-//=============================================================================
-typedef enum {
-    CHORD_OFF = 0,
-    CHORD_MAJOR,
-    CHORD_MINOR,
-    CHORD_MODE_COUNT
-} ChordMode_t;
-
-static const int8_t CHORD_INTERVALS[CHORD_MODE_COUNT][3] = {
-    {0, 0, 0},
-    {0, 4, 7},
-    {0, 3, 7}
-};
+// Accelerometer X smoothing filter
+#define ACCEL_X_SAMPLES 16
+static int16_t accel_x_buffer[ACCEL_X_SAMPLES] = {2048};
+static uint8_t accel_x_index = 0;
 
 //=============================================================================
 // INSTRUMENT SYSTEM
@@ -103,58 +50,15 @@ typedef struct {
     const char* name;
     ADSR_Profile_t adsr;
     Waveform_t waveform;
-    uint8_t num_harmonics;
-    uint8_t vibrato_depth;
-    uint8_t tremolo_depth;
     uint16_t color;
 } InstrumentProfile_t;
 
 static const InstrumentProfile_t INSTRUMENTS[INSTRUMENT_COUNT] = {
-    {
-        .name = "PIANO",
-        .adsr = {80, 1600, 700, 800},
-        .waveform = WAVE_TRIANGLE,
-        .num_harmonics = 2,
-        .vibrato_depth = 0,
-        .tremolo_depth = 0,
-        .color = LCD_COLOR_CYAN
-    },
-    {
-        .name = "ORGAN",
-        .adsr = {0, 0, 1000, 400},
-        .waveform = WAVE_SINE,
-        .num_harmonics = 2,
-        .vibrato_depth = 35,
-        .tremolo_depth = 0,
-        .color = LCD_COLOR_RED
-    },
-    {
-        .name = "STRINGS",
-        .adsr = {2400, 3200, 800, 4000},
-        .waveform = WAVE_SAWTOOTH,
-        .num_harmonics = 2,
-        .vibrato_depth = 30,
-        .tremolo_depth = 15,
-        .color = LCD_COLOR_YELLOW
-    },
-    {
-        .name = "BASS",
-        .adsr = {160, 800, 900, 800},
-        .waveform = WAVE_SINE,
-        .num_harmonics = 1,
-        .vibrato_depth = 0,
-        .tremolo_depth = 0,
-        .color = LCD_COLOR_BLUE
-    },
-    {
-        .name = "LEAD",
-        .adsr = {40, 1200, 850, 1600},
-        .waveform = WAVE_SQUARE,
-        .num_harmonics = 2,
-        .vibrato_depth = 45,
-        .tremolo_depth = 10,
-        .color = LCD_COLOR_GREEN
-    }
+    {"PIANO", {80, 1600, 700, 800}, WAVE_TRIANGLE, LCD_COLOR_CYAN},
+    {"ORGAN", {0, 0, 900, 400}, WAVE_SINE, LCD_COLOR_RED},
+    {"STRINGS", {2400, 3200, 850, 16000}, WAVE_SAWTOOTH, LCD_COLOR_YELLOW},
+    {"BASS", {160, 800, 900, 800}, WAVE_SINE, LCD_COLOR_BLUE},
+    {"LEAD", {40, 1200, 850, 1600}, WAVE_SQUARE, LCD_COLOR_GREEN}
 };
 
 typedef enum {
@@ -173,41 +77,6 @@ typedef struct {
 } Envelope_t;
 
 //=============================================================================
-// PRESET SYSTEM
-//=============================================================================
-typedef struct {
-    const char* name;
-    Instrument_t instrument;
-    bool effects_enabled;
-    ChordMode_t chord_mode;
-    ArpMode_t arp_mode;
-} Preset_t;
-
-static const Preset_t PRESETS[3] = {
-    {
-        .name = "CLASSIC",
-        .instrument = INSTRUMENT_PIANO,
-        .effects_enabled = false,
-        .chord_mode = CHORD_OFF,
-        .arp_mode = ARP_OFF
-    },
-    {
-        .name = "AMBIENT",
-        .instrument = INSTRUMENT_STRINGS,
-        .effects_enabled = true,
-        .chord_mode = CHORD_MAJOR,
-        .arp_mode = ARP_OFF
-    },
-    {
-        .name = "SEQUENCE",
-        .instrument = INSTRUMENT_LEAD,
-        .effects_enabled = true,
-        .chord_mode = CHORD_MINOR,
-        .arp_mode = ARP_UP
-    }
-};
-
-//=============================================================================
 // PITCH BEND TABLE
 //=============================================================================
 static const uint32_t PITCH_BEND_TABLE[25] = {
@@ -215,40 +84,6 @@ static const uint32_t PITCH_BEND_TABLE[25] = {
     55041, 58255, 61644, 65536, 69433, 73533, 77841, 82366, 87111,
     92123, 97549, 103397, 109681, 116411, 123596, 131072
 };
-
-//=============================================================================
-// GLOBAL STATE
-//=============================================================================
-volatile SynthState_t gSynthState; 
-static uint32_t phase = 0;
-static volatile uint32_t phase_increment = 0;
-
-static uint32_t chord_phases[3] = {0, 0, 0};
-static uint32_t chord_increments[3] = {0, 0, 0};
-
-static Instrument_t current_instrument = INSTRUMENT_PIANO;
-static uint8_t current_preset = 0;
-static Envelope_t envelope = {0};
-static bool effects_enabled = true;
-static ChordMode_t chord_mode = CHORD_OFF;
-
-static uint32_t base_frequency_hz = 440;
-static int8_t pitch_bend_semitones = 0;
-
-static uint16_t vibrato_phase = 0;
-static uint16_t tremolo_phase = 0;
-
-static Arpeggiator_t arpeggiator = {0};
-
-// 🔧 NEW: Button debouncing
-static uint32_t s1_last_press_time = 0;
-static uint32_t s2_last_press_time = 0;
-#define DEBOUNCE_TIME_MS 200
-
-#if ENABLE_WAVEFORM_DISPLAY
-static int16_t waveform_buffer[64] = {0};
-static uint8_t waveform_write_index = 0;
-#endif
 
 //=============================================================================
 // SINE TABLE
@@ -273,24 +108,65 @@ static const int16_t sine_table[256] = {
 };
 
 //=============================================================================
+// GLOBAL STATE
+//=============================================================================
+volatile SynthState_t gSynthState;
+static uint32_t phase = 0;
+static uint32_t phase_increment = 0;
+
+static Instrument_t current_instrument = INSTRUMENT_ORGAN;
+static Envelope_t envelope = {0};
+static bool effects_enabled = true;
+
+static uint32_t base_frequency_hz = 440;
+static int8_t pitch_bend_semitones = 0;
+
+static uint8_t led_brightness = LED_BRIGHTNESS_LOW;
+static uint32_t led_pwm_counter = 0;
+
+#if ENABLE_WAVEFORM_DISPLAY
+static int16_t waveform_buffer[64] = {0};
+static uint8_t waveform_write_index = 0;
+#endif
+
+//=============================================================================
 // FUNCTION PROTOTYPES
 //=============================================================================
-static void Process_Joystick(void);
+static void Process_Accelerometer_X(void);
+static void Process_Joystick_Y(void);
 static void Process_Pitch_Bend(void);
 static void Process_Envelope(void);
-static void Process_Arpeggiator(void);
 static void Generate_Audio_Sample(void);
 static void Update_Phase_Increment(void);
 static void Change_Instrument(void);
-static void Change_Preset(void);
 static void Trigger_Note_On(void);
 static void Trigger_Note_Off(void);
 static int16_t Generate_Waveform(uint8_t index, Waveform_t waveform);
-static int16_t Generate_Chord_Sample(uint32_t* phases, uint32_t* increments);
 void Process_Buttons(void);
 static void Display_Update(void);
 static void Display_Waveform(void);
-static int8_t Quantize_Semitones(int8_t semitones);
+static void LED_PWM_Update(void);
+
+//=============================================================================
+// LED CONTROL
+//=============================================================================
+static void LED_PWM_Update(void) {
+    led_pwm_counter++;
+    if (led_pwm_counter >= 10) led_pwm_counter = 0;
+    
+    if (led_pwm_counter < led_brightness) {
+        if (gSynthState.audio_playing) {
+            DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+        }
+        if (effects_enabled) {
+            DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
+        }
+    } else {
+        if (led_brightness < 10) {
+            DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
+        }
+    }
+}
 
 //=============================================================================
 // MAIN
@@ -300,50 +176,52 @@ int main(void) {
     
     memset((void*)&gSynthState, 0, sizeof(SynthState_t));
     gSynthState.frequency = 440.0f;
-    gSynthState.volume = 80;
+    gSynthState.volume = 50;
     gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
     gSynthState.audio_playing = 1;
     
-    base_frequency_hz = 440;
-    pitch_bend_semitones = 0;
-    phase_increment = 236223201;
-    chord_increments[0] = 236223201;
-    chord_increments[1] = 236223201;
-    chord_increments[2] = 236223201;
-    
-    if (phase_increment == 0) {
-        phase_increment = 236223201;
+    // Initialize accelerometer X filter with center value
+    for (uint8_t i = 0; i < ACCEL_X_SAMPLES; i++) {
+        accel_x_buffer[i] = 2048;
     }
     
-    arpeggiator.mode = ARP_OFF;
-    arpeggiator.steps_per_note = (8000 * 60) / (ARP_TEMPO_BPM * 4);
+    base_frequency_hz = 440;
+    pitch_bend_semitones = 0;
     
     envelope.state = ENV_ATTACK;
     envelope.phase = 0;
     envelope.amplitude = 0;
     envelope.note_on = true;
     
+    Update_Phase_Increment();
+    
+    if (phase_increment == 0) {
+        phase_increment = 236223201;
+    }
+    
     LCD_Init();
     DL_GPIO_setPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN);
     
     LCD_FillScreen(LCD_COLOR_BLACK);
-    LCD_PrintString(10, 10, "FIXED v12.0", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_LARGE);
-    LCD_PrintString(5, 40, "Pitch: 10x", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
-    LCD_PrintString(5, 60, "mindre", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
-    LCD_PrintString(5, 80, "sensitiv!", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
-    LCD_PrintString(5, 100, "S1 fikset!", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_MEDIUM);
-    delay_cycles(320000);
+    LCD_PrintString(5, 10, "ULTIMATE", LCD_COLOR_MAGENTA, LCD_COLOR_BLACK, FONT_LARGE);
+    LCD_PrintString(10, 40, "Synthesizer", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
+    LCD_PrintString(20, 70, "v10.5.1", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_SMALL);
+    LCD_PrintString(5, 100, "PITCH FIXED!", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
+    delay_cycles(20000);
     LCD_FillScreen(LCD_COLOR_BLACK);
     
+    // Enable both ADC interrupts
     NVIC_EnableIRQ(ADC0_INT_IRQn);
     NVIC_EnableIRQ(ADC1_INT_IRQn);
     NVIC_EnableIRQ(TIMG7_INT_IRQn);
-    NVIC_EnableIRQ(GPIOA_INT_IRQn);
     __enable_irq();
     
     DL_TimerG_startCounter(TIMER_SAMPLE_INST);
+    
+    // Start both ADCs
     DL_ADC12_enableConversions(ADC_JOY_INST);
     DL_ADC12_startConversion(ADC_JOY_INST);
+    
     DL_ADC12_enableConversions(ADC_ACCEL_INST);
     DL_ADC12_startConversion(ADC_ACCEL_INST);
     
@@ -354,16 +232,24 @@ int main(void) {
     uint32_t display_counter = 0;
     
     while (1) {
-        if (loop_counter % 10000 == 0) {
-            Process_Joystick();
-        }
-        
         if (loop_counter % 5000 == 0) {
-            Process_Pitch_Bend();
+            Process_Accelerometer_X();
         }
         
         if (loop_counter % 8000 == 0) {
+            Process_Joystick_Y();
+        }
+        
+        if (loop_counter % 3000 == 0) {
+            Process_Pitch_Bend();
+        }
+        
+        if (loop_counter % 1000 == 0) {
             Process_Buttons();
+        }
+        
+        if (loop_counter % 100 == 0) {
+            LED_PWM_Update();
         }
         
         if (display_counter++ >= 200000) {
@@ -371,212 +257,106 @@ int main(void) {
             display_counter = 0;
         }
         
-        if (loop_counter % 100000 == 0) {
-            DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
-        }
-        
         loop_counter++;
     }
 }
 
 //=============================================================================
-// INTERRUPT HANDLERS
+// ADC INTERRUPT HANDLERS
 //=============================================================================
-
-void TIMG7_IRQHandler(void) {
-    if (DL_Timer_getPendingInterrupt(TIMER_SAMPLE_INST) == DL_TIMER_IIDX_ZERO) {
-        gSynthState.timer_count++;
-        
-        Process_Envelope();
-        Process_Arpeggiator();
-        
-        vibrato_phase += 41;
-        tremolo_phase += 33;
-        
-        if (gSynthState.audio_playing) {
-            Generate_Audio_Sample();
-        } else {
-            DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
-        }
-    }
-}
-
 void ADC0_IRQHandler(void) {
     gSynthState.adc0_count++;
     
-    switch (DL_ADC12_getPendingInterrupt(ADC_JOY_INST)) {
-        case DL_ADC12_IIDX_MEM0_RESULT_LOADED:
-            gSynthState.joy_y = DL_ADC12_getMemResult(ADC_JOY_INST, DL_ADC12_MEM_IDX_0);
-            break;
-        case DL_ADC12_IIDX_MEM1_RESULT_LOADED:
-            gSynthState.joy_x = DL_ADC12_getMemResult(ADC_JOY_INST, DL_ADC12_MEM_IDX_1);
-            break;
-        default:
-            break;
+    if (DL_ADC12_getPendingInterrupt(ADC_JOY_INST) == DL_ADC12_IIDX_MEM0_RESULT_LOADED) {
+        gSynthState.joy_y = DL_ADC12_getMemResult(ADC_JOY_INST, DL_ADC12_MEM_IDX_0);
     }
 }
 
 void ADC1_IRQHandler(void) {
     gSynthState.adc1_count++;
     
-    if (DL_ADC12_getPendingInterrupt(ADC_ACCEL_INST) == DL_ADC12_IIDX_MEM3_RESULT_LOADED) {
-        gSynthState.mic_level = DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_0);
-        gSynthState.accel_x = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_1);
-        gSynthState.accel_y = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_2);
-        gSynthState.accel_z = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_3);
+    if (DL_ADC12_getPendingInterrupt(ADC_ACCEL_INST) == DL_ADC12_IIDX_MEM2_RESULT_LOADED) {
+        gSynthState.accel_x = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_0);
+        gSynthState.accel_y = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_1);
+        gSynthState.accel_z = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_2);
     }
 }
 
-// 🔧 FIXED: Better button interrupt handling with debouncing
-void GPIOA_IRQHandler(void) {
-    uint32_t pending = DL_GPIO_getEnabledInterruptStatus(GPIO_BUTTONS_PORT, 
-                                                          GPIO_BUTTONS_S1_PIN | 
-                                                          GPIO_BUTTONS_S2_PIN
-                                                          #ifdef GPIO_BUTTONS_JOY_SEL_PIN
-                                                          | GPIO_BUTTONS_JOY_SEL_PIN
-                                                          #endif
-                                                          );
-    
-    uint32_t current_time = gSynthState.timer_count;
-    
-    if (pending & GPIO_BUTTONS_S1_PIN) {
-        if ((current_time - s1_last_press_time) > (DEBOUNCE_TIME_MS * 8)) {
-            gSynthState.btn_s1 = 1;
-            s1_last_press_time = current_time;
-            Change_Instrument();
-        }
-        DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);
-    }
-    
-    if (pending & GPIO_BUTTONS_S2_PIN) {
-        if ((current_time - s2_last_press_time) > (DEBOUNCE_TIME_MS * 8)) {
-            gSynthState.btn_s2 = 1;
-            s2_last_press_time = current_time;
-            gSynthState.audio_playing = !gSynthState.audio_playing;
-            if (gSynthState.audio_playing) {
-                DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
-                Trigger_Note_On();
-            } else {
-                DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
-                Trigger_Note_Off();
-            }
-        }
-        DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN);
-    }
-    
-    #ifdef GPIO_BUTTONS_JOY_SEL_PIN
-    if (pending & GPIO_BUTTONS_JOY_SEL_PIN) {
-        gSynthState.joy_pressed = 1;
-        effects_enabled = !effects_enabled;
-        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
-        DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_JOY_SEL_PIN);
-    }
-    #endif
-    
-    DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, 0xFFFFFFFF);
-}
-
 //=============================================================================
-// AUDIO GENERATION
+// SENSOR PROCESSING WITH SMOOTHING
 //=============================================================================
-
-static void Generate_Audio_Sample(void) {
-    if (phase_increment == 0) {
-        phase_increment = 236223201;
+static void Process_Accelerometer_X(void) {
+    // Add new sample to circular buffer
+    accel_x_buffer[accel_x_index++] = gSynthState.accel_x;
+    if (accel_x_index >= ACCEL_X_SAMPLES) accel_x_index = 0;
+    
+    // Calculate average (smoothed value)
+    int32_t sum = 0;
+    for (uint8_t i = 0; i < ACCEL_X_SAMPLES; i++) {
+        sum += accel_x_buffer[i];
+    }
+    int16_t accel_x_smooth = (int16_t)(sum / ACCEL_X_SAMPLES);
+    
+    // Map to frequency with deadzone
+    int16_t deviation = accel_x_smooth - 2048;
+    
+    // Deadzone: ±200 ADC counts
+    if (deviation > -200 && deviation < 200) {
+        deviation = 0;  // Center zone = 440 Hz
     }
     
-    if (gSynthState.volume == 0 || envelope.amplitude == 0) { 
-        DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
-        phase += phase_increment;
-        gSynthState.audio_samples_generated++;
-        return;
-    }
-
-    int16_t sample;
-    
-    if (chord_mode != CHORD_OFF) {
-        sample = Generate_Chord_Sample(chord_phases, chord_increments);
+    uint32_t freq_int;
+    if (deviation < 0) {
+        // Tilt LEFT = lower frequency (100-440 Hz)
+        freq_int = 440 + ((deviation * 340) / 2048);
+    } else if (deviation > 0) {
+        // Tilt RIGHT = higher frequency (440-2000 Hz)
+        freq_int = 440 + ((deviation * 1560) / 2048);
     } else {
-        const InstrumentProfile_t* inst = &INSTRUMENTS[current_instrument];
-        
-        uint32_t modulated_phase = phase;
-        if (effects_enabled && inst->vibrato_depth > 0) {
-            uint8_t vib_index = vibrato_phase >> 8;
-            int16_t vibrato_lfo = sine_table[vib_index];
-            int32_t phase_offset = ((int32_t)vibrato_lfo * inst->vibrato_depth * (int32_t)phase_increment) / 100000;
-            modulated_phase = phase + phase_offset;
-        }
-        
-        uint8_t index = (uint8_t)((modulated_phase >> 24) & 0xFF);
-        sample = Generate_Waveform(index, inst->waveform);
-        
-        if (inst->num_harmonics >= 1) {
-            uint8_t h1_index = (index << 1) & 0xFF;
-            int16_t harmonic1 = Generate_Waveform(h1_index, inst->waveform);
-            sample = (sample * 2 + harmonic1) / 3;
-            
-            if (inst->num_harmonics >= 2) {
-                uint8_t h2_index = (index * 3) & 0xFF;
-                int16_t harmonic2 = Generate_Waveform(h2_index, inst->waveform);
-                sample = (sample * 3 + harmonic2) / 4;
-            }
-        }
-        
-        if (effects_enabled && inst->tremolo_depth > 0) {
-            uint8_t trem_index = tremolo_phase >> 8;
-            int16_t tremolo_lfo = sine_table[trem_index];
-            int16_t mod = 1000 + ((tremolo_lfo * inst->tremolo_depth) / 100);
-            sample = (int16_t)(((int32_t)sample * mod) / 1000);
-        }
-        
-        phase += phase_increment;
+        freq_int = 440;  // Center
     }
     
-    sample = (int16_t)(((int32_t)sample * envelope.amplitude) / 1000);
-    sample = (int16_t)(((int32_t)sample * gSynthState.volume) / 100);
-    sample *= AUDIO_GAIN_BOOST;
+    // Limit range
+    if (freq_int < FREQ_MIN_HZ) freq_int = FREQ_MIN_HZ;
+    if (freq_int > FREQ_MAX_HZ) freq_int = FREQ_MAX_HZ;
     
-    if (sample > 2000) sample = 2000;
-    if (sample < -2000) sample = -2000;
-    
-#if ENABLE_WAVEFORM_DISPLAY
-    static uint8_t waveform_decimate_counter = 0;
-    if (++waveform_decimate_counter >= 125) {
-        waveform_decimate_counter = 0;
-        waveform_buffer[waveform_write_index++] = sample;
-        if (waveform_write_index >= 64) waveform_write_index = 0;
+    // Only update if changed significantly (>5 Hz)
+    if (freq_int > base_frequency_hz + 5 || freq_int < base_frequency_hz - 5) {
+        base_frequency_hz = freq_int;
+        Update_Phase_Increment();
     }
-#endif
-    
-    int32_t val = 2048 + (sample * 2);
-    if(val < 0) val = 0;
-    if(val > 4095) val = 4095;
-    
-    DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, (uint16_t)val, DL_TIMER_CC_0_INDEX);
-    gSynthState.audio_samples_generated++;
 }
 
-//=============================================================================
-// 🔧 FIXED: PITCH BEND with REDUCED SENSITIVITY and DEAD ZONE
-//=============================================================================
+static void Process_Joystick_Y(void) {
+    if (gSynthState.joy_y > 200) {
+        uint32_t mapped = gSynthState.joy_y - 200;
+        uint8_t new_vol = (uint8_t)((mapped * 80) / 3895);
+        if (new_vol > 80) new_vol = 80;
+        if (new_vol < 10) new_vol = 10;
+        
+        if (new_vol != gSynthState.volume) {
+            gSynthState.volume = new_vol;
+        }
+    }
+}
 
+// 🔧 FIXED: Pitch bend with reduced sensitivity and dead zone
 static void Process_Pitch_Bend(void) {
     int16_t accel_y = gSynthState.accel_y;
     int16_t deviation = accel_y - 2048;
     
-    if (deviation > -PITCH_BEND_DEAD_ZONE && deviation < PITCH_BEND_DEAD_ZONE) {
+    // 🔧 NEW: Dead zone - ignore small movements
+    if (deviation > -150 && deviation < 150) {
         deviation = 0;
     }
     
-    int8_t semitones = (int8_t)((deviation * PITCH_BEND_MAX_SEMITONES) / PITCH_BEND_SENSITIVITY);
+    // 🔧 CHANGED: /200 → /2000 (10x less sensitive!)
+    int8_t semitones = (int8_t)((deviation * 12) / 2000);
     
-    if (semitones > PITCH_BEND_MAX_SEMITONES) semitones = PITCH_BEND_MAX_SEMITONES;
-    if (semitones < -PITCH_BEND_MAX_SEMITONES) semitones = -PITCH_BEND_MAX_SEMITONES;
+    if (semitones > 12) semitones = 12;
+    if (semitones < -12) semitones = -12;
     
-#if ENABLE_NOTE_QUANTIZER
-    semitones = Quantize_Semitones(semitones);
-#endif
-    
+    // Smooth pitch bend
     static int8_t prev_semitones = 0;
     semitones = (prev_semitones * 7 + semitones) / 8;
     prev_semitones = semitones;
@@ -588,73 +368,63 @@ static void Process_Pitch_Bend(void) {
 }
 
 //=============================================================================
-// REMAINING FUNCTIONS
+// TIMER INTERRUPT
 //=============================================================================
-
-static int8_t Quantize_Semitones(int8_t semitones) {
-    return semitones;
-}
-
-static void Process_Arpeggiator(void) {
-    if (arpeggiator.mode == ARP_OFF) return;
-    
-    arpeggiator.step_counter++;
-    
-    if (arpeggiator.step_counter >= arpeggiator.steps_per_note) {
-        arpeggiator.step_counter = 0;
+void TIMG7_IRQHandler(void) {
+    if (DL_Timer_getPendingInterrupt(TIMER_SAMPLE_INST) == DL_TIMER_IIDX_ZERO) {
+        gSynthState.timer_count++;
         
-        const int8_t* intervals = CHORD_INTERVALS[chord_mode];
+        Process_Envelope();
         
-        switch (arpeggiator.mode) {
-            case ARP_UP:
-                arpeggiator.pattern[arpeggiator.current_step % 3] = 
-                    intervals[arpeggiator.current_step % 3];
-                break;
-            case ARP_DOWN:
-                arpeggiator.pattern[arpeggiator.current_step % 3] = 
-                    intervals[2 - (arpeggiator.current_step % 3)];
-                break;
-            case ARP_UP_DOWN:
-                {
-                    uint8_t idx = arpeggiator.current_step % 4;
-                    if (idx == 3) idx = 1;
-                    arpeggiator.pattern[arpeggiator.current_step] = intervals[idx];
-                }
-                break;
-            default:
-                break;
-        }
-        
-        Trigger_Note_On();
-        arpeggiator.current_step++;
-        if (arpeggiator.current_step >= ARP_NOTE_LENGTH) {
-            arpeggiator.current_step = 0;
+        if (gSynthState.audio_playing) {
+            Generate_Audio_Sample();
+        } else {
+            DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
         }
     }
 }
 
-static int16_t Generate_Chord_Sample(uint32_t* phases, uint32_t* increments) {
+//=============================================================================
+// AUDIO GENERATION
+//=============================================================================
+static void Generate_Audio_Sample(void) {
+    if (gSynthState.volume == 0 || envelope.amplitude == 0) {
+        DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
+        phase += phase_increment;
+        gSynthState.audio_samples_generated++;
+        return;
+    }
+
     const InstrumentProfile_t* inst = &INSTRUMENTS[current_instrument];
-    int32_t mixed_sample = 0;
     
-    const int8_t* intervals = CHORD_INTERVALS[chord_mode];
-    uint8_t num_voices = (chord_mode == CHORD_OFF) ? 1 : 3;
+    uint8_t index = (uint8_t)((phase >> 24) & 0xFF);
+    int16_t sample = Generate_Waveform(index, inst->waveform);
     
-    for (uint8_t v = 0; v < num_voices; v++) {
-        uint8_t index = (uint8_t)((phases[v] >> 24) & 0xFF);
-        int16_t sample = Generate_Waveform(index, inst->waveform);
-        
-        if (inst->num_harmonics >= 1) {
-            uint8_t h_index = (index << 1) & 0xFF;
-            int16_t harmonic = Generate_Waveform(h_index, inst->waveform);
-            sample = (sample * 2 + harmonic) / 3;
-        }
-        
-        mixed_sample += sample;
-        phases[v] += increments[v];
+    // Apply envelope
+    sample = (int16_t)(((int32_t)sample * envelope.amplitude) / 1000);
+    
+    // Apply volume
+    sample = (int16_t)(((int32_t)sample * gSynthState.volume) / 100);
+    
+    phase += phase_increment;
+    
+#if ENABLE_WAVEFORM_DISPLAY
+    static uint8_t waveform_decimate_counter = 0;
+    if (++waveform_decimate_counter >= 125) {
+        waveform_decimate_counter = 0;
+        waveform_buffer[waveform_write_index++] = sample;
+        if (waveform_write_index >= 64) waveform_write_index = 0;
     }
+#endif
     
-    return (int16_t)(mixed_sample / num_voices);
+    // Convert to PWM
+    int32_t val = 2048 + (sample * 2);
+    
+    if (val < 512) val = 512;
+    if (val > 3584) val = 3584;
+    
+    DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, (uint16_t)val, DL_TIMER_CC_0_INDEX);
+    gSynthState.audio_samples_generated++;
 }
 
 static void Process_Envelope(void) {
@@ -728,14 +498,14 @@ static int16_t Generate_Waveform(uint8_t index, Waveform_t waveform) {
             sample = sine_table[index];
             break;
         case WAVE_SQUARE:
-            sample = (index < 128) ? 1000 : -1000;
+            sample = (index < 128) ? 800 : -800;
             break;
         case WAVE_SAWTOOTH:
-            sample = (int16_t)(((int32_t)index * 2000 / 256) - 1000);
+            sample = (int16_t)(((int32_t)index * 1600 / 256) - 800);
             break;
         case WAVE_TRIANGLE:
-            sample = (index < 128) ? (int16_t)(((int32_t)index * 2000 / 128) - 1000) 
-                                   : (int16_t)(1000 - ((int32_t)(index - 128) * 2000 / 128));
+            sample = (index < 128) ? (int16_t)(((int32_t)index * 1600 / 128) - 800)
+                                   : (int16_t)(800 - ((int32_t)(index - 128) * 1600 / 128));
             break;
         default:
             sample = sine_table[index];
@@ -746,20 +516,6 @@ static int16_t Generate_Waveform(uint8_t index, Waveform_t waveform) {
 
 static void Change_Instrument(void) {
     current_instrument = (current_instrument + 1) % INSTRUMENT_COUNT;
-    gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
-    Trigger_Note_On();
-    DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
-}
-
-static void Change_Preset(void) {
-    current_preset = (current_preset + 1) % 3;
-    const Preset_t* preset = &PRESETS[current_preset];
-    
-    current_instrument = preset->instrument;
-    effects_enabled = preset->effects_enabled;
-    chord_mode = preset->chord_mode;
-    arpeggiator.mode = preset->arp_mode;
-    
     gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
     Trigger_Note_On();
 }
@@ -777,165 +533,130 @@ static void Trigger_Note_Off(void) {
     envelope.note_on = false;
 }
 
-static void Process_Joystick(void) {
-    if (gSynthState.joy_x > 100) {
-        uint32_t freq_int = FREQ_MIN_HZ + ((gSynthState.joy_x * (FREQ_MAX_HZ - FREQ_MIN_HZ)) / 4095);
-        uint32_t diff = (freq_int > base_frequency_hz) ? (freq_int - base_frequency_hz) : (base_frequency_hz - freq_int);
-        if (diff > 10) {
-            base_frequency_hz = freq_int;
-            Update_Phase_Increment();
-        }
-    }
-    
-    if (gSynthState.joy_y > 100) {
-        uint8_t new_vol = (uint8_t)((gSynthState.joy_y * 100) / 4095);
-        if (new_vol > 100) new_vol = 100;
-        if (new_vol != gSynthState.volume) {
-            gSynthState.volume = new_vol;
-        }
-    }
-}
-
 static void Update_Phase_Increment(void) {
-    if (base_frequency_hz == 0) {
-        base_frequency_hz = 440;
-    }
+    if (base_frequency_hz == 0) base_frequency_hz = 440;
     
     int8_t table_index = pitch_bend_semitones + 12;
     if (table_index < 0) table_index = 0;
     if (table_index > 24) table_index = 24;
     
-    uint32_t bend_ratio_fixed = PITCH_BEND_TABLE[table_index];
-    uint64_t bent_freq_64 = ((uint64_t)base_frequency_hz * bend_ratio_fixed) >> 16;
-    uint32_t bent_freq = (uint32_t)bent_freq_64;
+    uint32_t bend_ratio = PITCH_BEND_TABLE[table_index];
+    uint64_t bent_freq = ((uint64_t)base_frequency_hz * bend_ratio) >> 16;
+    uint32_t freq = (uint32_t)bent_freq;
     
-    if (bent_freq < FREQ_MIN_HZ) bent_freq = FREQ_MIN_HZ;
-    if (bent_freq > FREQ_MAX_HZ) bent_freq = FREQ_MAX_HZ;
+    if (freq < FREQ_MIN_HZ) freq = FREQ_MIN_HZ;
+    if (freq > FREQ_MAX_HZ) freq = FREQ_MAX_HZ;
     
-    if (bent_freq > 0 && bent_freq <= 8000) {
-        uint64_t temp = ((uint64_t)bent_freq << 32) / 8000ULL;
+    if (freq > 0 && freq <= 8000) {
+        uint64_t temp = ((uint64_t)freq << 32) / 8000ULL;
         phase_increment = (uint32_t)temp;
     } else {
         phase_increment = 236223201;
     }
     
-    if (phase_increment == 0) {
-        phase_increment = 236223201;
+    if (phase_increment == 0) phase_increment = 236223201;
+    
+    gSynthState.frequency = (float)freq;
+}
+
+//=============================================================================
+// BUTTON HANDLING
+//=============================================================================
+void Process_Buttons(void) {
+    static uint32_t s1_prev = 1, s2_prev = 1, joy_prev = 1;
+    
+    uint32_t s1 = DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);
+    uint32_t s2 = DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN);
+    
+    #ifdef GPIO_BUTTONS_JOY_SEL_PIN
+    uint32_t joy = DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_JOY_SEL_PIN);
+    #else
+    uint32_t joy = 1;
+    #endif
+    
+    // S1: Change instrument
+    if (s1 == 0 && s1_prev != 0) {
+        delay_cycles(5000);
+        if (DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN) == 0) {
+            Change_Instrument();
+        }
     }
     
-    if (chord_mode != CHORD_OFF) {
-        const int8_t* intervals = CHORD_INTERVALS[chord_mode];
-        for (uint8_t v = 0; v < 3; v++) {
-            int8_t chord_table_index = table_index + intervals[v];
-            if (chord_table_index < 0) chord_table_index = 0;
-            if (chord_table_index > 24) chord_table_index = 24;
-            
-            uint32_t chord_ratio = PITCH_BEND_TABLE[chord_table_index];
-            uint64_t chord_freq_64 = ((uint64_t)base_frequency_hz * chord_ratio) >> 16;
-            uint32_t chord_freq = (uint32_t)chord_freq_64;
-            
-            if (chord_freq < FREQ_MIN_HZ) chord_freq = FREQ_MIN_HZ;
-            if (chord_freq > FREQ_MAX_HZ) chord_freq = FREQ_MAX_HZ;
-            
-            if (chord_freq > 0 && chord_freq <= 8000) {
-                uint64_t chord_temp = ((uint64_t)chord_freq << 32) / 8000ULL;
-                chord_increments[v] = (uint32_t)chord_temp;
-                
-                if (chord_increments[v] == 0) {
-                    chord_increments[v] = phase_increment;
-                }
+    // S2: Play/Stop
+    if (s2 == 0 && s2_prev != 0) {
+        delay_cycles(5000);
+        if (DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN) == 0) {
+            gSynthState.audio_playing = !gSynthState.audio_playing;
+            if (gSynthState.audio_playing) {
+                Trigger_Note_On();
             } else {
-                chord_increments[v] = phase_increment;
+                Trigger_Note_Off();
             }
         }
-    } else {
-        chord_increments[0] = phase_increment;
-        chord_increments[1] = phase_increment;
-        chord_increments[2] = phase_increment;
     }
     
-    gSynthState.frequency = (float)bent_freq;
+    // JOY_SEL: Toggle effects
+    #ifdef GPIO_BUTTONS_JOY_SEL_PIN
+    if (joy == 0 && joy_prev != 0) {
+        delay_cycles(5000);
+        if (DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_JOY_SEL_PIN) == 0) {
+            effects_enabled = !effects_enabled;
+        }
+    }
+    #endif
+    
+    s1_prev = s1;
+    s2_prev = s2;
+    joy_prev = joy;
 }
 
-void Process_Buttons(void) {
-    // Empty - all handled in interrupts
-}
-
+//=============================================================================
+// DISPLAY
+//=============================================================================
 static void Display_Update(void) {
     const InstrumentProfile_t* inst = &INSTRUMENTS[current_instrument];
     
     LCD_DrawRect(0, 0, 128, 16, inst->color);
     LCD_PrintString(3, 4, inst->name, LCD_COLOR_WHITE, inst->color, FONT_SMALL);
-    LCD_PrintString(60, 4, PRESETS[current_preset].name, LCD_COLOR_BLACK, inst->color, FONT_SMALL);
+    LCD_PrintString(60, 4, "v10.5.1", LCD_COLOR_BLACK, inst->color, FONT_SMALL);
     
     LCD_PrintString(3, 18, "F:", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
     LCD_PrintNumber(18, 18, base_frequency_hz, LCD_COLOR_WHITE, LCD_COLOR_BLACK, FONT_SMALL);
     
     char buf[16];
     snprintf(buf, sizeof(buf), "%+d", pitch_bend_semitones);
-    LCD_PrintString(55, 18, buf, LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_SMALL);
-    
-    int16_t deviation = gSynthState.accel_y - 2048;
-    LCD_PrintString(90, 18, "D:", LCD_COLOR_DARKGRAY, LCD_COLOR_BLACK, FONT_SMALL);
-    LCD_PrintNumber(102, 18, deviation, LCD_COLOR_DARKGRAY, LCD_COLOR_BLACK, FONT_SMALL);
+    LCD_PrintString(70, 18, buf, LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_SMALL);
     
     uint8_t bar_w = gSynthState.volume;
     if (bar_w > 100) bar_w = 100;
-    LCD_DrawRect(3, 30, 60, 4, LCD_COLOR_DARKGRAY);
-    LCD_DrawRect(3, 30, (bar_w * 60) / 100, 4, LCD_COLOR_GREEN);
+    LCD_DrawRect(3, 30, 80, 4, LCD_COLOR_DARKGRAY);
+    LCD_DrawRect(3, 30, (bar_w * 80) / 100, 4, LCD_COLOR_GREEN);
     
-    LCD_PrintString(66, 30, "FX:", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
-    LCD_PrintString(84, 30, effects_enabled ? "ON" : "OFF", 
-                    effects_enabled ? LCD_COLOR_GREEN : LCD_COLOR_RED, 
+    LCD_PrintString(90, 30, effects_enabled ? "FX" : "--",
+                    effects_enabled ? LCD_COLOR_GREEN : LCD_COLOR_RED,
                     LCD_COLOR_BLACK, FONT_SMALL);
-    
-    if (chord_mode != CHORD_OFF) {
-        const char* chord_names[] = {"", "MAJ", "MIN"};
-        LCD_PrintString(105, 30, chord_names[chord_mode], 
-                        LCD_COLOR_MAGENTA, LCD_COLOR_BLACK, FONT_SMALL);
-    }
-    
-    if (arpeggiator.mode != ARP_OFF) {
-        LCD_PrintString(3, 40, "ARP", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_SMALL);
-        const char* arp_names[] = {"", "UP", "DN", "UD", "RND"};
-        LCD_PrintString(24, 40, arp_names[arpeggiator.mode], 
-                        LCD_COLOR_WHITE, LCD_COLOR_BLACK, FONT_SMALL);
-    }
     
     const char* env_names[] = {"IDLE", "ATK", "DEC", "SUS", "REL"};
-    LCD_PrintString(55, 40, env_names[envelope.state], 
+    LCD_PrintString(3, 40, env_names[envelope.state],
                     LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_SMALL);
-    
-    LCD_PrintNumber(90, 40, envelope.amplitude / 10, 
+    LCD_PrintNumber(50, 40, envelope.amplitude / 10,
                     LCD_COLOR_WHITE, LCD_COLOR_BLACK, FONT_SMALL);
-    
-    LCD_PrintString(3, 50, "S1:", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
-    LCD_PrintString(20, 50, gSynthState.btn_s1 ? "OK" : "--", 
-                    gSynthState.btn_s1 ? LCD_COLOR_GREEN : LCD_COLOR_RED, 
-                    LCD_COLOR_BLACK, FONT_SMALL);
-    
-    LCD_PrintString(45, 50, "S2:", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
-    LCD_PrintString(62, 50, gSynthState.btn_s2 ? "OK" : "--", 
-                    gSynthState.btn_s2 ? LCD_COLOR_GREEN : LCD_COLOR_RED, 
-                    LCD_COLOR_BLACK, FONT_SMALL);
     
 #if ENABLE_WAVEFORM_DISPLAY
     Display_Waveform();
 #endif
     
-    if (gSynthState.audio_playing) {
-        LCD_PrintString(3, 118, "PLAYING", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_SMALL);
-    } else {
-        LCD_PrintString(3, 118, "STOPPED", LCD_COLOR_RED, LCD_COLOR_BLACK, FONT_SMALL);
-    }
+    LCD_PrintString(3, 118, gSynthState.audio_playing ? "PLAYING" : "STOPPED",
+                    gSynthState.audio_playing ? LCD_COLOR_GREEN : LCD_COLOR_RED,
+                    LCD_COLOR_BLACK, FONT_SMALL);
 }
 
 #if ENABLE_WAVEFORM_DISPLAY
 static void Display_Waveform(void) {
-    uint16_t y_center = 85;
-    uint16_t y_scale = 20;
+    uint16_t y_center = 80;
+    uint16_t y_scale = 25;
     
-    LCD_DrawRect(0, 65, 128, 50, LCD_COLOR_BLACK);
+    LCD_DrawRect(0, 50, 128, 60, LCD_COLOR_BLACK);
     
     for (uint8_t x = 0; x < 128; x += 4) {
         LCD_DrawPixel(x, y_center, LCD_COLOR_DARKGRAY);
@@ -945,15 +666,12 @@ static void Display_Waveform(void) {
         int16_t y1 = y_center - ((waveform_buffer[i] * y_scale) / 1000);
         int16_t y2 = y_center - ((waveform_buffer[i+1] * y_scale) / 1000);
         
-        if (y1 < 65) y1 = 65;
-        if (y1 > 115) y1 = 115;
-        if (y2 < 65) y2 = 65;
-        if (y2 > 115) y2 = 115;
+        if (y1 < 50) y1 = 50;
+        if (y1 > 110) y1 = 110;
+        if (y2 < 50) y2 = 50;
+        if (y2 > 110) y2 = 110;
         
-        uint8_t x1 = i * 2;
-        uint8_t x2 = (i + 1) * 2;
-        
-        LCD_DrawLine(x1, y1, x2, y2, LCD_COLOR_CYAN);
+        LCD_DrawLine(i * 2, y1, (i + 1) * 2, y2, LCD_COLOR_CYAN);
     }
 }
 #endif
