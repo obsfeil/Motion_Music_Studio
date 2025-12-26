@@ -1,4 +1,5 @@
-/** @file main_FIXED_SENSITIVITY.c
+/**
+ * @file main.c
  * @brief MSPM0G3507 Synthesizer - SENSITIVITY & BUTTON FIX
  * @version 12.0.0 - PRODUCTION READY
  * 
@@ -8,12 +9,6 @@
  * 3. ✅ Fikset knapp-håndtering (fjernet dobbel-håndtering)
  * 4. ✅ Bedre debouncing for S1
  * 5. ✅ LCD viser nå knapp-status for debugging
- * 
- * 📊 ENDRINGER:
- * - PITCH_BEND_SENSITIVITY: 200 → 2000 (10x mindre sensitiv)
- * - PITCH_BEND_DEAD_ZONE: 0 → 100 (ignorerer små bevegelser)
- * - Button handling: Kun interrupts (fjernet polling conflict)
- * - Debounce time: 200ms mellom trykk
  * 
  * @date 2025-12-26
  */
@@ -29,15 +24,14 @@
 //=============================================================================
 // AUDIO GAIN BOOST
 //=============================================================================
-#define AUDIO_GAIN_BOOST    4   // Multiply final output by 4 for louder sound
+#define AUDIO_GAIN_BOOST    4
 
 //=============================================================================
 // 🔧 NEW: PITCH BEND SENSITIVITY SETTINGS
 //=============================================================================
-#define PITCH_BEND_DEAD_ZONE     100    // ADC values ±100 around center (2048) ignored
-#define PITCH_BEND_SENSITIVITY   2000   // Was 200, now 2000 (10x less sensitive!)
-#define PITCH_BEND_MAX_SEMITONES 12     // Maximum ±12 semitones
-#define DEBOUNCE_TIME_MS         200  
+#define PITCH_BEND_DEAD_ZONE     100
+#define PITCH_BEND_SENSITIVITY   2000
+#define PITCH_BEND_MAX_SEMITONES 12
 
 //=============================================================================
 // ADVANCED FEATURES CONFIGURATION
@@ -249,7 +243,7 @@ static Arpeggiator_t arpeggiator = {0};
 // 🔧 NEW: Button debouncing
 static uint32_t s1_last_press_time = 0;
 static uint32_t s2_last_press_time = 0;
-#define DEBOUNCE_TIME_MS 200  // 200ms debounce
+#define DEBOUNCE_TIME_MS 200
 
 #if ENABLE_WAVEFORM_DISPLAY
 static int16_t waveform_buffer[64] = {0};
@@ -304,14 +298,12 @@ static int8_t Quantize_Semitones(int8_t semitones);
 int main(void) {
     SYSCFG_DL_init();
     
-    // Initialize state
     memset((void*)&gSynthState, 0, sizeof(SynthState_t));
     gSynthState.frequency = 440.0f;
     gSynthState.volume = 80;
     gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
     gSynthState.audio_playing = 1;
     
-    // Force initialize phase increment
     base_frequency_hz = 440;
     pitch_bend_semitones = 0;
     phase_increment = 236223201;
@@ -323,45 +315,38 @@ int main(void) {
         phase_increment = 236223201;
     }
     
-    // Initialize arpeggiator
     arpeggiator.mode = ARP_OFF;
     arpeggiator.steps_per_note = (8000 * 60) / (ARP_TEMPO_BPM * 4);
     
-    // Initialize envelope
     envelope.state = ENV_ATTACK;
     envelope.phase = 0;
     envelope.amplitude = 0;
     envelope.note_on = true;
     
-    // LCD Init
     LCD_Init();
     DL_GPIO_setPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN);
     
-    // Splash - Show version and fixes
     LCD_FillScreen(LCD_COLOR_BLACK);
     LCD_PrintString(10, 10, "FIXED v12.0", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_LARGE);
     LCD_PrintString(5, 40, "Pitch: 10x", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
     LCD_PrintString(5, 60, "mindre", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
     LCD_PrintString(5, 80, "sensitiv!", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
     LCD_PrintString(5, 100, "S1 fikset!", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_MEDIUM);
-    delay_cycles(320000);  // 4ms at 80MHz
+    delay_cycles(320000);
     LCD_FillScreen(LCD_COLOR_BLACK);
     
-    // Enable interrupts
     NVIC_EnableIRQ(ADC0_INT_IRQn);
     NVIC_EnableIRQ(ADC1_INT_IRQn);
     NVIC_EnableIRQ(TIMG7_INT_IRQn);
     NVIC_EnableIRQ(GPIOA_INT_IRQn);
     __enable_irq();
     
-    // Start timers
     DL_TimerG_startCounter(TIMER_SAMPLE_INST);
     DL_ADC12_enableConversions(ADC_JOY_INST);
     DL_ADC12_startConversion(ADC_JOY_INST);
     DL_ADC12_enableConversions(ADC_ACCEL_INST);
     DL_ADC12_startConversion(ADC_ACCEL_INST);
     
-    // LED: Green = playing
     DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
     DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
     
@@ -393,8 +378,9 @@ int main(void) {
         loop_counter++;
     }
 }
+
 //=============================================================================
-// INTERRUPT HANDLERS - WITH FIX #2: BUTTON STATE TRACKING
+// INTERRUPT HANDLERS
 //=============================================================================
 
 void TIMG7_IRQHandler(void) {
@@ -441,28 +427,60 @@ void ADC1_IRQHandler(void) {
     }
 }
 
-// 🔧 FIX #2: BUTTON STATE TRACKING + INTERRUPT CLEARING
-// 🔧 FIX #2: BUTTON STATE TRACKING + INTERRUPT CLEARING
-// NOTE: Using pin mask checking instead of IIDX (SysConfig 1.25.0 doesn't generate IIDX for GPIO)
+// 🔧 FIXED: Better button interrupt handling with debouncing
 void GPIOA_IRQHandler(void) {
+    uint32_t pending = DL_GPIO_getEnabledInterruptStatus(GPIO_BUTTONS_PORT, 
+                                                          GPIO_BUTTONS_S1_PIN | 
+                                                          GPIO_BUTTONS_S2_PIN
+                                                          #ifdef GPIO_BUTTONS_JOY_SEL_PIN
+                                                          | GPIO_BUTTONS_JOY_SEL_PIN
+                                                          #endif
+                                                          );
+    
     uint32_t current_time = gSynthState.timer_count;
     
     if (pending & GPIO_BUTTONS_S1_PIN) {
-        if ((current_time - s1_last_press_time) > (200 * 8)) {  // 200ms debounce
+        if ((current_time - s1_last_press_time) > (DEBOUNCE_TIME_MS * 8)) {
             gSynthState.btn_s1 = 1;
             s1_last_press_time = current_time;
             Change_Instrument();
         }
-        DL_GPIO_clearInterruptStatus(...);  // Viktig: clear interrupt!
+        DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);
     }
+    
+    if (pending & GPIO_BUTTONS_S2_PIN) {
+        if ((current_time - s2_last_press_time) > (DEBOUNCE_TIME_MS * 8)) {
+            gSynthState.btn_s2 = 1;
+            s2_last_press_time = current_time;
+            gSynthState.audio_playing = !gSynthState.audio_playing;
+            if (gSynthState.audio_playing) {
+                DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+                Trigger_Note_On();
+            } else {
+                DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+                Trigger_Note_Off();
+            }
+        }
+        DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN);
+    }
+    
+    #ifdef GPIO_BUTTONS_JOY_SEL_PIN
+    if (pending & GPIO_BUTTONS_JOY_SEL_PIN) {
+        gSynthState.joy_pressed = 1;
+        effects_enabled = !effects_enabled;
+        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
+        DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_JOY_SEL_PIN);
+    }
+    #endif
+    
+    DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, 0xFFFFFFFF);
 }
 
 //=============================================================================
-// AUDIO GENERATION - WITH FIX #3: 4X GAIN BOOST
+// AUDIO GENERATION
 //=============================================================================
 
 static void Generate_Audio_Sample(void) {
-    // ✅ EMERGENCY FALLBACK: Force 440 Hz if phase_increment is 0
     if (phase_increment == 0) {
         phase_increment = 236223201;
     }
@@ -514,16 +532,10 @@ static void Generate_Audio_Sample(void) {
         phase += phase_increment;
     }
     
-    // Apply envelope
     sample = (int16_t)(((int32_t)sample * envelope.amplitude) / 1000);
-    
-    // Apply volume
     sample = (int16_t)(((int32_t)sample * gSynthState.volume) / 100);
-    
-    // 🔧 FIX #3: APPLY 4X GAIN BOOST FOR AUDIBLE OUTPUT
     sample *= AUDIO_GAIN_BOOST;
     
-    // Clamp to prevent overflow
     if (sample > 2000) sample = 2000;
     if (sample < -2000) sample = -2000;
     
@@ -536,7 +548,6 @@ static void Generate_Audio_Sample(void) {
     }
 #endif
     
-    // Convert to PWM (now with 4x larger swing!)
     int32_t val = 2048 + (sample * 2);
     if(val < 0) val = 0;
     if(val > 4095) val = 4095;
@@ -546,7 +557,38 @@ static void Generate_Audio_Sample(void) {
 }
 
 //=============================================================================
-// REMAINING FUNCTIONS (Same as before, but working now!)
+// 🔧 FIXED: PITCH BEND with REDUCED SENSITIVITY and DEAD ZONE
+//=============================================================================
+
+static void Process_Pitch_Bend(void) {
+    int16_t accel_y = gSynthState.accel_y;
+    int16_t deviation = accel_y - 2048;
+    
+    if (deviation > -PITCH_BEND_DEAD_ZONE && deviation < PITCH_BEND_DEAD_ZONE) {
+        deviation = 0;
+    }
+    
+    int8_t semitones = (int8_t)((deviation * PITCH_BEND_MAX_SEMITONES) / PITCH_BEND_SENSITIVITY);
+    
+    if (semitones > PITCH_BEND_MAX_SEMITONES) semitones = PITCH_BEND_MAX_SEMITONES;
+    if (semitones < -PITCH_BEND_MAX_SEMITONES) semitones = -PITCH_BEND_MAX_SEMITONES;
+    
+#if ENABLE_NOTE_QUANTIZER
+    semitones = Quantize_Semitones(semitones);
+#endif
+    
+    static int8_t prev_semitones = 0;
+    semitones = (prev_semitones * 7 + semitones) / 8;
+    prev_semitones = semitones;
+    
+    if (semitones != pitch_bend_semitones) {
+        pitch_bend_semitones = semitones;
+        Update_Phase_Increment();
+    }
+}
+
+//=============================================================================
+// REMAINING FUNCTIONS
 //=============================================================================
 
 static int8_t Quantize_Semitones(int8_t semitones) {
@@ -754,27 +796,6 @@ static void Process_Joystick(void) {
     }
 }
 
-static void Process_Pitch_Bend(void) {
-    int16_t accel_y = gSynthState.accel_y;
-    int16_t deviation = accel_y - 2048;
-    int8_t semitones = (int8_t)((deviation * 12) / 200);
-    if (semitones > 12) semitones = 12;
-    if (semitones < -12) semitones = -12;
-    
-#if ENABLE_NOTE_QUANTIZER
-    semitones = Quantize_Semitones(semitones);
-#endif
-    
-    static int8_t prev_semitones = 0;
-    semitones = (prev_semitones * 7 + semitones) / 8;
-    prev_semitones = semitones;
-    
-    if (semitones != pitch_bend_semitones) {
-        pitch_bend_semitones = semitones;
-        Update_Phase_Increment();
-    }
-}
-
 static void Update_Phase_Increment(void) {
     if (base_frequency_hz == 0) {
         base_frequency_hz = 440;
@@ -837,7 +858,7 @@ static void Update_Phase_Increment(void) {
 }
 
 void Process_Buttons(void) {
-    // Tomt - alt skjer i interrupts nå!
+    // Empty - all handled in interrupts
 }
 
 static void Display_Update(void) {
@@ -853,6 +874,10 @@ static void Display_Update(void) {
     char buf[16];
     snprintf(buf, sizeof(buf), "%+d", pitch_bend_semitones);
     LCD_PrintString(55, 18, buf, LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_SMALL);
+    
+    int16_t deviation = gSynthState.accel_y - 2048;
+    LCD_PrintString(90, 18, "D:", LCD_COLOR_DARKGRAY, LCD_COLOR_BLACK, FONT_SMALL);
+    LCD_PrintNumber(102, 18, deviation, LCD_COLOR_DARKGRAY, LCD_COLOR_BLACK, FONT_SMALL);
     
     uint8_t bar_w = gSynthState.volume;
     if (bar_w > 100) bar_w = 100;
@@ -872,7 +897,6 @@ static void Display_Update(void) {
     
     if (arpeggiator.mode != ARP_OFF) {
         LCD_PrintString(3, 40, "ARP", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_SMALL);
-        
         const char* arp_names[] = {"", "UP", "DN", "UD", "RND"};
         LCD_PrintString(24, 40, arp_names[arpeggiator.mode], 
                         LCD_COLOR_WHITE, LCD_COLOR_BLACK, FONT_SMALL);
@@ -884,6 +908,16 @@ static void Display_Update(void) {
     
     LCD_PrintNumber(90, 40, envelope.amplitude / 10, 
                     LCD_COLOR_WHITE, LCD_COLOR_BLACK, FONT_SMALL);
+    
+    LCD_PrintString(3, 50, "S1:", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
+    LCD_PrintString(20, 50, gSynthState.btn_s1 ? "OK" : "--", 
+                    gSynthState.btn_s1 ? LCD_COLOR_GREEN : LCD_COLOR_RED, 
+                    LCD_COLOR_BLACK, FONT_SMALL);
+    
+    LCD_PrintString(45, 50, "S2:", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
+    LCD_PrintString(62, 50, gSynthState.btn_s2 ? "OK" : "--", 
+                    gSynthState.btn_s2 ? LCD_COLOR_GREEN : LCD_COLOR_RED, 
+                    LCD_COLOR_BLACK, FONT_SMALL);
     
 #if ENABLE_WAVEFORM_DISPLAY
     Display_Waveform();
@@ -898,10 +932,10 @@ static void Display_Update(void) {
 
 #if ENABLE_WAVEFORM_DISPLAY
 static void Display_Waveform(void) {
-    uint16_t y_center = 80;
-    uint16_t y_scale = 25;
+    uint16_t y_center = 85;
+    uint16_t y_scale = 20;
     
-    LCD_DrawRect(0, 50, 128, 60, LCD_COLOR_BLACK);
+    LCD_DrawRect(0, 65, 128, 50, LCD_COLOR_BLACK);
     
     for (uint8_t x = 0; x < 128; x += 4) {
         LCD_DrawPixel(x, y_center, LCD_COLOR_DARKGRAY);
@@ -911,10 +945,10 @@ static void Display_Waveform(void) {
         int16_t y1 = y_center - ((waveform_buffer[i] * y_scale) / 1000);
         int16_t y2 = y_center - ((waveform_buffer[i+1] * y_scale) / 1000);
         
-        if (y1 < 50) y1 = 50;
-        if (y1 > 110) y1 = 110;
-        if (y2 < 50) y2 = 50;
-        if (y2 > 110) y2 = 110;
+        if (y1 < 65) y1 = 65;
+        if (y1 > 115) y1 = 115;
+        if (y2 < 65) y2 = 65;
+        if (y2 > 115) y2 = 115;
         
         uint8_t x1 = i * 2;
         uint8_t x2 = (i + 1) * 2;
