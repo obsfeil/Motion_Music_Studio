@@ -26,13 +26,13 @@
 	+ SPI POCI (Peripheral Out, Controller In): PB7
 	+ SPI CS0 (Chip Select 0): PA2
 - ADC0:
-	+ ADC12 Channel 5 Pin: PB24
 	+ ADC12 Channel 2 Pin: PA25
-	+ ADC12 Channel 3 Pin: PA24
+	+ ADC12 Channel 5 Pin: PB24
 - ADC1:
 	+ ADC12 Channel 6 Pin: PB19
 	+ ADC12 Channel 8 Pin: PA22
 	+ ADC12 Channel 5 Pin: PB18
+	+ ADC12 Channel 3 Pin: PA18
 - EVENT
 - RTC
 - BOARD:

@@ -168,24 +168,17 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_JOY_ADCMEM_0                                      DL_ADC12_MEM_IDX_0
 #define ADC_JOY_ADCMEM_0_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC_JOY_ADCMEM_0_REF_VOLTAGE_V                                       3.3
-#define ADC_JOY_ADCMEM_1                                      DL_ADC12_MEM_IDX_1
-#define ADC_JOY_ADCMEM_1_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
-#define ADC_JOY_ADCMEM_1_REF_VOLTAGE_V                                       3.3
-#define ADC_JOY_ADCMEM_2                                      DL_ADC12_MEM_IDX_2
-#define ADC_JOY_ADCMEM_2_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
-#define ADC_JOY_ADCMEM_2_REF_VOLTAGE_V                                       3.3
-#define GPIO_ADC_JOY_C5_PORT                                               GPIOB
-#define GPIO_ADC_JOY_C5_PIN                                       DL_GPIO_PIN_24
-#define GPIO_ADC_JOY_IOMUX_C5                                    (IOMUX_PINCM52)
-#define GPIO_ADC_JOY_IOMUX_C5_FUNC                (IOMUX_PINCM52_PF_UNCONNECTED)
+#define ADC_JOY_ADCMEM_3                                      DL_ADC12_MEM_IDX_1
+#define ADC_JOY_ADCMEM_3_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_JOY_ADCMEM_3_REF_VOLTAGE_V                                       3.3
 #define GPIO_ADC_JOY_C2_PORT                                               GPIOA
 #define GPIO_ADC_JOY_C2_PIN                                       DL_GPIO_PIN_25
 #define GPIO_ADC_JOY_IOMUX_C2                                    (IOMUX_PINCM55)
 #define GPIO_ADC_JOY_IOMUX_C2_FUNC                (IOMUX_PINCM55_PF_UNCONNECTED)
-#define GPIO_ADC_JOY_C3_PORT                                               GPIOA
-#define GPIO_ADC_JOY_C3_PIN                                       DL_GPIO_PIN_24
-#define GPIO_ADC_JOY_IOMUX_C3                                    (IOMUX_PINCM54)
-#define GPIO_ADC_JOY_IOMUX_C3_FUNC                (IOMUX_PINCM54_PF_UNCONNECTED)
+#define GPIO_ADC_JOY_C5_PORT                                               GPIOB
+#define GPIO_ADC_JOY_C5_PIN                                       DL_GPIO_PIN_24
+#define GPIO_ADC_JOY_IOMUX_C5                                    (IOMUX_PINCM52)
+#define GPIO_ADC_JOY_IOMUX_C5_FUNC                (IOMUX_PINCM52_PF_UNCONNECTED)
 
 /* Defines for ADC_ACCEL */
 #define ADC_ACCEL_INST                                                      ADC1
@@ -200,7 +193,9 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_ACCEL_ADCMEM_2                                    DL_ADC12_MEM_IDX_2
 #define ADC_ACCEL_ADCMEM_2_REF                   DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC_ACCEL_ADCMEM_2_REF_VOLTAGE_V                                     3.3
-#define ADC_ACCEL_INST_SUB_CH                                                (1)
+#define ADC_ACCEL_ADCMEM_3                                    DL_ADC12_MEM_IDX_3
+#define ADC_ACCEL_ADCMEM_3_REF                   DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_ACCEL_ADCMEM_3_REF_VOLTAGE_V                                     3.3
 #define GPIO_ADC_ACCEL_C6_PORT                                             GPIOB
 #define GPIO_ADC_ACCEL_C6_PIN                                     DL_GPIO_PIN_19
 #define GPIO_ADC_ACCEL_IOMUX_C6                                  (IOMUX_PINCM45)
@@ -213,6 +208,10 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_ADC_ACCEL_C5_PIN                                     DL_GPIO_PIN_18
 #define GPIO_ADC_ACCEL_IOMUX_C5                                  (IOMUX_PINCM44)
 #define GPIO_ADC_ACCEL_IOMUX_C5_FUNC              (IOMUX_PINCM44_PF_UNCONNECTED)
+#define GPIO_ADC_ACCEL_C3_PORT                                             GPIOA
+#define GPIO_ADC_ACCEL_C3_PIN                                     DL_GPIO_PIN_18
+#define GPIO_ADC_ACCEL_IOMUX_C3                                  (IOMUX_PINCM40)
+#define GPIO_ADC_ACCEL_IOMUX_C3_FUNC              (IOMUX_PINCM40_PF_UNCONNECTED)
 
 
 
