@@ -111,7 +111,7 @@ typedef struct {
 static const InstrumentProfile_t INSTRUMENTS[INSTRUMENT_COUNT] = {
     {
         .name = "PIANO",
-        .adsr = {80, 1600, 0, 800},
+        .adsr = {80, 1600, 700, 800},  // ✅ FIXED: sustain_level = 700 (was 0)
         .waveform = WAVE_TRIANGLE,
         .num_harmonics = 2,
         .vibrato_depth = 0,
@@ -220,10 +220,10 @@ static const uint32_t PITCH_BEND_TABLE[25] = {
 //=============================================================================
 volatile SynthState_t gSynthState; 
 static uint32_t phase = 0;
-static uint32_t phase_increment = 0;
+static volatile uint32_t phase_increment = 0;  // ✅ VOLATILE to prevent optimization!
 
 static uint32_t chord_phases[3] = {0, 0, 0};
-static uint32_t chord_increments[3] = {0, 0, 0};
+static uint32_t chord_increments[3] = {0, 0, 0};  // Arrays don't need volatile
 
 static Instrument_t current_instrument = INSTRUMENT_PIANO;
 static uint8_t current_preset = 0;
@@ -436,7 +436,8 @@ void ADC1_IRQHandler(void) {
 }
 
 // 🔧 FIX #2: BUTTON STATE TRACKING + INTERRUPT CLEARING
-// NOTE: Using pin mask checking instead of IIDX (SysConfig doesn't always generate IIDX constants)
+// 🔧 FIX #2: BUTTON STATE TRACKING + INTERRUPT CLEARING
+// NOTE: Using pin mask checking instead of IIDX (SysConfig 1.25.0 doesn't generate IIDX for GPIO)
 void GPIOA_IRQHandler(void) {
     // Get pending interrupt status as bit mask
     uint32_t pending = DL_GPIO_getEnabledInterruptStatus(GPIO_BUTTONS_PORT, 
@@ -487,6 +488,11 @@ void GPIOA_IRQHandler(void) {
 //=============================================================================
 
 static void Generate_Audio_Sample(void) {
+    // ✅ EMERGENCY FALLBACK: Force 440 Hz if phase_increment is 0
+    if (phase_increment == 0) {
+        phase_increment = 236223201;
+    }
+    
     if (gSynthState.volume == 0 || envelope.amplitude == 0) { 
         DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
         phase += phase_increment;

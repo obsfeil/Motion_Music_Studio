@@ -35,22 +35,22 @@ const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 /**
  * Write custom configuration values to the imported modules.
  */
-ADC121.$name                      = "ADC_JOY";
-ADC121.samplingOperationMode      = "sequence";
-ADC121.repeatMode                 = true;
-ADC121.sampleTime0                = "125 us";
-ADC121.sampCnt                    = 1;
-ADC121.endAdd                     = 2;
-ADC121.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM2_RESULT_LOADED"];
-ADC121.adcMem1_name               = "3";
-ADC121.adcMem2_name               = "5";
-ADC121.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
-ADC121.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_5";
-ADC121.enabledADCMems             = [0,1];
-ADC121.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric6";
-ADC121.adcPin5Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";
-ADC121.peripheral.adcPin2.$assign = "boosterpack.2";
-ADC121.peripheral.adcPin5.$assign = "boosterpack.6";
+ADC121.$name = "ADC_JOY";
+ADC121.samplingOperationMode = "sequence";
+ADC121.repeatMode = true;
+ADC121.sampleTime0 = "125 us";
+ADC121.sampCnt = 1;
+ADC121.endAdd = 1;
+ADC121.adcMem0chansel = "DL_ADC12_INPUT_CHAN_2";
+ADC121.adcMem1chansel = "DL_ADC12_INPUT_CHAN_5";
+ADC121.enabledInterrupts = ["DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED"];
+ADC121.trigSrc = "DL_ADC12_TRIG_SRC_EVENT";
+ADC121.subChanID = 1;
+ADC121.adcPin2Config.$name = "ti_driverlib_gpio_GPIOPinGeneric0";
+ADC121.adcPin5Config.$name = "ti_driverlib_gpio_GPIOPinGeneric6";
+ADC121.peripheral.$assign = "ADC0";
+ADC121.peripheral.adcPin2.$suggestSolution = "boosterpack.2";
+ADC121.peripheral.adcPin5.$suggestSolution = "boosterpack.6";
 
 ADC122.$name                      = "ADC_ACCEL";
 ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
@@ -65,6 +65,7 @@ ADC122.adcMem1bcsen               = true;
 ADC122.endAdd                     = 3;
 ADC122.adcMem3chansel             = "DL_ADC12_INPUT_CHAN_3";
 ADC122.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM3_RESULT_LOADED"];
+ADC122.interruptPriority          = "1";
 ADC122.adcPin6Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric1";
 ADC122.adcPin8Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric2";
 ADC122.adcPin5Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric3";
@@ -245,7 +246,8 @@ ProjectConfig.genLibGaugeL2Version = "MATHACL";
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
-ADC121.peripheral.$suggestSolution           = "ADC0";
+ADC121.peripheral.adcPin2.$suggestSolution   = "boosterpack.2";
+ADC121.peripheral.adcPin5.$suggestSolution   = "boosterpack.6";
 ADC122.peripheral.adcPin3.$suggestSolution   = "boosterpack.26";
 Board.peripheral.$suggestSolution            = "DEBUGSS";
 Board.peripheral.swclkPin.$suggestSolution   = "j25_expansion.16";

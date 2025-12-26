@@ -168,9 +168,10 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_JOY_ADCMEM_0                                      DL_ADC12_MEM_IDX_0
 #define ADC_JOY_ADCMEM_0_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC_JOY_ADCMEM_0_REF_VOLTAGE_V                                       3.3
-#define ADC_JOY_ADCMEM_3                                      DL_ADC12_MEM_IDX_1
-#define ADC_JOY_ADCMEM_3_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
-#define ADC_JOY_ADCMEM_3_REF_VOLTAGE_V                                       3.3
+#define ADC_JOY_ADCMEM_1                                      DL_ADC12_MEM_IDX_1
+#define ADC_JOY_ADCMEM_1_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
+#define ADC_JOY_ADCMEM_1_REF_VOLTAGE_V                                       3.3
+#define ADC_JOY_INST_SUB_CH                                                  (1)
 #define GPIO_ADC_JOY_C2_PORT                                               GPIOA
 #define GPIO_ADC_JOY_C2_PIN                                       DL_GPIO_PIN_25
 #define GPIO_ADC_JOY_IOMUX_C2                                    (IOMUX_PINCM55)
