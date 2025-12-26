@@ -11,6 +11,7 @@ SYSCFG_SRCS += \
 C_SRCS += \
 ../lcd_driver.c \
 ../main.c \
+../main_FIXED_SENSITIVITY.c \
 ./syscfg/ti_msp_dl_config.c \
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/startup_system_files/ticlang/startup_mspm0g350x_ticlang.c 
 
@@ -28,6 +29,7 @@ GEN_MISC_DIRS += \
 C_DEPS += \
 ./lcd_driver.d \
 ./main.d \
+./main_FIXED_SENSITIVITY.d \
 ./syscfg/ti_msp_dl_config.d \
 ./startup_mspm0g350x_ticlang.d 
 
@@ -37,6 +39,7 @@ GEN_OPTS += \
 OBJS += \
 ./lcd_driver.o \
 ./main.o \
+./main_FIXED_SENSITIVITY.o \
 ./syscfg/ti_msp_dl_config.o \
 ./startup_mspm0g350x_ticlang.o 
 
@@ -53,6 +56,7 @@ GEN_MISC_DIRS__QUOTED += \
 OBJS__QUOTED += \
 "lcd_driver.o" \
 "main.o" \
+"main_FIXED_SENSITIVITY.o" \
 "syscfg\ti_msp_dl_config.o" \
 "startup_mspm0g350x_ticlang.o" 
 
@@ -66,6 +70,7 @@ GEN_MISC_FILES__QUOTED += \
 C_DEPS__QUOTED += \
 "lcd_driver.d" \
 "main.d" \
+"main_FIXED_SENSITIVITY.d" \
 "syscfg\ti_msp_dl_config.d" \
 "startup_mspm0g350x_ticlang.d" 
 
@@ -76,6 +81,7 @@ GEN_FILES__QUOTED += \
 
 C_SRCS__QUOTED += \
 "../lcd_driver.c" \
+"../main_FIXED_SENSITIVITY.c" \
 "./syscfg/ti_msp_dl_config.c" \
 "C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/startup_system_files/ticlang/startup_mspm0g350x_ticlang.c" 
 
