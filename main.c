@@ -294,7 +294,10 @@ int main(void) {
     
     // Initialize state
     memset((void*)&gSynthState, 0, sizeof(SynthState_t));
-    gSynthState.audio_playing = 1;  // ✅ Must be 1!
+    gSynthState.frequency = 440.0f;
+    gSynthState.volume = 80;
+    gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
+    gSynthState.audio_playing = 1;
     
     // 🔧 FIX #1: FORCE INITIALIZE PHASE INCREMENT (WAS 0!)
     base_frequency_hz = 440;
