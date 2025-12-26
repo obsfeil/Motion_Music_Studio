@@ -39,7 +39,7 @@ sub_chan_1_0 [
   shape=plaintext
   label=<
     <table border='1'  cellborder='0'>
-      <tr><td>ADC_MIC_JOY</td></tr>
+      <tr><td>ADC_ACCEL</td></tr>
     </table>
   >];
 parent: chan_1 -> sub_chan_1_0;

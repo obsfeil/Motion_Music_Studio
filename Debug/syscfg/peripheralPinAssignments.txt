@@ -1,8 +1,8 @@
 
 - GPIOA:
-	+ High-Drive Input: PA11
-	+ High-Speed Input: PA12
-	+ High-Drive Input: PA10
+	+ High-Drive Input with internal pull-up: PA11
+	+ High-Speed Input with internal pull-up: PA12
+	+ Standard Input with internal pull-up: PA26
 	+ High-Drive Output: PA28
 	+ High-Drive Output: PA31
 	+ High-Speed Output: PA13
@@ -26,13 +26,13 @@
 	+ SPI POCI (Peripheral Out, Controller In): PB7
 	+ SPI CS0 (Chip Select 0): PA2
 - ADC0:
-	+ ADC12 Channel 1 Pin: PA26
+	+ ADC12 Channel 5 Pin: PB24
 	+ ADC12 Channel 2 Pin: PA25
+	+ ADC12 Channel 3 Pin: PA24
 - ADC1:
 	+ ADC12 Channel 6 Pin: PB19
 	+ ADC12 Channel 8 Pin: PA22
 	+ ADC12 Channel 5 Pin: PB18
-	+ ADC12 Channel 0 Pin: PA15
 - EVENT
 - RTC
 - BOARD:

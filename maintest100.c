@@ -159,7 +159,7 @@ void ADC1_IRQHandler(void) {
             break;
     }
 }
-
+/*
 void GPIOA_IRQHandler(void) {
     uint32_t status = DL_GPIO_getEnabledInterruptStatus(GPIOA,
         GPIO_BUTTONS_S1_PIN | GPIO_BUTTONS_S2_PIN | GPIO_BUTTONS_JOY_SEL_PIN);
@@ -177,7 +177,7 @@ void GPIOA_IRQHandler(void) {
         DL_GPIO_clearInterruptStatus(GPIOA, GPIO_BUTTONS_JOY_SEL_PIN);
     }
 }
-
+*/
 int main(void) {
     SYSCFG_DL_init();
 
