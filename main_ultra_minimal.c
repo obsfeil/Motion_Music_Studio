@@ -201,7 +201,7 @@ int main(void) {
         accel_x_buffer[i] = 2048;
     }
     
-    base_frequency_hz = 440;
+    // base_frequency_hz = 440;
     pitch_bend_semitones = 0;
     
     envelope.state = ENV_ATTACK;
@@ -211,10 +211,7 @@ int main(void) {
     
     Update_Phase_Increment();
     
-    if (phase_increment == 0) {
-        phase_increment = 236223201;
-    }
-    
+   
     LCD_Init();
     DL_GPIO_setPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN);
     
@@ -248,11 +245,11 @@ int main(void) {
     uint32_t display_counter = 0;
     
     while (1) {
-        if (loop_counter % 5000 == 0) {
+        if (loop_counter % 1000 == 0) {
             Process_Accelerometer_X();
         }
         
-        if (loop_counter % 8000 == 0) {
+        if (loop_counter % 2000 == 0) {
             Process_Joystick_Y();
         }
         
@@ -260,11 +257,11 @@ int main(void) {
             Process_Pitch_Bend();
         }
         
-        if (loop_counter % 1000 == 0) {
+        if (loop_counter % 100 == 0) {
             Process_Buttons();
         }
         
-        if (loop_counter % 100 == 0) {
+        if (loop_counter % 500 == 0) {
             LED_PWM_Update();
         }
         
@@ -281,10 +278,12 @@ int main(void) {
 // ADC INTERRUPT HANDLERS
 //=============================================================================
 void ADC0_IRQHandler(void) {
-    gSynthState.adc0_count++;
-    
-    if (DL_ADC12_getPendingInterrupt(ADC_JOY_INST) == DL_ADC12_IIDX_MEM0_RESULT_LOADED) {
-        gSynthState.joy_y = DL_ADC12_getMemResult(ADC_JOY_INST, DL_ADC12_MEM_IDX_0);
+    if (DL_ADC12_getPendingInterrupt(ADC_JOY_INST) == 
+        DL_ADC12_IIDX_MEM0_RESULT_LOADED) {
+        
+        // joy_x er allerede i buffer via DMA
+        // Les joy_y manuelt
+        gSynthState.joy_y = DL_ADC12_getMemResult(ADC_JOY_INST, DL_ADC12_MEM_IDX_1);
     }
 }
 
@@ -317,27 +316,18 @@ static void Process_Accelerometer_X(void) {
     int16_t deviation = accel_x_smooth - 2048;
     
     // Deadzone: ±200 ADC counts
-    if (deviation > -200 && deviation < 200) {
+    if (deviation > -400 && deviation < 400) {
         deviation = 0;  // Center zone = 440 Hz
     }
     
-    uint32_t freq_int;
-    if (deviation < 0) {
-        // Tilt LEFT = lower frequency (100-440 Hz)
-        freq_int = 440 + ((deviation * 340) / 2048);  // Map -2048:0 → 100:440
-    } else if (deviation > 0) {
-        // Tilt RIGHT = higher frequency (440-2000 Hz)
-        freq_int = 440 + ((deviation * 1560) / 2048);  // Map 0:2048 → 440:2000
-    } else {
-        freq_int = 440;  // Center
-    }
+
     
     // Limit range
     if (freq_int < FREQ_MIN_HZ) freq_int = FREQ_MIN_HZ;
     if (freq_int > FREQ_MAX_HZ) freq_int = FREQ_MAX_HZ;
     
     // Only update if changed significantly (>5 Hz)
-    if (freq_int > base_frequency_hz + 5 || freq_int < base_frequency_hz - 5) {
+    if (freq_int > base_frequency_hz + 2 || freq_int < base_frequency_hz - 2) {
         base_frequency_hz = freq_int;
         Update_Phase_Increment();
     }
@@ -405,7 +395,7 @@ static void Generate_Audio_Sample(void) {
 
     const InstrumentProfile_t* inst = &INSTRUMENTS[current_instrument];
     
-    uint8_t index = (uint8_t)((phase >> 24) & 0xFF);
+    uint8_t index = (uint8_t)((phase >> 12) & 0xFF);
     int16_t sample = Generate_Waveform(index, inst->waveform);
     
     // Apply envelope

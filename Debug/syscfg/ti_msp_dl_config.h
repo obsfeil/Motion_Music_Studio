@@ -171,7 +171,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_JOY_ADCMEM_1                                      DL_ADC12_MEM_IDX_1
 #define ADC_JOY_ADCMEM_1_REF                     DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC_JOY_ADCMEM_1_REF_VOLTAGE_V                                       3.3
-#define ADC_JOY_INST_SUB_CH                                                  (1)
+#define ADC_JOY_INST_SUB_CH                                                  (2)
 #define GPIO_ADC_JOY_C2_PORT                                               GPIOA
 #define GPIO_ADC_JOY_C2_PIN                                       DL_GPIO_PIN_25
 #define GPIO_ADC_JOY_IOMUX_C2                                    (IOMUX_PINCM55)
@@ -197,6 +197,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define ADC_ACCEL_ADCMEM_3                                    DL_ADC12_MEM_IDX_3
 #define ADC_ACCEL_ADCMEM_3_REF                   DL_ADC12_REFERENCE_VOLTAGE_VDDA
 #define ADC_ACCEL_ADCMEM_3_REF_VOLTAGE_V                                     3.3
+#define ADC_ACCEL_INST_SUB_CH                                                (1)
 #define GPIO_ADC_ACCEL_C6_PORT                                             GPIOB
 #define GPIO_ADC_ACCEL_C6_PIN                                     DL_GPIO_PIN_19
 #define GPIO_ADC_ACCEL_IOMUX_C6                                  (IOMUX_PINCM45)
@@ -216,6 +217,11 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 
 
 
+/* Defines for DMA_CH1 */
+#define DMA_CH1_CHAN_ID                                                      (0)
+#define DMA_CH1_TRIGGER_SEL_SW                               (DMA_SOFTWARE_TRIG)
+
+
 /* Port definition for Pin Group LCD_BL */
 #define LCD_BL_PORT                                                      (GPIOB)
 
@@ -232,9 +238,14 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_BUTTONS_PORT                                                (GPIOA)
 
 /* Defines for S1: GPIOA.11 with pinCMx 22 on package pin 57 */
+// pins affected by this interrupt request:["S1","S2"]
+#define GPIO_BUTTONS_INT_IRQN                                   (GPIOA_INT_IRQn)
+#define GPIO_BUTTONS_INT_IIDX                   (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
+#define GPIO_BUTTONS_S1_IIDX                                (DL_GPIO_IIDX_DIO11)
 #define GPIO_BUTTONS_S1_PIN                                     (DL_GPIO_PIN_11)
 #define GPIO_BUTTONS_S1_IOMUX                                    (IOMUX_PINCM22)
 /* Defines for S2: GPIOA.12 with pinCMx 34 on package pin 5 */
+#define GPIO_BUTTONS_S2_IIDX                                (DL_GPIO_IIDX_DIO12)
 #define GPIO_BUTTONS_S2_PIN                                     (DL_GPIO_PIN_12)
 #define GPIO_BUTTONS_S2_IOMUX                                    (IOMUX_PINCM34)
 /* Defines for JOY_SEL: GPIOA.26 with pinCMx 59 on package pin 30 */
@@ -257,6 +268,8 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_LCD_DC_PORT                                                 (GPIOA)
 #define GPIO_LCD_DC_PIN                                         (DL_GPIO_PIN_13)
 #define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM35)
+#define GPIOA_EVENT_PUBLISHER_0_CHANNEL                                      (2)
+#define GPIOA_EVENT_PUBLISHER_1_CHANNEL                                      (1)
 
 
 
@@ -278,6 +291,7 @@ void SYSCFG_DL_I2C_1_init(void);
 void SYSCFG_DL_SPI_LCD_init(void);
 void SYSCFG_DL_ADC_JOY_init(void);
 void SYSCFG_DL_ADC_ACCEL_init(void);
+void SYSCFG_DL_DMA_init(void);
 
 void SYSCFG_DL_RTC_init(void);
 

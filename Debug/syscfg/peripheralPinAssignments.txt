@@ -1,8 +1,8 @@
 
 - GPIOA:
-	+ High-Drive Input with internal pull-up: PA11
-	+ High-Speed Input with internal pull-up: PA12
-	+ Standard Input with internal pull-up: PA26
+	+ High-Drive Input: PA11
+	+ High-Speed Input: PA12
+	+ Standard Input: PA26
 	+ High-Drive Output: PA28
 	+ High-Drive Output: PA31
 	+ High-Speed Output: PA13
@@ -34,6 +34,7 @@
 	+ ADC12 Channel 5 Pin: PB18
 	+ ADC12 Channel 3 Pin: PA18
 - EVENT
+- DMA
 - RTC
 - BOARD:
 	+ Debug Clock: PA20
