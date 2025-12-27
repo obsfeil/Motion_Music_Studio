@@ -182,7 +182,9 @@ int main(void) {
     
     DL_ADC12_enableConversions(ADC_ACCEL_INST);
     DL_ADC12_startConversion(ADC_ACCEL_INST);
-    
+     
+    NVIC_EnableIRQ(GPIOA_INT_IRQn); 
+
     memset((void *)&gSynthState, 0, sizeof(SynthState_t));
     gSynthState.frequency = 440.0f;
     gSynthState.volume = 80;
@@ -317,15 +319,21 @@ void ADC1_IRQHandler(void) {
 }
 
 void GPIOA_IRQHandler(void) {
-    uint32_t pending = DL_GPIO_getEnabledInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN | GPIO_BUTTONS_S2_PIN);
+    uint32_t pending = DL_GPIO_getEnabledInterruptStatus(
+        GPIO_BUTTONS_PORT, 
+        GPIO_BUTTONS_S1_PIN | GPIO_BUTTONS_S2_PIN
+    );
+    
     if (pending & GPIO_BUTTONS_S1_PIN) {
         gSynthState.btn_s1 = 1;
         Change_Instrument();
         DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);
     }
+    
     if (pending & GPIO_BUTTONS_S2_PIN) {
         gSynthState.btn_s2 = 1;
         gSynthState.audio_playing = !gSynthState.audio_playing;
+        
         if (gSynthState.audio_playing) {
             DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
             Trigger_Note_On();
@@ -333,8 +341,11 @@ void GPIOA_IRQHandler(void) {
             DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
             Trigger_Note_Off();
         }
+        
         DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN);
     }
+    
+    // Clear all
     DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, 0xFFFFFFFF);
 }
 
