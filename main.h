@@ -1,20 +1,14 @@
 /*
  * main.h
- * Felles definisjoner for hele Synthesizer-prosjektet
- * Siste oppdatering: Merged version
  */
 
 #ifndef MAIN_H_
 #define MAIN_H_
 
 // --- Includes ---
-#define GLOBAL_IQ 24
-#include <ti/iqmath/include/IQmathLib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "ti_msp_dl_config.h"
-#include <ti/driverlib/driverlib.h>
-#include <ti/driverlib/m0p/dl_core.h>
 
 //=============================================================================
 // AUDIO CONFIGURATION
@@ -30,7 +24,7 @@
 #define VOLUME_DEFAULT          80
 
 //=============================================================================
-// ENUMS
+// ENUMS (✅ DISSE MÅ KOMME FØRST!)
 //=============================================================================
 typedef enum {
     WAVE_SINE = 0,
@@ -48,19 +42,19 @@ typedef enum {
 } SynthMode_t;
 
 //=============================================================================
-// SYSTEM STATE STRUCTURE
+// SYSTEM STATE STRUCTURE (✅ NÅ KAN DEN BRUKE Waveform_t!)
 //=============================================================================
 typedef struct {
     // Audio State
     float frequency;
     uint32_t phase_increment;
     uint8_t volume;
-    Waveform_t waveform;
-    SynthMode_t mode;
+    Waveform_t waveform;           // ← Nå er Waveform_t definert!
+    SynthMode_t mode;              // ← Nå er SynthMode_t definert!
     volatile bool audio_playing;
     volatile uint32_t phase_accumulator;
     
-    // Inputs (Sensorer/Knapper)
+    // Inputs
     volatile uint16_t joy_x;
     volatile uint16_t joy_y;
     volatile uint16_t mic_level;
@@ -68,9 +62,9 @@ typedef struct {
     volatile int16_t accel_y;
     volatile int16_t accel_z;
     
-    // Knapper (Debounce/Status)
-    volatile uint8_t btn_s1;
-    volatile uint8_t btn_s2;
+    // Buttons
+    volatile uint8_t btn_s1_mkii;
+    volatile uint8_t btn_s2_mkii;
     volatile uint8_t joy_pressed;
     
     // Display flags
@@ -90,13 +84,11 @@ typedef struct {
 //=============================================================================
 // GLOBAL VARIABLES (EXTERN)
 //=============================================================================
-// Gjør gSynthState tilgjengelig for buttons.c og andre filer
 extern volatile SynthState_t gSynthState;
 
 //=============================================================================
 // PUBLIC FUNCTION PROTOTYPES
 //=============================================================================
-// Funksjoner i main.c som må kunne kalles fra buttons.c
 void Change_Instrument(void);
 void Change_Preset(void);
 void Trigger_Note_On(void);

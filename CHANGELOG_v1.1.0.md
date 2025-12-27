@@ -9,7 +9,7 @@
 
 **Solution:** Added `volatile` keyword to all ISR-modified variables in `SynthState_t`:
 - `joy_x`, `joy_y`, `joy_pressed`
-- `btn_s1`, `btn_s2`
+- `btn_s1_mkii`, `btn_s2_mkii`
 - `accel_x`, `accel_y`, `accel_z`
 - `mic_level`
 - `audio_playing`, `display_update_needed`

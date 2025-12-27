@@ -85,7 +85,7 @@
 #define LCD_BL_OFF()  DL_GPIO_clearPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN)
 
 // Delay macro (80 MHz clock: 80,000 cycles = 1 ms)
-#define LCD_DELAY_MS(ms) delay_cycles((uint32_t)(ms * 80000UL))
+#define LCD_DELAY_MS(ms) DL_Common_delayCycles((uint32_t)(ms * 80000UL))
 
 //=============================================================================
 // SIMPLE 6x8 FONT (ASCII 32-127)

@@ -1,6 +1,5 @@
 /*
  * buttons.h
- * Håndterer S1, S2 og Joystick input
  */
 
 #ifndef BUTTONS_H_
@@ -8,9 +7,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "main.h"              // ← Gir tilgang til ALT fra main.h
+#include "ti_msp_dl_config.h"
 
-// Definer funksjoner som main.c får lov til å bruke
+extern volatile uint32_t g_system_ticks;
+// Funksjoner
 void Buttons_Init(void);
-void Handle_GPIO_Interrupt(void); // Vi flytter interrupt-logikken hit
+void Handle_GPIO_Interrupt(void);
 
 #endif /* BUTTONS_H_ */

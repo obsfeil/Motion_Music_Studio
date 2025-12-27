@@ -220,7 +220,7 @@ int main(void) {
     LCD_PrintString(10, 40, "Synthesizer", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
     LCD_PrintString(25, 70, "v10.5.0", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_SMALL);
     LCD_PrintString(5, 100, "DUAL ADC MODE", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
-    delay_cycles(20000);
+    DL_Common_delayCycles(20000);
     LCD_FillScreen(LCD_COLOR_BLACK);
     
     // Enable both ADC interrupts

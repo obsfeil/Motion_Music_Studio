@@ -137,18 +137,25 @@ static uint32_t base_frequency_hz = 440;
 static int8_t pitch_bend_semitones = 0;
 static uint16_t vibrato_phase = 0, tremolo_phase = 0;
 static Arpeggiator_t arpeggiator = {0};
+
 // Globale variabler for å håndtere "Long Press" uten delay
-volatile uint32_t s1_press_time = 0;
-bool s1_held = false;
+volatile uint32_t s1_mkii_press_time = 0;
+bool s1_mkii_held = false;
+
+// ✅ DEBUG VARIABLER - LEGG TIL HER:
+volatile uint32_t DEBUG_main_loop_count = 0;
+volatile uint32_t DEBUG_timer_irq_count = 0;
+
+volatile uint32_t g_system_ticks = 0;
+
 #if ENABLE_WAVEFORM_DISPLAY
 static int16_t waveform_buffer[64] = {0};
 static uint8_t waveform_write_index = 0;
 #endif
 
 static const int16_t sine_table[256] = {
-    0,25,49,74,98,122,147,171,195,219,243,267,290,314,337,360,383,405,428,450,471,493,514,535,555,575,595,614,633,652,670,687,704,721,737,753,768,783,797,811,824,837,849,860,871,882,892,901,910,918,926,933,939,945,951,955,960,963,966,969,971,972,973,974,974,973,972,971,969,966,963,960,955,951,945,939,933,926,918,910,901,892,882,871,860,849,837,824,811,797,783,768,753,737,721,704,687,670,652,633,614,595,575,555,535,514,493,471,450,428,405,383,360,337,314,290,267,243,219,195,171,147,122,98,74,49,25,0,-25,-49,-74,-98,-122,-147,-171,-195,-219,-243,-267,-290,-314,-337,-360,-383,-405,-428,-450,-471,-493,-514,-535,-555,-575,-595,-614,-633,-652,-670,-687,-704,-721,-737,-753,-768,-783,-797,-811,-824,-837,-849,-860,-871,-882,-892,-901,-910,-918,-926,-933,-939,-945,-951,-955,-960,-963,-966,-969,-971,-972,-973,-974,-974,-973,-972,-971,-969,-966,-963,-960,-955,-951,-945,-939,-933,-926,-918,-910,-901,-892,-882,-871,-860,-849,-837,-824,-811,-797,-783,-768,-753,-737,-721,-704,-687,-670,-652,-633,-614,-595,-575,-555,-535,-514,-493,-471,-450,-428,-405,-383,-360,-337,-314,-290,-267,-243,-219,-195,-171,-147,-122,-98,-74,-49,-25
+    // ... sine table ...
 };
-
 //=============================================================================
 // FUNCTION PROTOTYPES
 //=============================================================================
@@ -169,101 +176,138 @@ static int8_t Quantize_Semitones(int8_t semitones);
 //=============================================================================
 int main(void) {
     SYSCFG_DL_init();
-    
+    volatile uint32_t g_system_ticks = 0;
+    // ========== INTERRUPTS (men IKKE timer enda!) ==========
     NVIC_EnableIRQ(ADC0_INT_IRQn);
     NVIC_EnableIRQ(ADC1_INT_IRQn);
+    NVIC_EnableIRQ(GPIOA_INT_IRQn);
+    NVIC_EnableIRQ(DMA_INT_IRQn);
     
-    // 2. Start ADC conversions
+    // Buttons
+    Buttons_Init();
+    
+    // Start ADC
     DL_ADC12_enableConversions(ADC_JOY_INST);
     DL_ADC12_startConversion(ADC_JOY_INST);
-    
     DL_ADC12_enableConversions(ADC_ACCEL_INST);
     DL_ADC12_startConversion(ADC_ACCEL_INST);
-     
-    NVIC_EnableIRQ(GPIOA_INT_IRQn); 
-
+    
+    // ========== STATE INIT ==========
     memset((void *)&gSynthState, 0, sizeof(SynthState_t));
     gSynthState.frequency = 440.0f;
     gSynthState.volume = 80;
     gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
     gSynthState.audio_playing = 1;
     
+    // ✅ VIKTIG: Sett phase_increment FØR timer starter!
     base_frequency_hz = 440;
     pitch_bend_semitones = 0;
     phase_increment = 236223201;
     chord_increments[0] = chord_increments[1] = chord_increments[2] = 236223201;
     
-    // DMA er allerede konfigurert av SysConfig (DMA_CH0)
-    // Vi trenger bare å aktivere interrupt
-    NVIC_EnableIRQ(DMA_INT_IRQn);
-    
+    // Arpeggiator
     arpeggiator.mode = ARP_OFF;
     arpeggiator.steps_per_note = (8000 * 60) / (120 * 4);
     
+    // Envelope
     envelope.state = ENV_ATTACK;
     envelope.phase = 0;
     envelope.amplitude = 0;
     envelope.note_on = true;
     
+    // ========== LCD INIT ==========
     LCD_Init();
     DL_GPIO_setPins(LCD_BL_PORT, LCD_BL_GIPO_LCD_BACKLIGHT_PIN);
     
     LCD_FillScreen(LCD_COLOR_BLACK);
     LCD_PrintString(5, 20, "FINAL v13", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_LARGE);
-    LCD_PrintString(5, 50, "DMA: CH0!", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
-    delay_cycles(8000000);
+    LCD_PrintString(5, 50, "Ready!", LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_MEDIUM);
     LCD_FillScreen(LCD_COLOR_BLACK);
     
-    NVIC_EnableIRQ(ADC1_INT_IRQn);
-    NVIC_EnableIRQ(TIMG7_INT_IRQn);
-    NVIC_EnableIRQ(GPIOA_INT_IRQn);
-    __enable_irq();
-    
-    DL_TimerG_startCounter(TIMER_SAMPLE_INST);
-    DL_ADC12_enableConversions(ADC_JOY_INST);
-    DL_ADC12_startConversion(ADC_JOY_INST);
-    DL_ADC12_enableConversions(ADC_ACCEL_INST);
-    DL_ADC12_startConversion(ADC_ACCEL_INST);
-    
+    // ========== LED ==========
     DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
     DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
-
-    DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, 
-        GPIO_BUTTONS_S1_PIN | GPIO_BUTTONS_S2_PIN);
     
-    // 2. Enable interrupts for S1 and S2
-    DL_GPIO_enableInterrupt(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);
-    DL_GPIO_enableInterrupt(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN);
-    
-    // 3. Enable GPIO interrupt in NVIC
-    NVIC_ClearPendingIRQ(GPIOA_INT_IRQn);
-    NVIC_EnableIRQ(GPIOA_INT_IRQn);
-
+    // ========== ✅ ENABLE GLOBAL INTERRUPTS ==========
     __enable_irq();
-    uint32_t loop_counter = 0, display_counter = 0;
     
-    while (1) {
-        if (gADC0_DMA_Complete) {
-            gSynthState.joy_x = gADC0_DMA_Buffer[0];
-            gSynthState.joy_y = gADC0_DMA_Buffer[1];
-            gADC0_DMA_Complete = false;
-            DL_DMA_enableChannel(DMA, DMA_CH1_CHAN_ID);
-        }
-        
-        if (loop_counter % 10000 == 0) Process_Joystick();
-        if (loop_counter % 5000 == 0) Process_Pitch_Bend();
+    // ========== ✅ START TIMER (SIST!) ==========
+    NVIC_EnableIRQ(TIMG7_INT_IRQn);
+    DL_TimerG_startCounter(TIMER_SAMPLE_INST);  // ← FLYTT TIL SLUTTEN!
 
+// ✅ NYTT:
+volatile uint32_t loop_counter = 0, display_counter = 0;
+    
+while (1) {
+    DEBUG_main_loop_count++;
+    
+    // ✅ DMA (kun én gang!)
+    if (gADC0_DMA_Complete) {
+        gSynthState.joy_x = gADC0_DMA_Buffer[0];
+        gSynthState.joy_y = gADC0_DMA_Buffer[1];
+        gADC0_DMA_Complete = false;
+        DL_DMA_enableChannel(DMA, DMA_CH1_CHAN_ID);
+    }
+    
+    // ✅ BUTTON HANDLING (i main loop, IKKE i interrupt!)
+    static uint8_t last_btn_s1_mkii = 0;
+    static uint8_t last_btn_s2_mkii = 0;
+    
+    // S1 trykket?
+if (gSynthState.btn_s1_mkii != last_btn_s1_mkii) {
+        last_btn_s1_mkii = gSynthState.btn_s1_mkii;
         
-        if (display_counter++ >= 200000) {
-            Display_Update();
-            display_counter = 0;
+        // Hvis knappen ble trykket INN (1)
+        if (last_btn_s1_mkii == 1) { 
+            Change_Instrument();
+            DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+            
+            // 🔥 TVING LCD OPPDATERING:
+            // Vi jukser med telleren slik at if-sjekken lenger ned slår til med en gang
+            display_counter = 200000; 
         }
+    }
+    
+    // Sjekk om S2_MKII har endret seg
+    if (gSynthState.btn_s2_mkii != last_btn_s2_mkii) {
+        last_btn_s2_mkii = gSynthState.btn_s2_mkii;
         
-        if (loop_counter % 100000 == 0) {
-            DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
+        // Hvis knappen ble trykket INN (1)
+        if (last_btn_s2_mkii == 1) {
+            // Toggle audio
+            gSynthState.audio_playing = !gSynthState.audio_playing;
+            
+            if (gSynthState.audio_playing) {
+                DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+                Trigger_Note_On();
+            } else {
+                DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+                Trigger_Note_Off();
+            }
+            
+            // 🔥 TVING LCD OPPDATERING HER OGSÅ:
+            display_counter = 200000;
         }
-       
-        loop_counter++;
+    }
+    
+    // Processing
+    if (loop_counter % 10000 == 0) Process_Joystick();
+    if (loop_counter % 5000 == 0) Process_Pitch_Bend();
+    
+    // Display
+    if (display_counter++ >= 200000) {
+        Display_Update();
+        display_counter = 0;
+    } else {
+        display_counter++; // Tell opp hvis vi ikke oppdaterte
+    }
+    
+    // Heartbeat
+    if (loop_counter % 100000 == 0) {
+        DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
+    }
+    
+    loop_counter++;
     }
 }
 
@@ -271,18 +315,31 @@ int main(void) {
 // INTERRUPT HANDLERS
 //=============================================================================
 void TIMG7_IRQHandler(void) {
-    if (DL_Timer_getPendingInterrupt(TIMER_SAMPLE_INST) == DL_TIMER_IIDX_ZERO) {
-        gSynthState.timer_count++;
-        Process_Envelope();
-        Process_Arpeggiator();
-        vibrato_phase += 41;
-        tremolo_phase += 33;
-        if (gSynthState.audio_playing) {
-            Generate_Audio_Sample();
-        } else {
-            DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
-        }
+    DEBUG_timer_irq_count++;  // Test counter
+    
+    // Kjør ALLTID (ingen if-sjekk)
+    g_system_ticks++; 
+    gSynthState.timer_count++;
+    
+    // Beskytt phase_increment
+    if (phase_increment == 0) {
+        phase_increment = 236223201;
     }
+    
+    Process_Envelope();
+    Process_Arpeggiator();
+    
+    vibrato_phase += 41;
+    tremolo_phase += 33;
+    
+    if (gSynthState.audio_playing) {
+        Generate_Audio_Sample();
+    } else {
+        DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
+    }
+    
+    // ✅ RIKTIG: Clear interrupt (leser IIDX clearerer automatisk)
+    (void)DL_Timer_getPendingInterrupt(TIMER_SAMPLE_INST);
 }
 
 void DMA_IRQHandler(void) {
@@ -530,7 +587,6 @@ void Change_Instrument(void) {
     current_instrument = (current_instrument + 1) % INSTRUMENT_COUNT;
     gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
     Trigger_Note_On();
-    DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
 }
 
 void Change_Preset(void) {

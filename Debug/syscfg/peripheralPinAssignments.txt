@@ -1,7 +1,7 @@
 
 - GPIOA:
-	+ High-Drive Input with internal pull-up: PA11
-	+ High-Speed Input with internal pull-up: PA12
+	+ High-Drive Input: PA11
+	+ High-Speed Input: PA12
 	+ Standard Input with internal pull-up: PA26
 	+ High-Drive Output: PA28
 	+ High-Drive Output: PA31

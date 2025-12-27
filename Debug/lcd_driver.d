@@ -84,8 +84,7 @@ lcd_driver.o: ../lcd_driver.c ../lcd_driver.h \
  C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_wwdt.h \
  C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_interrupt.h \
  C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_systick.h \
- ../main.h \
- C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/include/IQmathLib.h
+ ../main.h
 ../lcd_driver.h:
 syscfg/ti_msp_dl_config.h:
 C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/msp.h:
@@ -171,4 +170,3 @@ C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/dl_wwdt.h:
 C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_interrupt.h:
 C:/Users/obsfe/workspace_ccstheia/Motion_Music_studio/ti/driverlib/m0p/dl_systick.h:
 ../main.h:
-C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/include/IQmathLib.h:
