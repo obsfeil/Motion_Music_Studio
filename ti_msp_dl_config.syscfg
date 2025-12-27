@@ -1,14 +1,18 @@
 /**
- * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
- * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
- * @cliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.09.00.02"
- * @v2CliArgs --board "/ti/boards/LP_MSPM0G3507" --product "mspm0_sdk@2.09.00.02"
- * @versions {"tool":"1.25.0+4268"}
+ * SAFE ADC CONFIGURATION (v19)
+ * 
+ * PROBLEM MED FORRIGE:
+ * - Sample time for kort (62.5 ns / 125 ns)
+ * - Source impedance for høy for så rask sampling
+ * 
+ * NY TILNÆRMING:
+ * - Balansert sample time (10 μs - trygt for 10kΩ sources)
+ * - Raskere clock divider (/2 i stedet for /8)
+ * - Fortsatt 8x raskere enn original!
+ * 
+ * @date 2025-12-27
  */
 
-/**
- * Import the modules used in this configuration.
- */
 const ADC12         = scripting.addModule("/ti/driverlib/ADC12", {}, false);
 const ADC121        = ADC12.addInstance();
 const ADC122        = ADC12.addInstance();
@@ -34,11 +38,12 @@ const TIMER         = scripting.addModule("/ti/driverlib/TIMER", {}, false);
 const TIMER1        = TIMER.addInstance();
 const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 
-/**
- * Write custom configuration values to the imported modules.
- */
+// ============================================================================
+// ADC_JOY - TRYGT OPTIMALISERT
+// ============================================================================
 ADC121.$name                 = "ADC_JOY";
-ADC121.sampleTime0           = "125 us";
+ADC121.sampClkDiv            = "DL_ADC12_CLOCK_DIVIDE_1";
+ADC121.sampleTime0           = "10 us";      // ✅ Trygt for 10kΩ sources
 ADC121.sampCnt               = 1;
 ADC121.endAdd                = 1;
 ADC121.adcMem0chansel        = "DL_ADC12_INPUT_CHAN_2";
@@ -52,13 +57,16 @@ ADC121.adcPin2Config.$name   = "ti_driverlib_gpio_GPIOPinGeneric0";
 ADC121.peripheral.$assign    = "ADC0";
 ADC121.adcPin5Config.$name   = "ti_driverlib_gpio_GPIOPinGeneric6";
 
+// ============================================================================
+// ADC_ACCEL - TRYGT OPTIMALISERT (4x raskere enn original!)
+// ============================================================================
 ADC122.$name                      = "ADC_ACCEL";
-ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
+ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_2";  // ✅ 4x raskere enn /8
 ADC122.samplingOperationMode      = "sequence";
 ADC122.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_6";
 ADC122.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_8";
 ADC122.adcMem2chansel             = "DL_ADC12_INPUT_CHAN_5";
-ADC122.sampleTime0                = "125 us";
+ADC122.sampleTime0                = "25 us";                    // ✅ Trygt for alle kilder
 ADC122.sampCnt                    = 3;
 ADC122.adcMem1bcsen               = true;
 ADC122.endAdd                     = 3;
@@ -258,7 +266,7 @@ SYSTICK.interruptEnable = true;
 TIMER1.$name                       = "TIMER_SAMPLE";
 TIMER1.timerMode                   = "PERIODIC_UP";
 TIMER1.timerStartTimer             = true;
-TIMER1.timerPeriod                 = "125 us";
+TIMER1.timerPeriod                 = "62.5 us";  // ✅ 16 kHz sample rate
 TIMER1.interruptPriority           = "0";
 TIMER1.event2ControllerInterruptEn = ["ZERO_EVENT"];
 TIMER1.event1PublisherChannel      = 1;
@@ -273,11 +281,6 @@ ProjectConfig.genLibIQVersion      = "MATHACL";
 ProjectConfig.genLibGC             = true;
 ProjectConfig.genLibGaugeL2Version = "MATHACL";
 
-/**
- * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
- * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
- * re-solve from scratch.
- */
 ADC121.peripheral.adcPin2.$suggestSolution   = "boosterpack.2";
 ADC121.peripheral.adcPin5.$suggestSolution   = "boosterpack.6";
 Board.peripheral.$suggestSolution            = "DEBUGSS";
