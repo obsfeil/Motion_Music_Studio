@@ -102,17 +102,17 @@ typedef struct {
 } InstrumentProfile_t;
 
 static const InstrumentProfile_t INSTRUMENTS[INSTRUMENT_COUNT] = {
-    {"PIANO", {80, 1600, 700, 800}, WAVE_TRIANGLE, 2, 0, 0, LCD_COLOR_CYAN},
-    {"ORGAN", {0, 0, 1000, 400}, WAVE_SINE, 2, 35, 0, LCD_COLOR_RED},
+    {"PIANO", {80, 1600, 700, 800}, WAVE_TRIANGLE, 1, 0, 0, LCD_COLOR_CYAN},
+    {"ORGAN", {0, 0, 1000, 400}, WAVE_SINE, 1, 20, 0, LCD_COLOR_RED},
     {"STRINGS",
      {2400, 3200, 800, 4000},
      WAVE_SAWTOOTH,
-     2,
-     30,
+     1,
      15,
+     10,
      LCD_COLOR_YELLOW},
-    {"BASS", {160, 800, 900, 800}, WAVE_SINE, 1, 0, 0, LCD_COLOR_BLUE},
-    {"LEAD", {40, 1200, 850, 1600}, WAVE_SQUARE, 2, 45, 10, LCD_COLOR_GREEN}};
+    {"BASS", {160, 800, 900, 800}, WAVE_SINE, 0, 0, 0, LCD_COLOR_BLUE},
+    {"LEAD", {40, 1200, 850, 1600}, WAVE_SQUARE, 1, 30, 5, LCD_COLOR_GREEN}};
 
 typedef enum {
   ENV_IDLE = 0,
@@ -214,7 +214,43 @@ static const int16_t sine_table[256] = {
     -595, -575, -555, -535, -514, -493, -471, -450, -428, -405, -383, -360,
     -337, -314, -290, -267, -243, -219, -195, -171, -147, -122, -98,  -74,
     -49,  -25};
+//============================================================================
+// SCALE SIZE
+//============================================================================
+// C-Dur Pentatonisk (C, D, E, G, A) - Låter rent og harmonisk
+static const int8_t SCALE_INTERVALS[] = {0, 2, 4, 7, 9};
 
+// Hjelpe-makro for å vite hvor stor skalaen er
+#define SCALE_SIZE (sizeof(SCALE_INTERVALS) / sizeof(SCALE_INTERVALS[0]))
+
+// 3 Oktaver C-Dur Pentatonisk (16 toner totalt)
+// Dette dekker Bass, Mellomtone og Diskant perfekt fordelt på joysticken.
+static const uint16_t BASE_FREQUENCIES[] = {
+    // --- OKTAV 3 (BASS / VENSTRE) ---
+    131, // C3
+    147, // D3
+    165, // E3
+    196, // G3
+    220, // A3
+    
+    // --- OKTAV 4 (MIDDEL / SENTER) ---
+    262, // C4 (Middle C)
+    294, // D4
+    330, // E4
+    392, // G4
+    440, // A4
+    
+    // --- OKTAV 5 (HØY / HØYRE) ---
+    523, // C5
+    587, // D5
+    659, // E5
+    784, // G5
+    880, // A5
+    
+    // --- TOPP ---
+    1047 // C6
+};
+#define NUM_BASE_FREQS (sizeof(BASE_FREQUENCIES) / sizeof(BASE_FREQUENCIES[0]))
 //=============================================================================
 // FUNCTION PROTOTYPES
 //=============================================================================
@@ -231,6 +267,7 @@ static int16_t Generate_Chord_Sample(uint32_t *phases, uint32_t *increments);
 static void Display_Update(void);
 static void Display_Waveform(void);
 static int8_t Quantize_Semitones(int8_t semitones);
+static int16_t Low_Pass_Filter(int16_t new_sample); 
 
 //=============================================================================
 // MAIN
@@ -348,12 +385,12 @@ int main(void) {
       last_joy_count = btn_joy_sel.press_count;
 
       Change_Preset();
-      DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
+    DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
       display_counter = 200000;
     }
 
     // Processing
-    if (loop_counter % 10000 == 0)
+    if (loop_counter % 50000 == 0)
       Process_Joystick();
     if (loop_counter % 5000 == 0)
       Process_Pitch_Bend();
@@ -498,6 +535,19 @@ void ADC1_IRQHandler(void) {
 }
 
 //=============================================================================
+// LOW-PASS FILTER
+//=============================================================================
+static int16_t Low_Pass_Filter(int16_t new_sample) {
+    static int16_t prev_sample = 0;
+    
+    // Simple 1-pole low-pass filter (50/50 mix of old and new)
+    int16_t filtered = (prev_sample + new_sample) / 2;
+    prev_sample = filtered;
+    
+    return filtered;
+}
+
+//=============================================================================
 // AUDIO GENERATION
 //=============================================================================
 static void Generate_Audio_Sample(void) {
@@ -553,10 +603,19 @@ static void Generate_Audio_Sample(void) {
   sample = (int16_t)(((int32_t)sample * envelope.amplitude) / 1000);
   sample = (int16_t)(((int32_t)sample * gSynthState.volume) / 100);
   sample *= AUDIO_GAIN_BOOST;
-  if (sample > 2000)
-    sample = 2000;
-  if (sample < -2000)
-    sample = -2000;
+  sample = Low_Pass_Filter(sample);
+  if (sample > 1800) {
+    int16_t excess = sample - 1800;
+    sample = 1800 + (excess / 4);
+    if (sample > 2000)
+      sample = 2000;
+  }
+  if (sample < -1800) {
+    int16_t excess = sample + 1800;
+    sample = -1800 + (excess / 4);
+    if (sample < -2000)
+      sample = -2000;
+  }
 
 #if ENABLE_WAVEFORM_DISPLAY
   static uint8_t waveform_decimate_counter = 0;
@@ -580,25 +639,47 @@ static void Generate_Audio_Sample(void) {
 
 static int16_t Generate_Waveform(uint8_t index, Waveform_t waveform) {
   int16_t sample = 0;
+
   switch (waveform) {
   case WAVE_SINE:
     sample = sine_table[index];
     break;
+
   case WAVE_SQUARE:
-    sample = (index < 128) ? 1000 : -1000;
+    // ✅ SOFT SQUARE - Ikke brå overgang
+    if (index < 120) {
+      sample = 1000;
+    } else if (index < 136) {
+      // Smooth transition (16 samples)
+      sample = 1000 - (int16_t)(((index - 120) * 2000) / 16);
+    } else {
+      sample = -1000;
+    }
     break;
+
   case WAVE_SAWTOOTH:
+    // ✅ SMOOTHER SAWTOOTH
     sample = (int16_t)(((int32_t)index * 2000 / 256) - 1000);
+    // Add slight curve
+    sample = (sample * 95) / 100;
     break;
+
   case WAVE_TRIANGLE:
-    sample = (index < 128)
-                 ? (int16_t)(((int32_t)index * 2000 / 128) - 1000)
-                 : (int16_t)(1000 - ((int32_t)(index - 128) * 2000 / 128));
+    // ✅ Triangle er allerede myk, men kan forbedres
+    if (index < 128) {
+      sample = (int16_t)(((int32_t)index * 2000 / 128) - 1000);
+    } else {
+      sample = (int16_t)(1000 - ((int32_t)(index - 128) * 2000 / 128));
+    }
+    // Reduce amplitude slightly for smoother sound
+    sample = (sample * 90) / 100;
     break;
+
   default:
     sample = sine_table[index];
     break;
   }
+
   return sample;
 }
 
@@ -619,6 +700,24 @@ static int16_t Generate_Chord_Sample(uint32_t *phases, uint32_t *increments) {
     phases[v] += increments[v];
   }
   return (int16_t)(mixed_sample / num_voices);
+}
+//=============================================================================
+// FREQUENCY SMOOTHING
+//=============================================================================
+static uint32_t Smooth_Frequency(uint32_t new_freq) {
+    static uint32_t freq_history[4] = {440, 440, 440, 440};
+    static uint8_t freq_index = 0;
+    
+    // Store new frequency in circular buffer
+    freq_history[freq_index] = new_freq;
+    freq_index = (freq_index + 1) % 4;
+    
+    // Return average of last 4 readings
+    uint32_t sum = 0;
+    for (uint8_t i = 0; i < 4; i++) {
+        sum += freq_history[i];
+    }
+    return sum / 4;
 }
 
 //=============================================================================
@@ -755,45 +854,131 @@ void Trigger_Note_Off(void) {
 }
 
 static void Process_Joystick(void) {
-  if (gSynthState.joy_x > 100) {
-    uint32_t freq_int =
-        FREQ_MIN_HZ +
-        ((gSynthState.joy_x * (FREQ_MAX_HZ - FREQ_MIN_HZ)) / 4095);
-    uint32_t diff = (freq_int > base_frequency_hz)
-                        ? (freq_int - base_frequency_hz)
-                        : (base_frequency_hz - freq_int);
-    if (diff > 10) {
-      base_frequency_hz = freq_int;
-      Update_Phase_Increment();
+
+  // Dead zone: Only respond to significant joystick movements
+    #define JOY_DEAD_ZONE 50
+    #define JOY_HYSTERESIS 20  // Prevents oscillation
+     // Joystick X controls frequency
+//    if (gSynthState.joy_x > (2048 + JOY_DEAD_ZONE) || 
+//        gSynthState.joy_x < (2048 - JOY_DEAD_ZONE)) {
+    // 1. JOYSTICK X: VELG EN REN GRUNNTONE
+    // Vi deler joystickens vandring (0-4095) inn i soner for hver note.
+    uint16_t raw_x = gSynthState.joy_x;
+    
+    // Sikkerhetssjekk
+    if (raw_x > 4095) raw_x = 4095;
+
+    // Regn ut hvilken note vi peker på (indeks 0 til 14)
+    uint8_t note_index = (raw_x * NUM_BASE_FREQS) / 4096;
+    
+    // Hent ren frekvens
+    uint32_t target_freq = BASE_FREQUENCIES[note_index];
+
+    // Oppdater kun hvis vi har byttet sone (dette fjerner skjelving/støy)
+    if (base_frequency_hz != target_freq) {
+        base_frequency_hz = target_freq;
+        Update_Phase_Increment(); // Viktig: Oppdater lyden med en gang
+    }
+
+    // Joystick Y controls volume
+    if (gSynthState.joy_y > (2048 + JOY_DEAD_ZONE) || 
+        gSynthState.joy_y < (2048 - JOY_DEAD_ZONE)) {
+        
+        uint8_t new_vol = (uint8_t)((gSynthState.joy_y * 100) / 4095);
+        if (new_vol > 100) new_vol = 100;
+        
+        // Only update if change is significant
+        uint8_t vol_diff = (new_vol > gSynthState.volume) ?
+                          (new_vol - gSynthState.volume) :
+                          (gSynthState.volume - new_vol);
+        
+        if (vol_diff > 2) {  // Ignore tiny volume changes
+            gSynthState.volume = new_vol;
+        }
     }
   }
-  if (gSynthState.joy_y > 100) {
-    uint8_t new_vol = (uint8_t)((gSynthState.joy_y * 100) / 4095);
-    if (new_vol > 100)
-      new_vol = 100;
-    if (new_vol != gSynthState.volume)
-      gSynthState.volume = new_vol;
-  }
-}
 
 static void Process_Pitch_Bend(void) {
-  int16_t accel_y = gSynthState.accel_y;
-  int16_t deviation = accel_y - 2048;
-  int8_t semitones = (int8_t)((deviation * 12) / 200);
-  if (semitones > 12)
-    semitones = 12;
-  if (semitones < -12)
-    semitones = -12;
-#if ENABLE_NOTE_QUANTIZER
-  semitones = Quantize_Semitones(semitones);
-#endif
-  static int8_t prev_semitones = 0;
-  semitones = (prev_semitones * 7 + semitones) / 8;
-  prev_semitones = semitones;
-  if (semitones != pitch_bend_semitones) {
-    pitch_bend_semitones = semitones;
-    Update_Phase_Increment();
-  }
+    // ==========================================
+    // Y-AKSE: OKTAV-HOPP (Med treghet)
+    // ==========================================
+    static int8_t target_octave = 0;
+    static int8_t current_octave_val = 0; // Brukes for myk overgang? Nei, oktaver bør hoppe, men stabilt.
+    
+    int16_t accel_y = gSynthState.accel_y;
+
+    // Økt hysterese for å unngå flimring mellom oktaver
+    if (accel_y > 2800) target_octave = 12;
+    else if (accel_y < 1300) target_octave = -12;
+    else if (accel_y > 1700 && accel_y < 2400) target_octave = 0;
+
+    // ==========================================
+    // X-AKSE: SKALA (Med GLIDE-effekt)
+    // ==========================================
+    int16_t accel_x = gSynthState.accel_x;
+    
+    // Vi bruker et filter på selve rådataen FØR vi regner ut noten.
+    // Dette fjerner "skjelving" på hånden.
+    static int16_t filtered_x = 2048;
+    
+    // Filterformel: 90% gammel verdi, 10% ny verdi (Tungt filter)
+    filtered_x = (filtered_x * 9 + accel_x) / 10;
+
+    int16_t deviation_x = filtered_x - 2048;
+    const int16_t SENSITIVITY_X = 120; // Økt litt for roligere spilling
+
+    // Deadzone
+    if (deviation_x > -50 && deviation_x < 50) deviation_x = 0;
+
+    int8_t step = deviation_x / SENSITIVITY_X;
+    int8_t x_semitones = 0;
+
+    if (step != 0) {
+        int8_t direction = (step > 0) ? 1 : -1;
+        int8_t abs_step = (step > 0) ? step : -step;
+        
+        // Pentatonisk mapping
+        int8_t note_idx = abs_step % SCALE_SIZE;
+        int8_t oct_shift = abs_step / SCALE_SIZE;
+        
+        int8_t note_val = SCALE_INTERVALS[note_idx] + (12 * oct_shift);
+        x_semitones = note_val * direction;
+    }
+
+    // ==========================================
+    // TOTALT OG PORTAMENTO (GLIDE)
+    // ==========================================
+    int8_t target_total = x_semitones + target_octave;
+    
+    // Begrensning
+    if (target_total > 24) target_total = 24;
+    if (target_total < -24) target_total = -24;
+
+    // Her skjer magien for harmoniske overganger:
+    // I stedet for å sette pitch_bend_semitones direkte,
+    // bruker vi en flyttalls-tilnærming eller et filter.
+    // Men siden pitch_bend_semitones er int8, må vi gjøre det i Update_Phase_Increment 
+    // eller oppdatere sjeldnere.
+    
+    // ENKEL LØSNING: Oppdater bare hvis endringen er stabil (Debounce)
+    static uint8_t stable_count = 0;
+    static int8_t last_target = 0;
+
+    if (target_total != last_target) {
+        stable_count = 0;
+        last_target = target_total;
+    } else {
+        stable_count++;
+    }
+
+    // Vent til vi har hatt samme note i 5 loops (ca 50ms) før vi bytter.
+    // Dette fjerner de små, stygge hoppene ("glitch").
+    if (stable_count > 3) { 
+        if (pitch_bend_semitones != target_total) {
+            pitch_bend_semitones = target_total;
+            Update_Phase_Increment();
+        }
+    }
 }
 
 static void Update_Phase_Increment(void) {
