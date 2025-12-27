@@ -214,9 +214,10 @@ static const int16_t sine_table[256] = {
     -595, -575, -555, -535, -514, -493, -471, -450, -428, -405, -383, -360,
     -337, -314, -290, -267, -243, -219, -195, -171, -147, -122, -98,  -74,
     -49,  -25};
-
-
-static const int8_t SCALE_INTERVALS[] = {0, 2, 4, 5, 7, 9, 11};
+//============================================================================
+// SCALE SIZE
+//============================================================================
+static const int8_t SCALE_INTERVALS[] = {0, 2, 4, 7, 9};
 #define SCALE_SIZE (sizeof(SCALE_INTERVALS) / sizeof(SCALE_INTERVALS[0]))
 //=============================================================================
 // FUNCTION PROTOTYPES
@@ -863,70 +864,85 @@ static void Process_Joystick(void) {
 }
 
 static void Process_Pitch_Bend(void) {
-    // --- Y-AXIS: OCTAVE JUMP (HOPP OPP EN SKALA/OKTAV) ---
-    // Vi bruker 'hysteresis' for å hindre at den hopper frem og tilbake hvis du holder hånden ustøtt.
-    // 2048 er senter.
+    // ==========================================
+    // Y-AKSE: OKTAV-HOPP (Med treghet)
+    // ==========================================
+    static int8_t target_octave = 0;
+    static int8_t current_octave_val = 0; // Brukes for myk overgang? Nei, oktaver bør hoppe, men stabilt.
     
-    static int8_t octave_offset = 0;
     int16_t accel_y = gSynthState.accel_y;
 
-    // Terskelverdier (Juster disse hvis den er for følsom)
-    const int16_t TILT_UP_THRESHOLD = 3000;   // Tilt kraftig opp for +1 oktav
-    const int16_t TILT_DOWN_THRESHOLD = 1000; // Tilt kraftig ned for -1 oktav
-    const int16_t RESET_CENTER_MIN = 1800;    // Må tilbake til midten...
-    const int16_t RESET_CENTER_MAX = 2300;    // ...for å nullstille
+    // Økt hysterese for å unngå flimring mellom oktaver
+    if (accel_y > 2800) target_octave = 12;
+    else if (accel_y < 1300) target_octave = -12;
+    else if (accel_y > 1700 && accel_y < 2400) target_octave = 0;
 
-    if (accel_y > TILT_UP_THRESHOLD) {
-        octave_offset = 12; // Hopp opp 12 semitoner (1 oktav)
-    } else if (accel_y < TILT_DOWN_THRESHOLD) {
-        octave_offset = -12; // Hopp ned 12 semitoner
-    } else if (accel_y > RESET_CENTER_MIN && accel_y < RESET_CENTER_MAX) {
-        // Vi nullstiller kun hvis vi er tilbake i "trygg sone" i midten
-        octave_offset = 0;
-    }
-
-    // --- X-AXIS: SCALE MOVEMENT (BEVEG LAGS EN SKALA) ---
+    // ==========================================
+    // X-AKSE: SKALA (Med GLIDE-effekt)
+    // ==========================================
     int16_t accel_x = gSynthState.accel_x;
-    int16_t deviation_x = accel_x - 2048;
-
-    // Sensitivitet: Hvor mye tilt før vi bytter note?
-    // Høyere tall = må tilte mer. Lavere tall = raskere skala-løp.
-    const int16_t SENSITIVITY_X = 250; 
     
-    // Regn ut hvilken "trinn" i skalaen vi er på.
-    // Dette tillater negative trinn (tilte venstre) og positive (tilte høyre)
-    int8_t step_index = deviation_x / SENSITIVITY_X;
+    // Vi bruker et filter på selve rådataen FØR vi regner ut noten.
+    // Dette fjerner "skjelving" på hånden.
+    static int16_t filtered_x = 2048;
+    
+    // Filterformel: 90% gammel verdi, 10% ny verdi (Tungt filter)
+    filtered_x = (filtered_x * 9 + accel_x) / 10;
 
-    // Finn semitone basert på skala-arrayen
-    int8_t note_in_scale;
-    int8_t octave_shift_x = 0;
+    int16_t deviation_x = filtered_x - 2048;
+    const int16_t SENSITIVITY_X = 120; // Økt litt for roligere spilling
 
-    // Matematikk for å håndtere at arrayen har fast størrelse (wrap-around logic)
-    if (step_index >= 0) {
-        octave_shift_x = step_index / SCALE_SIZE;
-        note_in_scale = SCALE_INTERVALS[step_index % SCALE_SIZE];
-    } else {
-        // Håndtering av negative indekser (venstre tilt)
-        int8_t positive_idx = (-step_index);
-        octave_shift_x = -((positive_idx + SCALE_SIZE - 1) / SCALE_SIZE);
-        note_in_scale = -SCALE_INTERVALS[positive_idx % SCALE_SIZE]; 
-        // OBS: Forenklet logikk for negativ skala, for perfekt musikalsk speiling 
-        // kreves litt mer kompleks matte, men dette fungerer bra for effekt.
+    // Deadzone
+    if (deviation_x > -50 && deviation_x < 50) deviation_x = 0;
+
+    int8_t step = deviation_x / SENSITIVITY_X;
+    int8_t x_semitones = 0;
+
+    if (step != 0) {
+        int8_t direction = (step > 0) ? 1 : -1;
+        int8_t abs_step = (step > 0) ? step : -step;
+        
+        // Pentatonisk mapping
+        int8_t note_idx = abs_step % SCALE_SIZE;
+        int8_t oct_shift = abs_step / SCALE_SIZE;
+        
+        int8_t note_val = SCALE_INTERVALS[note_idx] + (12 * oct_shift);
+        x_semitones = note_val * direction;
     }
 
-    int8_t x_semitones = (octave_shift_x * 12) + note_in_scale;
+    // ==========================================
+    // TOTALT OG PORTAMENTO (GLIDE)
+    // ==========================================
+    int8_t target_total = x_semitones + target_octave;
+    
+    // Begrensning
+    if (target_total > 24) target_total = 24;
+    if (target_total < -24) target_total = -24;
 
-    // --- KOMBINER OG OPPDATER ---
-    int8_t total_semitones = x_semitones + octave_offset;
+    // Her skjer magien for harmoniske overganger:
+    // I stedet for å sette pitch_bend_semitones direkte,
+    // bruker vi en flyttalls-tilnærming eller et filter.
+    // Men siden pitch_bend_semitones er int8, må vi gjøre det i Update_Phase_Increment 
+    // eller oppdatere sjeldnere.
+    
+    // ENKEL LØSNING: Oppdater bare hvis endringen er stabil (Debounce)
+    static uint8_t stable_count = 0;
+    static int8_t last_target = 0;
 
-    // Sikkerhetsbegrensning (unngå at synth krasjer ved ekstremt høye/lave toner)
-    if (total_semitones > 24) total_semitones = 24;
-    if (total_semitones < -24) total_semitones = -24;
+    if (target_total != last_target) {
+        stable_count = 0;
+        last_target = target_total;
+    } else {
+        stable_count++;
+    }
 
-    // Oppdater kun hvis verdien er endret (sparer prosessorkraft)
-    if (total_semitones != pitch_bend_semitones) {
-        pitch_bend_semitones = total_semitones;
-        Update_Phase_Increment();
+    // Vent til vi har hatt samme note i 5 loops (ca 50ms) før vi bytter.
+    // Dette fjerner de små, stygge hoppene ("glitch").
+    if (stable_count > 3) { 
+        if (pitch_bend_semitones != target_total) {
+            pitch_bend_semitones = target_total;
+            Update_Phase_Increment();
+        }
     }
 }
 
