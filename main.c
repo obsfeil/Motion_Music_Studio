@@ -217,8 +217,40 @@ static const int16_t sine_table[256] = {
 //============================================================================
 // SCALE SIZE
 //============================================================================
+// C-Dur Pentatonisk (C, D, E, G, A) - Låter rent og harmonisk
 static const int8_t SCALE_INTERVALS[] = {0, 2, 4, 7, 9};
+
+// Hjelpe-makro for å vite hvor stor skalaen er
 #define SCALE_SIZE (sizeof(SCALE_INTERVALS) / sizeof(SCALE_INTERVALS[0]))
+
+// 3 Oktaver C-Dur Pentatonisk (16 toner totalt)
+// Dette dekker Bass, Mellomtone og Diskant perfekt fordelt på joysticken.
+static const uint16_t BASE_FREQUENCIES[] = {
+    // --- OKTAV 3 (BASS / VENSTRE) ---
+    131, // C3
+    147, // D3
+    165, // E3
+    196, // G3
+    220, // A3
+    
+    // --- OKTAV 4 (MIDDEL / SENTER) ---
+    262, // C4 (Middle C)
+    294, // D4
+    330, // E4
+    392, // G4
+    440, // A4
+    
+    // --- OKTAV 5 (HØY / HØYRE) ---
+    523, // C5
+    587, // D5
+    659, // E5
+    784, // G5
+    880, // A5
+    
+    // --- TOPP ---
+    1047 // C6
+};
+#define NUM_BASE_FREQS (sizeof(BASE_FREQUENCIES) / sizeof(BASE_FREQUENCIES[0]))
 //=============================================================================
 // FUNCTION PROTOTYPES
 //=============================================================================
@@ -353,7 +385,7 @@ int main(void) {
       last_joy_count = btn_joy_sel.press_count;
 
       Change_Preset();
-      DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
+    DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
       display_counter = 200000;
     }
 
@@ -822,29 +854,32 @@ void Trigger_Note_Off(void) {
 }
 
 static void Process_Joystick(void) {
-    // Dead zone: Only respond to significant joystick movements
+
+  // Dead zone: Only respond to significant joystick movements
     #define JOY_DEAD_ZONE 50
     #define JOY_HYSTERESIS 20  // Prevents oscillation
+     // Joystick X controls frequency
+//    if (gSynthState.joy_x > (2048 + JOY_DEAD_ZONE) || 
+//        gSynthState.joy_x < (2048 - JOY_DEAD_ZONE)) {
+    // 1. JOYSTICK X: VELG EN REN GRUNNTONE
+    // Vi deler joystickens vandring (0-4095) inn i soner for hver note.
+    uint16_t raw_x = gSynthState.joy_x;
     
-    // Joystick X controls frequency
-    if (gSynthState.joy_x > (2048 + JOY_DEAD_ZONE) || 
-        gSynthState.joy_x < (2048 - JOY_DEAD_ZONE)) {
-        
-        uint32_t freq_int = FREQ_MIN_HZ + ((gSynthState.joy_x * (FREQ_MAX_HZ - FREQ_MIN_HZ)) / 4095);
+    // Sikkerhetssjekk
+    if (raw_x > 4095) raw_x = 4095;
 
-        freq_int = Smooth_Frequency(freq_int);
-        
-        // Hysteresis: Only update if difference is significant
-        uint32_t diff = (freq_int > base_frequency_hz) ? 
-                        (freq_int - base_frequency_hz) : 
-                        (base_frequency_hz - freq_int);
-        
-        if (diff > JOY_HYSTERESIS) {  // Changed from 10 to 20
-            base_frequency_hz = freq_int;
-            Update_Phase_Increment();
-        }
-    }
+    // Regn ut hvilken note vi peker på (indeks 0 til 14)
+    uint8_t note_index = (raw_x * NUM_BASE_FREQS) / 4096;
     
+    // Hent ren frekvens
+    uint32_t target_freq = BASE_FREQUENCIES[note_index];
+
+    // Oppdater kun hvis vi har byttet sone (dette fjerner skjelving/støy)
+    if (base_frequency_hz != target_freq) {
+        base_frequency_hz = target_freq;
+        Update_Phase_Increment(); // Viktig: Oppdater lyden med en gang
+    }
+
     // Joystick Y controls volume
     if (gSynthState.joy_y > (2048 + JOY_DEAD_ZONE) || 
         gSynthState.joy_y < (2048 - JOY_DEAD_ZONE)) {
@@ -861,7 +896,7 @@ static void Process_Joystick(void) {
             gSynthState.volume = new_vol;
         }
     }
-}
+  }
 
 static void Process_Pitch_Bend(void) {
     // ==========================================
