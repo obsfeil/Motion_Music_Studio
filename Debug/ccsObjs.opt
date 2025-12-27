@@ -1,4 +1,3 @@
-"./buttons.o"
 "./lcd_driver.o"
 "./main.o"
 "./syscfg/ti_msp_dl_config.o"

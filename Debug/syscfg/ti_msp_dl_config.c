@@ -63,6 +63,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_init(void)
     SYSCFG_DL_ADC_ACCEL_init();
     SYSCFG_DL_DMA_init();
     SYSCFG_DL_RTC_init();
+    SYSCFG_DL_SYSTICK_init();
     SYSCFG_DL_SYSCTL_CLK_init();
     /* Ensure backup structures have no valid state */
 	gPWM_AUDIOBackup.backupRdy 	= false;
@@ -111,6 +112,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
 
     DL_RTC_reset(RTC);
 
+
     DL_GPIO_enablePower(GPIOA);
     DL_GPIO_enablePower(GPIOB);
     DL_TimerA_enablePower(PWM_AUDIO_INST);
@@ -122,6 +124,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
     DL_ADC12_enablePower(ADC_ACCEL_INST);
 
     DL_RTC_enablePower(RTC);
+
     delay_cycles(POWER_STARTUP_DELAY);
 }
 
@@ -245,8 +248,10 @@ SYSCONFIG_WEAK void SYSCFG_DL_GPIO_init(void)
 		GPIO_RGB_BLUE_PIN |
 		GPIO_LCD_DC_PIN);
     DL_GPIO_setLowerPinsPolarity(GPIOA, DL_GPIO_PIN_11_EDGE_FALL |
-		DL_GPIO_PIN_12_EDGE_RISE_FALL);
-    DL_GPIO_setUpperPinsPolarity(GPIOA, DL_GPIO_PIN_26_EDGE_RISE_FALL);
+		DL_GPIO_PIN_12_EDGE_FALL);
+    DL_GPIO_setUpperPinsPolarity(GPIOA, DL_GPIO_PIN_26_EDGE_FALL);
+    DL_GPIO_setLowerPinsInputFilter(GPIOA, DL_GPIO_PIN_11_INPUT_FILTER_8_CYCLES |
+		DL_GPIO_PIN_12_INPUT_FILTER_8_CYCLES);
     DL_GPIO_setPins(GPIOB, LCD_BL_GIPO_LCD_BACKLIGHT_PIN |
 		LCD_CS_PIN_LCD_CS_PIN |
 		GPIO_LCD_RST_PIN);
@@ -459,9 +464,6 @@ SYSCONFIG_WEAK void SYSCFG_DL_TIMER_SAMPLE_init(void) {
     DL_TimerG_enableClock(TIMER_SAMPLE_INST);
 
 
-    DL_TimerG_enableEvent(TIMER_SAMPLE_INST, DL_TIMERG_EVENT_ROUTE_1, (DL_TIMERG_EVENT_ZERO_EVENT));
-
-    DL_TimerG_setPublisherChanID(TIMER_SAMPLE_INST, DL_TIMERG_PUBLISHER_INDEX_0, TIMER_SAMPLE_INST_PUB_0_CH);
 
 
 
@@ -661,5 +663,14 @@ SYSCONFIG_WEAK void SYSCFG_DL_RTC_init(void)
 	/* Initialize RTC Calendar */
 	DL_RTC_initCalendar(RTC , gRTCCalendarConfig, DL_RTC_FORMAT_BINARY);
 
+}
+
+SYSCONFIG_WEAK void SYSCFG_DL_SYSTICK_init(void)
+{
+    /*
+     * Initializes the SysTick period to 10.00 ms,
+     * enables the interrupt, and starts the SysTick Timer
+     */
+    DL_SYSTICK_config(800000);
 }
 

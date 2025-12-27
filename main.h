@@ -13,14 +13,14 @@
 //=============================================================================
 // AUDIO CONFIGURATION
 //=============================================================================
-#define SAMPLE_RATE_HZ          8000.0
-#define PWM_RESOLUTION          4096.0
-#define PWM_CENTER              2048.0
+#define SAMPLE_RATE_HZ          8000
+#define PWM_RESOLUTION          4096
+#define PWM_CENTER              2048
 #define WAVETABLE_SIZE          256
 
-#define FREQ_MIN_HZ             20.0
-#define FREQ_MAX_HZ             8000.0
-#define FREQ_DEFAULT_HZ         440.0
+#define FREQ_MIN_HZ             20
+#define FREQ_MAX_HZ             8000
+#define FREQ_DEFAULT_HZ         440
 #define VOLUME_DEFAULT          80
 
 //=============================================================================

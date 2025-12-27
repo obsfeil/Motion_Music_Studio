@@ -36,6 +36,7 @@
 - EVENT
 - DMA
 - RTC
+- SYSTICK
 - BOARD:
 	+ Debug Clock: PA20
 	+ Debug Data In Out: PA19

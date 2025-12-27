@@ -103,7 +103,6 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define TIMER_SAMPLE_INST_IRQHandler                            TIMG7_IRQHandler
 #define TIMER_SAMPLE_INST_INT_IRQN                              (TIMG7_INT_IRQn)
 #define TIMER_SAMPLE_INST_LOAD_VALUE                                     (9999U)
-#define TIMER_SAMPLE_INST_PUB_0_CH                                           (1)
 
 
 
@@ -268,6 +267,8 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 
 
 
+
+
 /* clang-format on */
 
 void SYSCFG_DL_init(void);
@@ -287,6 +288,7 @@ void SYSCFG_DL_ADC_ACCEL_init(void);
 void SYSCFG_DL_DMA_init(void);
 
 void SYSCFG_DL_RTC_init(void);
+void SYSCFG_DL_SYSTICK_init(void);
 
 bool SYSCFG_DL_saveConfiguration(void);
 bool SYSCFG_DL_restoreConfiguration(void);
