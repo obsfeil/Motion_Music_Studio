@@ -102,17 +102,17 @@ typedef struct {
 } InstrumentProfile_t;
 
 static const InstrumentProfile_t INSTRUMENTS[INSTRUMENT_COUNT] = {
-    {"PIANO", {80, 1600, 700, 800}, WAVE_TRIANGLE, 2, 0, 0, LCD_COLOR_CYAN},
-    {"ORGAN", {0, 0, 1000, 400}, WAVE_SINE, 2, 35, 0, LCD_COLOR_RED},
+    {"PIANO", {80, 1600, 700, 800}, WAVE_TRIANGLE, 1, 0, 0, LCD_COLOR_CYAN},
+    {"ORGAN", {0, 0, 1000, 400}, WAVE_SINE, 1, 20, 0, LCD_COLOR_RED},
     {"STRINGS",
      {2400, 3200, 800, 4000},
      WAVE_SAWTOOTH,
-     2,
-     30,
+     1,
      15,
+     10,
      LCD_COLOR_YELLOW},
-    {"BASS", {160, 800, 900, 800}, WAVE_SINE, 1, 0, 0, LCD_COLOR_BLUE},
-    {"LEAD", {40, 1200, 850, 1600}, WAVE_SQUARE, 2, 45, 10, LCD_COLOR_GREEN}};
+    {"BASS", {160, 800, 900, 800}, WAVE_SINE, 0, 0, 0, LCD_COLOR_BLUE},
+    {"LEAD", {40, 1200, 850, 1600}, WAVE_SQUARE, 1, 30, 5, LCD_COLOR_GREEN}};
 
 typedef enum {
   ENV_IDLE = 0,
@@ -215,6 +215,9 @@ static const int16_t sine_table[256] = {
     -337, -314, -290, -267, -243, -219, -195, -171, -147, -122, -98,  -74,
     -49,  -25};
 
+
+static const int8_t SCALE_INTERVALS[] = {0, 2, 4, 5, 7, 9, 11};
+#define SCALE_SIZE (sizeof(SCALE_INTERVALS) / sizeof(SCALE_INTERVALS[0]))
 //=============================================================================
 // FUNCTION PROTOTYPES
 //=============================================================================
@@ -231,6 +234,7 @@ static int16_t Generate_Chord_Sample(uint32_t *phases, uint32_t *increments);
 static void Display_Update(void);
 static void Display_Waveform(void);
 static int8_t Quantize_Semitones(int8_t semitones);
+static int16_t Low_Pass_Filter(int16_t new_sample); 
 
 //=============================================================================
 // MAIN
@@ -353,7 +357,7 @@ int main(void) {
     }
 
     // Processing
-    if (loop_counter % 10000 == 0)
+    if (loop_counter % 50000 == 0)
       Process_Joystick();
     if (loop_counter % 5000 == 0)
       Process_Pitch_Bend();
@@ -498,6 +502,19 @@ void ADC1_IRQHandler(void) {
 }
 
 //=============================================================================
+// LOW-PASS FILTER
+//=============================================================================
+static int16_t Low_Pass_Filter(int16_t new_sample) {
+    static int16_t prev_sample = 0;
+    
+    // Simple 1-pole low-pass filter (50/50 mix of old and new)
+    int16_t filtered = (prev_sample + new_sample) / 2;
+    prev_sample = filtered;
+    
+    return filtered;
+}
+
+//=============================================================================
 // AUDIO GENERATION
 //=============================================================================
 static void Generate_Audio_Sample(void) {
@@ -553,10 +570,19 @@ static void Generate_Audio_Sample(void) {
   sample = (int16_t)(((int32_t)sample * envelope.amplitude) / 1000);
   sample = (int16_t)(((int32_t)sample * gSynthState.volume) / 100);
   sample *= AUDIO_GAIN_BOOST;
-  if (sample > 2000)
-    sample = 2000;
-  if (sample < -2000)
-    sample = -2000;
+  sample = Low_Pass_Filter(sample);
+  if (sample > 1800) {
+    int16_t excess = sample - 1800;
+    sample = 1800 + (excess / 4);
+    if (sample > 2000)
+      sample = 2000;
+  }
+  if (sample < -1800) {
+    int16_t excess = sample + 1800;
+    sample = -1800 + (excess / 4);
+    if (sample < -2000)
+      sample = -2000;
+  }
 
 #if ENABLE_WAVEFORM_DISPLAY
   static uint8_t waveform_decimate_counter = 0;
@@ -580,25 +606,47 @@ static void Generate_Audio_Sample(void) {
 
 static int16_t Generate_Waveform(uint8_t index, Waveform_t waveform) {
   int16_t sample = 0;
+
   switch (waveform) {
   case WAVE_SINE:
     sample = sine_table[index];
     break;
+
   case WAVE_SQUARE:
-    sample = (index < 128) ? 1000 : -1000;
+    // ✅ SOFT SQUARE - Ikke brå overgang
+    if (index < 120) {
+      sample = 1000;
+    } else if (index < 136) {
+      // Smooth transition (16 samples)
+      sample = 1000 - (int16_t)(((index - 120) * 2000) / 16);
+    } else {
+      sample = -1000;
+    }
     break;
+
   case WAVE_SAWTOOTH:
+    // ✅ SMOOTHER SAWTOOTH
     sample = (int16_t)(((int32_t)index * 2000 / 256) - 1000);
+    // Add slight curve
+    sample = (sample * 95) / 100;
     break;
+
   case WAVE_TRIANGLE:
-    sample = (index < 128)
-                 ? (int16_t)(((int32_t)index * 2000 / 128) - 1000)
-                 : (int16_t)(1000 - ((int32_t)(index - 128) * 2000 / 128));
+    // ✅ Triangle er allerede myk, men kan forbedres
+    if (index < 128) {
+      sample = (int16_t)(((int32_t)index * 2000 / 128) - 1000);
+    } else {
+      sample = (int16_t)(1000 - ((int32_t)(index - 128) * 2000 / 128));
+    }
+    // Reduce amplitude slightly for smoother sound
+    sample = (sample * 90) / 100;
     break;
+
   default:
     sample = sine_table[index];
     break;
   }
+
   return sample;
 }
 
@@ -619,6 +667,24 @@ static int16_t Generate_Chord_Sample(uint32_t *phases, uint32_t *increments) {
     phases[v] += increments[v];
   }
   return (int16_t)(mixed_sample / num_voices);
+}
+//=============================================================================
+// FREQUENCY SMOOTHING
+//=============================================================================
+static uint32_t Smooth_Frequency(uint32_t new_freq) {
+    static uint32_t freq_history[4] = {440, 440, 440, 440};
+    static uint8_t freq_index = 0;
+    
+    // Store new frequency in circular buffer
+    freq_history[freq_index] = new_freq;
+    freq_index = (freq_index + 1) % 4;
+    
+    // Return average of last 4 readings
+    uint32_t sum = 0;
+    for (uint8_t i = 0; i < 4; i++) {
+        sum += freq_history[i];
+    }
+    return sum / 4;
 }
 
 //=============================================================================
@@ -755,45 +821,113 @@ void Trigger_Note_Off(void) {
 }
 
 static void Process_Joystick(void) {
-  if (gSynthState.joy_x > 100) {
-    uint32_t freq_int =
-        FREQ_MIN_HZ +
-        ((gSynthState.joy_x * (FREQ_MAX_HZ - FREQ_MIN_HZ)) / 4095);
-    uint32_t diff = (freq_int > base_frequency_hz)
-                        ? (freq_int - base_frequency_hz)
-                        : (base_frequency_hz - freq_int);
-    if (diff > 10) {
-      base_frequency_hz = freq_int;
-      Update_Phase_Increment();
+    // Dead zone: Only respond to significant joystick movements
+    #define JOY_DEAD_ZONE 50
+    #define JOY_HYSTERESIS 20  // Prevents oscillation
+    
+    // Joystick X controls frequency
+    if (gSynthState.joy_x > (2048 + JOY_DEAD_ZONE) || 
+        gSynthState.joy_x < (2048 - JOY_DEAD_ZONE)) {
+        
+        uint32_t freq_int = FREQ_MIN_HZ + ((gSynthState.joy_x * (FREQ_MAX_HZ - FREQ_MIN_HZ)) / 4095);
+
+        freq_int = Smooth_Frequency(freq_int);
+        
+        // Hysteresis: Only update if difference is significant
+        uint32_t diff = (freq_int > base_frequency_hz) ? 
+                        (freq_int - base_frequency_hz) : 
+                        (base_frequency_hz - freq_int);
+        
+        if (diff > JOY_HYSTERESIS) {  // Changed from 10 to 20
+            base_frequency_hz = freq_int;
+            Update_Phase_Increment();
+        }
     }
-  }
-  if (gSynthState.joy_y > 100) {
-    uint8_t new_vol = (uint8_t)((gSynthState.joy_y * 100) / 4095);
-    if (new_vol > 100)
-      new_vol = 100;
-    if (new_vol != gSynthState.volume)
-      gSynthState.volume = new_vol;
-  }
+    
+    // Joystick Y controls volume
+    if (gSynthState.joy_y > (2048 + JOY_DEAD_ZONE) || 
+        gSynthState.joy_y < (2048 - JOY_DEAD_ZONE)) {
+        
+        uint8_t new_vol = (uint8_t)((gSynthState.joy_y * 100) / 4095);
+        if (new_vol > 100) new_vol = 100;
+        
+        // Only update if change is significant
+        uint8_t vol_diff = (new_vol > gSynthState.volume) ?
+                          (new_vol - gSynthState.volume) :
+                          (gSynthState.volume - new_vol);
+        
+        if (vol_diff > 2) {  // Ignore tiny volume changes
+            gSynthState.volume = new_vol;
+        }
+    }
 }
 
 static void Process_Pitch_Bend(void) {
-  int16_t accel_y = gSynthState.accel_y;
-  int16_t deviation = accel_y - 2048;
-  int8_t semitones = (int8_t)((deviation * 12) / 200);
-  if (semitones > 12)
-    semitones = 12;
-  if (semitones < -12)
-    semitones = -12;
-#if ENABLE_NOTE_QUANTIZER
-  semitones = Quantize_Semitones(semitones);
-#endif
-  static int8_t prev_semitones = 0;
-  semitones = (prev_semitones * 7 + semitones) / 8;
-  prev_semitones = semitones;
-  if (semitones != pitch_bend_semitones) {
-    pitch_bend_semitones = semitones;
-    Update_Phase_Increment();
-  }
+    // --- Y-AXIS: OCTAVE JUMP (HOPP OPP EN SKALA/OKTAV) ---
+    // Vi bruker 'hysteresis' for å hindre at den hopper frem og tilbake hvis du holder hånden ustøtt.
+    // 2048 er senter.
+    
+    static int8_t octave_offset = 0;
+    int16_t accel_y = gSynthState.accel_y;
+
+    // Terskelverdier (Juster disse hvis den er for følsom)
+    const int16_t TILT_UP_THRESHOLD = 3000;   // Tilt kraftig opp for +1 oktav
+    const int16_t TILT_DOWN_THRESHOLD = 1000; // Tilt kraftig ned for -1 oktav
+    const int16_t RESET_CENTER_MIN = 1800;    // Må tilbake til midten...
+    const int16_t RESET_CENTER_MAX = 2300;    // ...for å nullstille
+
+    if (accel_y > TILT_UP_THRESHOLD) {
+        octave_offset = 12; // Hopp opp 12 semitoner (1 oktav)
+    } else if (accel_y < TILT_DOWN_THRESHOLD) {
+        octave_offset = -12; // Hopp ned 12 semitoner
+    } else if (accel_y > RESET_CENTER_MIN && accel_y < RESET_CENTER_MAX) {
+        // Vi nullstiller kun hvis vi er tilbake i "trygg sone" i midten
+        octave_offset = 0;
+    }
+
+    // --- X-AXIS: SCALE MOVEMENT (BEVEG LAGS EN SKALA) ---
+    int16_t accel_x = gSynthState.accel_x;
+    int16_t deviation_x = accel_x - 2048;
+
+    // Sensitivitet: Hvor mye tilt før vi bytter note?
+    // Høyere tall = må tilte mer. Lavere tall = raskere skala-løp.
+    const int16_t SENSITIVITY_X = 250; 
+    
+    // Regn ut hvilken "trinn" i skalaen vi er på.
+    // Dette tillater negative trinn (tilte venstre) og positive (tilte høyre)
+    int8_t step_index = deviation_x / SENSITIVITY_X;
+
+    // Finn semitone basert på skala-arrayen
+    int8_t note_in_scale;
+    int8_t octave_shift_x = 0;
+
+    // Matematikk for å håndtere at arrayen har fast størrelse (wrap-around logic)
+    if (step_index >= 0) {
+        octave_shift_x = step_index / SCALE_SIZE;
+        note_in_scale = SCALE_INTERVALS[step_index % SCALE_SIZE];
+    } else {
+        // Håndtering av negative indekser (venstre tilt)
+        int8_t positive_idx = (-step_index);
+        octave_shift_x = -((positive_idx + SCALE_SIZE - 1) / SCALE_SIZE);
+        note_in_scale = -SCALE_INTERVALS[positive_idx % SCALE_SIZE]; 
+        // OBS: Forenklet logikk for negativ skala, for perfekt musikalsk speiling 
+        // kreves litt mer kompleks matte, men dette fungerer bra for effekt.
+    }
+
+    int8_t x_semitones = (octave_shift_x * 12) + note_in_scale;
+
+    // --- KOMBINER OG OPPDATER ---
+    int8_t total_semitones = x_semitones + octave_offset;
+
+    // Sikkerhetsbegrensning (unngå at synth krasjer ved ekstremt høye/lave toner)
+    if (total_semitones > 24) total_semitones = 24;
+    if (total_semitones < -24) total_semitones = -24;
+
+    // Oppdater kun hvis verdien er endret (sparer prosessorkraft)
+    if (total_semitones != pitch_bend_semitones) {
+        pitch_bend_semitones = total_semitones;
+        Update_Phase_Increment();
+    }
 }
 
 static void Update_Phase_Increment(void) {
