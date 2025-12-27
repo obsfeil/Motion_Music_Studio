@@ -30,7 +30,7 @@ pub_chan_1 [
     shape=plaintext
     label=<
     <table border='1'  cellborder='0'>
-      <tr><td>JOY_SEL,TIMER_SAMPLE</td></tr>
+      <tr><td>TIMER_SAMPLE</td></tr>
     </table>
     >];
 pub_chan_1 -> parent: chan_1;
@@ -47,7 +47,7 @@ pub_chan_2 [
     shape=plaintext
     label=<
     <table border='1'  cellborder='0'>
-      <tr><td>DMA,S1,S2</td></tr>
+      <tr><td>DMA</td></tr>
     </table>
     >];
 pub_chan_2 -> parent: chan_2;

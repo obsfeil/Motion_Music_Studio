@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "buttons.h"
 //=============================================================================
 // AUDIO GAIN BOOST
 //=============================================================================
@@ -137,7 +137,9 @@ static uint32_t base_frequency_hz = 440;
 static int8_t pitch_bend_semitones = 0;
 static uint16_t vibrato_phase = 0, tremolo_phase = 0;
 static Arpeggiator_t arpeggiator = {0};
-
+// Globale variabler for å håndtere "Long Press" uten delay
+volatile uint32_t s1_press_time = 0;
+bool s1_held = false;
 #if ENABLE_WAVEFORM_DISPLAY
 static int16_t waveform_buffer[64] = {0};
 static uint8_t waveform_write_index = 0;
@@ -156,13 +158,8 @@ static void Process_Envelope(void);
 static void Process_Arpeggiator(void);
 static void Generate_Audio_Sample(void);
 static void Update_Phase_Increment(void);
-static void Change_Instrument(void);
-static void Change_Preset(void);
-static void Trigger_Note_On(void);
-static void Trigger_Note_Off(void);
 static int16_t Generate_Waveform(uint8_t index, Waveform_t waveform);
 static int16_t Generate_Chord_Sample(uint32_t *phases, uint32_t *increments);
-void Process_Buttons(void);
 static void Display_Update(void);
 static void Display_Waveform(void);
 static int8_t Quantize_Semitones(int8_t semitones);
@@ -230,7 +227,19 @@ int main(void) {
     
     DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN | GPIO_RGB_BLUE_PIN);
     DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
+
+    DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, 
+        GPIO_BUTTONS_S1_PIN | GPIO_BUTTONS_S2_PIN);
     
+    // 2. Enable interrupts for S1 and S2
+    DL_GPIO_enableInterrupt(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);
+    DL_GPIO_enableInterrupt(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN);
+    
+    // 3. Enable GPIO interrupt in NVIC
+    NVIC_ClearPendingIRQ(GPIOA_INT_IRQn);
+    NVIC_EnableIRQ(GPIOA_INT_IRQn);
+
+    __enable_irq();
     uint32_t loop_counter = 0, display_counter = 0;
     
     while (1) {
@@ -243,7 +252,7 @@ int main(void) {
         
         if (loop_counter % 10000 == 0) Process_Joystick();
         if (loop_counter % 5000 == 0) Process_Pitch_Bend();
-        if (loop_counter % 8000 == 0) Process_Buttons();
+
         
         if (display_counter++ >= 200000) {
             Display_Update();
@@ -253,7 +262,7 @@ int main(void) {
         if (loop_counter % 100000 == 0) {
             DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_BLUE_PIN);
         }
-        
+       
         loop_counter++;
     }
 }
@@ -318,36 +327,6 @@ void ADC1_IRQHandler(void) {
     }
 }
 
-void GPIOA_IRQHandler(void) {
-    uint32_t pending = DL_GPIO_getEnabledInterruptStatus(
-        GPIO_BUTTONS_PORT, 
-        GPIO_BUTTONS_S1_PIN | GPIO_BUTTONS_S2_PIN
-    );
-    
-    if (pending & GPIO_BUTTONS_S1_PIN) {
-        gSynthState.btn_s1 = 1;
-        Change_Instrument();
-        DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);
-    }
-    
-    if (pending & GPIO_BUTTONS_S2_PIN) {
-        gSynthState.btn_s2 = 1;
-        gSynthState.audio_playing = !gSynthState.audio_playing;
-        
-        if (gSynthState.audio_playing) {
-            DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
-            Trigger_Note_On();
-        } else {
-            DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
-            Trigger_Note_Off();
-        }
-        
-        DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN);
-    }
-    
-    // Clear all
-    DL_GPIO_clearInterruptStatus(GPIO_BUTTONS_PORT, 0xFFFFFFFF);
-}
 
 //=============================================================================
 // AUDIO GENERATION
@@ -547,14 +526,14 @@ static void Process_Envelope(void) {
     }
 }
 
-static void Change_Instrument(void) {
+void Change_Instrument(void) {
     current_instrument = (current_instrument + 1) % INSTRUMENT_COUNT;
     gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
     Trigger_Note_On();
     DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
 }
 
-static void Change_Preset(void) {
+void Change_Preset(void) {
     current_preset = (current_preset + 1) % 3;
     const Preset_t *preset = &PRESETS[current_preset];
     current_instrument = preset->instrument;
@@ -565,14 +544,14 @@ static void Change_Preset(void) {
     Trigger_Note_On();
 }
 
-static void Trigger_Note_On(void) {
+void Trigger_Note_On(void) {
     envelope.state = ENV_ATTACK;
     envelope.phase = 0;
     envelope.amplitude = 0;
     envelope.note_on = true;
 }
 
-static void Trigger_Note_Off(void) {
+void Trigger_Note_Off(void) {
     envelope.state = ENV_RELEASE;
     envelope.phase = 0;
     envelope.note_on = false;
@@ -660,38 +639,14 @@ static void Update_Phase_Increment(void) {
     } else {
         chord_increments[0] = chord_increments[1] = chord_increments[2] = phase_increment;
     }
+    if (phase_increment == 0) {
+        phase_increment = 236223201;  // 440 Hz fallback
+
+    }
     gSynthState.frequency = (float)bent_freq;
 }
 
-void Process_Buttons(void) {
-    static uint32_t s1_prev = 1, s2_prev = 1, s1_hold_counter = 0;
-    uint32_t s1 = DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN);
-    uint32_t s2 = DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN);
-    if (s1 == 0) {
-        s1_hold_counter++;
-        if (s1_hold_counter > 1000 && s1_prev == 0) {
-            Change_Preset();
-            s1_hold_counter = 0;
-            while (DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S1_PIN) == 0);
-        }
-    } else {
-        if (s1_prev == 0 && s1_hold_counter < 1000) Change_Instrument();
-        s1_hold_counter = 0;
-    }
-    if (s2 == 0 && s2_prev != 0) {
-        gSynthState.audio_playing = !gSynthState.audio_playing;
-        if (gSynthState.audio_playing) {
-            DL_GPIO_setPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
-            Trigger_Note_On();
-        } else {
-            DL_GPIO_clearPins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
-            Trigger_Note_Off();
-        }
-        while (DL_GPIO_readPins(GPIO_BUTTONS_PORT, GPIO_BUTTONS_S2_PIN) == 0);
-    }
-    s1_prev = s1;
-    s2_prev = s2;
-}
+
 
 static void Display_Update(void) {
     const InstrumentProfile_t *inst = &INSTRUMENTS[current_instrument];
@@ -753,4 +708,9 @@ void HardFault_Handler(void) {
         DL_GPIO_togglePins(GPIO_RGB_PORT, GPIO_RGB_GREEN_PIN);
         for (volatile uint32_t i = 0; i < 100000; i++);
     }
+}
+
+void GPIOA_IRQHandler(void) {
+    Handle_GPIO_Interrupt(); // Kaller funksjonen i buttons.c
+
 }

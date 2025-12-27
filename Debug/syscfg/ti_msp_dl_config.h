@@ -238,7 +238,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_BUTTONS_PORT                                                (GPIOA)
 
 /* Defines for S1: GPIOA.11 with pinCMx 22 on package pin 57 */
-// pins affected by this interrupt request:["S1","S2"]
+// pins affected by this interrupt request:["S1","S2","JOY_SEL"]
 #define GPIO_BUTTONS_INT_IRQN                                   (GPIOA_INT_IRQn)
 #define GPIO_BUTTONS_INT_IIDX                   (DL_INTERRUPT_GROUP1_IIDX_GPIOA)
 #define GPIO_BUTTONS_S1_IIDX                                (DL_GPIO_IIDX_DIO11)
@@ -249,6 +249,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_BUTTONS_S2_PIN                                     (DL_GPIO_PIN_12)
 #define GPIO_BUTTONS_S2_IOMUX                                    (IOMUX_PINCM34)
 /* Defines for JOY_SEL: GPIOA.26 with pinCMx 59 on package pin 30 */
+#define GPIO_BUTTONS_JOY_SEL_IIDX                           (DL_GPIO_IIDX_DIO26)
 #define GPIO_BUTTONS_JOY_SEL_PIN                                (DL_GPIO_PIN_26)
 #define GPIO_BUTTONS_JOY_SEL_IOMUX                               (IOMUX_PINCM59)
 /* Port definition for Pin Group GPIO_RGB */
@@ -268,8 +269,6 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_LCD_DC_PORT                                                 (GPIOA)
 #define GPIO_LCD_DC_PIN                                         (DL_GPIO_PIN_13)
 #define GPIO_LCD_DC_IOMUX                                        (IOMUX_PINCM35)
-#define GPIOA_EVENT_PUBLISHER_0_CHANNEL                                      (2)
-#define GPIOA_EVENT_PUBLISHER_1_CHANNEL                                      (1)
 
 
 
