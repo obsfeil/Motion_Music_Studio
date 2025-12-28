@@ -415,44 +415,36 @@ static uint16_t Calculate_Scale_Frequency(MusicalKey_t key, ScaleType_t scale,
 //=============================================================================
 // Process_Key_Selection() - NO C23 warnings
 //=============================================================================
-
 static void Process_Key_Selection(void) {
   uint16_t joy_x = gSynthState.joy_x;
   if (joy_x > 4095) joy_x = 4095;
   
-  int16_t deviation = (int16_t)joy_x - 2048;
+  static uint16_t last_joy_x = 0;
+  static bool first_run = true;
   
-  switch (joy_x_state) {
-    case JS_IDLE: {  // ✅ Add braces to fix C23 warning
-      // Wait for movement
-      if (deviation < -200 || deviation > 200) {
-        joy_x_state = JS_ACTIVE;
-      }
-      break;
-    }
-      
-    case JS_ACTIVE: {  // ✅ Add braces
-      // Calculate new key
-      uint8_t new_key = (joy_x * KEY_COUNT) / 4096;
-      if (new_key >= KEY_COUNT) new_key = KEY_COUNT - 1;
-      
-      if (scale_state.current_key != new_key) {
-        scale_state.current_key = (MusicalKey_t)new_key;
-        scale_state.current_note_freq = Calculate_Scale_Frequency(
-            scale_state.current_key, scale_state.current_scale,
-            scale_state.scale_position, current_octave_shift);
-        target_frequency_hz = scale_state.current_note_freq;
-      }
-      
-      // Return to center? Lock!
-      if (deviation > -200 && deviation < 200) {
-        joy_x_state = JS_IDLE;
-      }
-      break;
-    }
-      
-    default:
-      break;
+  if (first_run) {
+    last_joy_x = joy_x;
+    first_run = false;
+    return;
+  }
+  
+  int16_t change = (int16_t)joy_x - (int16_t)last_joy_x;
+  
+  if (change > -100 && change < 100) {
+    return;  // Hold current key
+  }
+  
+  last_joy_x = joy_x;
+  
+  uint8_t new_key = (joy_x * KEY_COUNT) / 4096;
+  if (new_key >= KEY_COUNT) new_key = KEY_COUNT - 1;
+  
+  if (scale_state.current_key != new_key) {
+    scale_state.current_key = (MusicalKey_t)new_key;
+    scale_state.current_note_freq = Calculate_Scale_Frequency(
+        scale_state.current_key, scale_state.current_scale,
+        scale_state.scale_position, current_octave_shift);
+    target_frequency_hz = scale_state.current_note_freq;
   }
 }
 
@@ -784,57 +776,36 @@ static void Process_Musical_Controls(void) {
     Process_Key_Selection();
     Process_Scale_Position();
     
-    // ✅ Initialize state on first run
-    static bool initialized = false;
+    // ✅ Simple deadzone hold for volume
+    static uint16_t last_joy_y = 0;
+    static bool first_run = true;
     
-    if (!initialized) {
-        // On first run, set state based on actual joystick position
-        int16_t joy_y = (int16_t)gSynthState.joy_y;
-        int16_t deviation = joy_y - 2048;
-        
-        // If joystick is near center, start in IDLE
-        if (deviation > -200 && deviation < 200) {
-            joy_y_state = JS_IDLE;
-            // Keep volume at 80% (set in main)
-        } else {
-            // If joystick is moved, start in ACTIVE
-            joy_y_state = JS_ACTIVE;
-        }
-        
-        initialized = true;
+    // Initialize on first run
+    if (first_run) {
+        last_joy_y = gSynthState.joy_y;
+        first_run = false;
+        return;  // Skip first processing
     }
     
-    // Volume with Sample & Hold
     int16_t joy_y = (int16_t)gSynthState.joy_y;
+    int16_t change = joy_y - (int16_t)last_joy_y;
+    
+    // Deadzone: Only update if moved significantly
+    if (change > -100 && change < 100) {
+        return;  // ✅ HOLD - keep current volume!
+    }
+    
+    // Update last position
+    last_joy_y = (uint16_t)joy_y;
+    
+    // Calculate deviation from center
     int16_t deviation = joy_y - 2048;
     
-    switch (joy_y_state) {
-      case JS_IDLE: {
-        // Wait for movement
-        if (deviation < -200 || deviation > 200) {
-          joy_y_state = JS_ACTIVE;
-        }
-        // Don't touch volume while in IDLE!
-        break;
-      }
-        
-      case JS_ACTIVE: {
-        // Update volume
+    // Only update volume if outside center zone
+    if (deviation < -200 || deviation > 200) {
         if (joy_y > 4095) joy_y = 4095;
-        
-        uint8_t new_vol = (joy_y * 100) / 4095;
-        if (new_vol > 100) new_vol = 100;
-        gSynthState.volume = new_vol;
-        
-        // Return to center? Lock!
-        if (deviation > -200 && deviation < 200) {
-          joy_y_state = JS_IDLE;
-        }
-        break;
-      }
-        
-      default:
-        break;
+        gSynthState.volume = (joy_y * 100) / 4095;
+        if (gSynthState.volume > 100) gSynthState.volume = 100;
     }
 }
 
