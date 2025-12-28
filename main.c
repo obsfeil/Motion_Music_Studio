@@ -218,11 +218,6 @@ typedef struct {
   ArpMode_t arp_mode;
 } Preset_t;
 
-typedef enum {
-  JS_IDLE,      // Joystick centered, value locked
-  JS_ACTIVE,    // Joystick moved, tracking changes
-} JoystickState_t;
-
 static const Preset_t PRESETS[3] = {
     {"CLASSIC", INSTRUMENT_PIANO, false, CHORD_OFF, ARP_OFF},
     {"AMBIENT", INSTRUMENT_STRINGS, true, CHORD_MAJOR, ARP_OFF},
@@ -242,8 +237,6 @@ volatile uint32_t g_phase_increment = 118111601;
 volatile uint32_t g_chord_phases[3] = {0};
 volatile uint32_t g_chord_increments[3] = {118111601, 118111601, 118111601};
 
-static JoystickState_t joy_x_state = JS_IDLE;
-static JoystickState_t joy_y_state = JS_IDLE;
 static Instrument_t current_instrument = INSTRUMENT_PIANO;
 static uint8_t current_preset = 0;
 static Envelope_t envelope = {0};
@@ -419,19 +412,19 @@ static void Process_Key_Selection(void) {
   uint16_t joy_x = gSynthState.joy_x;
   if (joy_x > 4095) joy_x = 4095;
   
-  static uint16_t last_joy_x = 0;
+  static uint16_t last_joy_x = 2048;  // ✅ Start på CENTER!
   static bool first_run = true;
   
   if (first_run) {
     last_joy_x = joy_x;
     first_run = false;
-    return;
+    // ✅ IKKE return her - la den beregne initial key!
   }
   
   int16_t change = (int16_t)joy_x - (int16_t)last_joy_x;
   
   if (change > -100 && change < 100) {
-    return;  // Hold current key
+    return;
   }
   
   last_joy_x = joy_x;
@@ -448,16 +441,37 @@ static void Process_Key_Selection(void) {
   }
 }
 
+//=========================================================
+//PROCESS SCALE
+//=========================================================
+
 static void Process_Scale_Position(void) {
   int16_t accel_x = gSynthState.accel_x;
   int16_t deviation = accel_x - ACCEL_X_NEUTRAL;
+  
   static uint8_t last_position = 3;
-  static int16_t last_deviation = 0;
-  int16_t deviation_change = deviation - last_deviation;
-  if (deviation_change > -50 && deviation_change < 50 &&
-      scale_state.scale_position == last_position)
-    return;
-  last_deviation = deviation;
+  static int16_t last_accel_x = ACCEL_X_NEUTRAL;
+  static bool first_run = true;
+  
+  // ✅ Initialize on first run
+  if (first_run) {
+    last_accel_x = accel_x;
+    first_run = false;
+    return;  // Skip first processing
+  }
+  
+  // ✅ Check if accelerometer moved significantly
+  int16_t accel_change = accel_x - last_accel_x;
+  
+  // Deadzone on ACCEL movement (not deviation!)
+  if (accel_change > -100 && accel_change < 100) {
+    return;  // HOLD - accelerometer hasn't moved enough
+  }
+  
+  // Update last accel reading
+  last_accel_x = accel_x;
+  
+  // Calculate new position
   uint8_t new_position;
   if (deviation < -600)
     new_position = 0;
@@ -475,6 +489,8 @@ static void Process_Scale_Position(void) {
     new_position = 6;
   else
     new_position = 7;
+  
+  // Only update if position actually changed
   if (scale_state.scale_position != new_position) {
     scale_state.scale_position = new_position;
     last_position = new_position;
@@ -484,7 +500,9 @@ static void Process_Scale_Position(void) {
     target_frequency_hz = scale_state.current_note_freq;
   }
 }
-
+//================================================================
+// CHANGE SCALE TYPE
+//================================================================
 static void Change_Scale_Type(void) {
   scale_state.current_scale =
       (ScaleType_t)((scale_state.current_scale + 1) % SCALE_COUNT);
@@ -768,6 +786,7 @@ static void Process_Portamento(void) {
     Update_Phase_Increment();
   }
 }
+
 
 //=============================================================================
 // MUSICAL CONTROLS

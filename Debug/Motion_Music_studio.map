@@ -1,7 +1,7 @@
 ******************************************************************************
             TI ARM Clang Linker PC v4.0.4                      
 ******************************************************************************
->> Linked Sun Dec 28 20:34:50 2025
+>> Linked Sun Dec 28 20:50:09 2025
 
 OUTPUT FILE NAME:   <Motion_Music_studio.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 00004add
@@ -11,7 +11,7 @@ MEMORY CONFIGURATION
 
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
-  FLASH                 00000000   00020000  00006008  00019ff8  R  X
+  FLASH                 00000000   00020000  00006010  00019ff0  R  X
   SRAM                  20200000   00008000  00001503  00006afd  RW X
   BCR_CONFIG            41c00000   000000ff  00000000  000000ff  R   
   BSL_CONFIG            41c00100   00000080  00000000  00000080  R   
@@ -24,9 +24,9 @@ run origin  load origin   length   init length attrs members
 00000000    00000000    00005708   00005708    r-x
   00000000    00000000    000000c0   000000c0    r-- .intvecs
   000000c0    000000c0    00005648   00005648    r-x .text
-00005710    00005710    00000900   00000900    r--
+00005710    00005710    00000908   00000908    r--
   00005710    00005710    00000880   00000880    r-- .rodata
-  00005f90    00005f90    00000080   00000080    r-- .cinit
+  00005f90    00005f90    00000088   00000088    r-- .cinit
 20200000    20200000    00001303   00000000    rw-
   20200000    20200000    00001000   00000000    rw- .sysmem
   20201000    20201000    000001c4   00000000    rw- .bss
@@ -309,12 +309,13 @@ section   page    origin      length       input sections
                   000056f4    00000010     libc.a : boot_cortex_m.c.obj (.tramp._c_int00_noargs.1)
                   00005704    00000004            : pre_init.c.obj (.text._system_pre_init)
 
-.cinit     0    00005f90    00000080     
-                  00005f90    0000005a     (.cinit..data.load) [load image, compression = lzss]
-                  00005fea    00000002     --HOLE-- [fill = 0]
-                  00005fec    0000000c     (__TI_handler_table)
-                  00005ff8    00000008     (.cinit..bss.load) [load image, compression = zero_init]
-                  00006000    00000010     (__TI_cinit_table)
+.cinit     0    00005f90    00000088     
+                  00005f90    0000005e     (.cinit..data.load) [load image, compression = lzss]
+                  00005fee    00000002     --HOLE-- [fill = 0]
+                  00005ff0    0000000c     (__TI_handler_table)
+                  00005ffc    00000008     (.cinit..bss.load) [load image, compression = zero_init]
+                  00006004    00000010     (__TI_cinit_table)
+                  00006014    00000004     --HOLE-- [fill = 0]
 
 .rodata    0    00005710    00000880     
                   00005710    00000222     lcd_driver.o (.rodata.font_6x8)
@@ -543,21 +544,21 @@ MODULE SUMMARY
                                                                
        Heap:                          0       0         4096   
        Stack:                         0       0         512    
-       Linker Generated:              0       126       0      
+       Linker Generated:              0       130       0      
     +--+------------------------------+-------+---------+---------+
-       Grand Total:                   22062   2488      5379   
+       Grand Total:                   22062   2492      5379   
 
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 00006000 records: 2, size/record: 8, table size: 16
-	.data: load addr=00005f90, load size=0000005a bytes, run addr=202011c4, run size=0000013f bytes, compression=lzss
-	.bss: load addr=00005ff8, load size=00000008 bytes, run addr=20201000, run size=000001c4 bytes, compression=zero_init
+__TI_cinit_table @ 00006004 records: 2, size/record: 8, table size: 16
+	.data: load addr=00005f90, load size=0000005e bytes, run addr=202011c4, run size=0000013f bytes, compression=lzss
+	.bss: load addr=00005ffc, load size=00000008 bytes, run addr=20201000, run size=000001c4 bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 00005fec records: 3, size/record: 4, table size: 12
+__TI_handler_table @ 00005ff0 records: 3, size/record: 4, table size: 12
 	index: 0, handler: __TI_decompress_lzss
 	index: 1, handler: __TI_decompress_none
 	index: 2, handler: __TI_zero_init
@@ -677,11 +678,11 @@ address   name
 00000000  __TI_ATRegion2_region_sz             
 00000000  __TI_ATRegion2_src_addr              
 00000000  __TI_ATRegion2_trg_addr              
-00006000  __TI_CINIT_Base                      
-00006010  __TI_CINIT_Limit                     
-00006010  __TI_CINIT_Warm                      
-00005fec  __TI_Handler_Table_Base              
-00005ff8  __TI_Handler_Table_Limit             
+00006004  __TI_CINIT_Base                      
+00006014  __TI_CINIT_Limit                     
+00006014  __TI_CINIT_Warm                      
+00005ff0  __TI_Handler_Table_Base              
+00005ffc  __TI_Handler_Table_Limit             
 00004431  __TI_auto_init_nobinit_nopinit       
 00003785  __TI_decompress_lzss                 
 000055e1  __TI_decompress_none                 
@@ -918,11 +919,11 @@ address   name
 00005705  _system_pre_init                     
 00005b40  __aeabi_ctype_table_                 
 00005b40  __aeabi_ctype_table_C                
-00005fec  __TI_Handler_Table_Base              
-00005ff8  __TI_Handler_Table_Limit             
-00006000  __TI_CINIT_Base                      
-00006010  __TI_CINIT_Limit                     
-00006010  __TI_CINIT_Warm                      
+00005ff0  __TI_Handler_Table_Base              
+00005ffc  __TI_Handler_Table_Limit             
+00006004  __TI_CINIT_Base                      
+00006014  __TI_CINIT_Limit                     
+00006014  __TI_CINIT_Warm                      
 20200000  __start___llvm_prf_bits              
 20200000  __start___llvm_prf_cnts              
 20200000  __stop___llvm_prf_bits               
