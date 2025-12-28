@@ -102,7 +102,7 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define TIMER_SAMPLE_INST                                                (TIMG7)
 #define TIMER_SAMPLE_INST_IRQHandler                            TIMG7_IRQHandler
 #define TIMER_SAMPLE_INST_INT_IRQN                              (TIMG7_INT_IRQn)
-#define TIMER_SAMPLE_INST_LOAD_VALUE                                     (4999U)
+#define TIMER_SAMPLE_INST_LOAD_VALUE                                     (9999U)
 
 
 
@@ -215,6 +215,13 @@ bool SYSCFG_DL_SYSCTL_SYSPLL_init(void);
 #define GPIO_ADC_ACCEL_IOMUX_C3_FUNC              (IOMUX_PINCM40_PF_UNCONNECTED)
 
 
+/* Defines for OPA_0 */
+#define OPA_0_INST                                                          OPA0
+
+
+/* Defines for GPAMP_0 */
+
+
 
 /* Defines for DMA_CH1 */
 #define DMA_CH1_CHAN_ID                                                      (0)
@@ -285,6 +292,8 @@ void SYSCFG_DL_I2C_1_init(void);
 void SYSCFG_DL_SPI_LCD_init(void);
 void SYSCFG_DL_ADC_JOY_init(void);
 void SYSCFG_DL_ADC_ACCEL_init(void);
+void SYSCFG_DL_OPA_0_init(void);
+void SYSCFG_DL_GPAMP_0_init(void);
 void SYSCFG_DL_DMA_init(void);
 
 void SYSCFG_DL_RTC_init(void);

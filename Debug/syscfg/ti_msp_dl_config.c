@@ -61,6 +61,8 @@ SYSCONFIG_WEAK void SYSCFG_DL_init(void)
     SYSCFG_DL_SPI_LCD_init();
     SYSCFG_DL_ADC_JOY_init();
     SYSCFG_DL_ADC_ACCEL_init();
+    SYSCFG_DL_OPA_0_init();
+    SYSCFG_DL_GPAMP_0_init();
     SYSCFG_DL_DMA_init();
     SYSCFG_DL_RTC_init();
     SYSCFG_DL_SYSTICK_init();
@@ -109,6 +111,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
     DL_SPI_reset(SPI_LCD_INST);
     DL_ADC12_reset(ADC_JOY_INST);
     DL_ADC12_reset(ADC_ACCEL_INST);
+    DL_OPA_reset(OPA_0_INST);
 
     DL_RTC_reset(RTC);
 
@@ -122,6 +125,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_initPower(void)
     DL_SPI_enablePower(SPI_LCD_INST);
     DL_ADC12_enablePower(ADC_JOY_INST);
     DL_ADC12_enablePower(ADC_ACCEL_INST);
+    DL_OPA_enablePower(OPA_0_INST);
 
     DL_RTC_enablePower(RTC);
 
@@ -444,7 +448,7 @@ static const DL_TimerG_ClockConfig gTIMER_SAMPLEClockConfig = {
 
 /*
  * Timer load value (where the counter starts from) is calculated as (timerPeriod * timerClockFreq) - 1
- * TIMER_SAMPLE_INST_LOAD_VALUE = (62.5 us * 80000000 Hz) - 1
+ * TIMER_SAMPLE_INST_LOAD_VALUE = (125 us * 80000000 Hz) - 1
  */
 static const DL_TimerG_TimerConfig gTIMER_SAMPLETimerConfig = {
     .period     = TIMER_SAMPLE_INST_LOAD_VALUE,
@@ -578,7 +582,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_JOY_init(void)
     DL_ADC12_configConversionMem(ADC_JOY_INST, ADC_JOY_ADCMEM_1,
         DL_ADC12_INPUT_CHAN_5, DL_ADC12_REFERENCE_VOLTAGE_VDDA, DL_ADC12_SAMPLE_TIMER_SOURCE_SCOMP0, DL_ADC12_AVERAGING_MODE_DISABLED,
         DL_ADC12_BURN_OUT_SOURCE_DISABLED, DL_ADC12_TRIGGER_MODE_AUTO_NEXT, DL_ADC12_WINDOWS_COMP_MODE_DISABLED);
-    DL_ADC12_setSampleTime0(ADC_JOY_INST,320);
+    DL_ADC12_setSampleTime0(ADC_JOY_INST,4000);
     DL_ADC12_setSubscriberChanID(ADC_JOY_INST,ADC_JOY_INST_SUB_CH);
     /* Enable ADC12 interrupt */
     DL_ADC12_clearInterruptStatus(ADC_JOY_INST,(DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED));
@@ -588,7 +592,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_JOY_init(void)
 /* ADC_ACCEL Initialization */
 static const DL_ADC12_ClockConfig gADC_ACCELClockConfig = {
     .clockSel       = DL_ADC12_CLOCK_SYSOSC,
-    .divideRatio    = DL_ADC12_CLOCK_DIVIDE_2,
+    .divideRatio    = DL_ADC12_CLOCK_DIVIDE_8,
     .freqRange      = DL_ADC12_CLOCK_FREQ_RANGE_24_TO_32,
 };
 SYSCONFIG_WEAK void SYSCFG_DL_ADC_ACCEL_init(void)
@@ -611,13 +615,47 @@ SYSCONFIG_WEAK void SYSCFG_DL_ADC_ACCEL_init(void)
     DL_ADC12_configConversionMem(ADC_ACCEL_INST, ADC_ACCEL_ADCMEM_3,
         DL_ADC12_INPUT_CHAN_3, DL_ADC12_REFERENCE_VOLTAGE_VDDA, DL_ADC12_SAMPLE_TIMER_SOURCE_SCOMP0, DL_ADC12_AVERAGING_MODE_DISABLED,
         DL_ADC12_BURN_OUT_SOURCE_DISABLED, DL_ADC12_TRIGGER_MODE_AUTO_NEXT, DL_ADC12_WINDOWS_COMP_MODE_DISABLED);
-    DL_ADC12_setSampleTime0(ADC_ACCEL_INST,400);
+    DL_ADC12_setSampleTime0(ADC_ACCEL_INST,500);
     DL_ADC12_setSubscriberChanID(ADC_ACCEL_INST,ADC_ACCEL_INST_SUB_CH);
+    DL_ADC12_enableEvent(ADC_ACCEL_INST,(DL_ADC12_EVENT_MEM0_RESULT_LOADED));
     /* Enable ADC12 interrupt */
     DL_ADC12_clearInterruptStatus(ADC_ACCEL_INST,(DL_ADC12_INTERRUPT_MEM3_RESULT_LOADED));
     DL_ADC12_enableInterrupt(ADC_ACCEL_INST,(DL_ADC12_INTERRUPT_MEM3_RESULT_LOADED));
     NVIC_SetPriority(ADC_ACCEL_INST_INT_IRQN, 0);
     DL_ADC12_enableConversions(ADC_ACCEL_INST);
+}
+
+static const DL_OPA_Config gOPA_0Config0 = {
+    .pselChannel    = DL_OPA_PSEL_GPAMP_OUT,
+    .nselChannel    = DL_OPA_NSEL_RBOT,
+    .mselChannel    = DL_OPA_MSEL_RTOP,
+    .gain           = DL_OPA_GAIN_N1_P2,
+    .outputPinState = DL_OPA_OUTPUT_PIN_DISABLED,
+    .choppingMode   = DL_OPA_CHOPPING_MODE_ADC_AVERAGING,
+};
+
+SYSCONFIG_WEAK void SYSCFG_DL_OPA_0_init(void)
+{
+    DL_OPA_init(OPA_0_INST, (DL_OPA_Config *) &gOPA_0Config0);
+    DL_OPA_enableRailToRailInput(OPA_0_INST);
+    DL_OPA_setGainBandwidth(OPA_0_INST, DL_OPA_GBW_HIGH);
+
+    DL_OPA_enable(OPA_0_INST);
+}
+
+static const DL_GPAMP_Config gGPAMP_0Config = {
+    .pselChannel    = DL_GPAMP_PSEL_OPEN,
+    .nselChannel    = DL_GPAMP_NSEL_INTERNAL_OUTPUT,
+    .outputPinState = DL_GPAMP_OUTPUT_PIN_STATE_DISABLED,
+    .choppingMode   = DL_GPAMP_CHOPPING_MODE_ADC_ASSISTED,
+    .choppingFreq   = DL_GPAMP_CHOPPING_FREQ_16KHZ,
+};
+
+SYSCONFIG_WEAK void SYSCFG_DL_GPAMP_0_init(void)
+{
+    DL_GPAMP_init((DL_GPAMP_Config *) &gGPAMP_0Config);
+    DL_GPAMP_setRailToRailInputMode(DL_GPAMP_RRI_MODE_SAMPLE_CHANNEL_0);
+    DL_GPAMP_enable();
 }
 
 static const DL_DMA_Config gDMA_CH1Config = {

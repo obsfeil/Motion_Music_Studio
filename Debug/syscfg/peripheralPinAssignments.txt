@@ -33,6 +33,8 @@
 	+ ADC12 Channel 8 Pin: PA22
 	+ ADC12 Channel 5 Pin: PB18
 	+ ADC12 Channel 3 Pin: PA18
+- OPA0
+- GPAMP
 - EVENT
 - DMA
 - RTC

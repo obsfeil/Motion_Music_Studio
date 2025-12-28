@@ -32,4 +32,6 @@ TIMA1,1 channels used out of 2 (50%)
 I2C,2 out of 2 instances (100%)
 SPI,1 out of 2 instances (50%)
 ADC12,2 out of 2 instances (100%)
+OPA,1 out of 2 instances (50%)
+GPAMP,1 out of 1 instances (100%)
 
