@@ -13,13 +13,13 @@
 //=============================================================================
 // AUDIO CONFIGURATION
 //=============================================================================
-#define SAMPLE_RATE_HZ          8000
+#define SAMPLE_RATE_HZ          16000
 #define PWM_RESOLUTION          4096
 #define PWM_CENTER              2048
 #define WAVETABLE_SIZE          256
 
 #define FREQ_MIN_HZ             20
-#define FREQ_MAX_HZ             16000
+#define FREQ_MAX_HZ             8000
 #define FREQ_DEFAULT_HZ         440
 #define VOLUME_DEFAULT          80
 
@@ -85,7 +85,7 @@ typedef struct {
 // GLOBAL VARIABLES (EXTERN)
 //=============================================================================
 extern volatile SynthState_t gSynthState;
-
+extern volatile uint32_t g_phase_increment;  
 //=============================================================================
 // PUBLIC FUNCTION PROTOTYPES
 //=============================================================================
