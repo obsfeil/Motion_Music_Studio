@@ -405,40 +405,68 @@ static uint16_t Calculate_Scale_Frequency(MusicalKey_t key, ScaleType_t scale,
   return (uint16_t)freq;
 }
 
+
 //=============================================================================
-// Process_Key_Selection() - NO C23 warnings
+// Process_Key_Selection() - FIX: Beholder valget når du slipper spaken
 //=============================================================================
 static void Process_Key_Selection(void) {
-  uint16_t joy_x = gSynthState.joy_x;
-  if (joy_x > 4095) joy_x = 4095;
-  
-  static uint16_t last_joy_x = 2048;  // ✅ Start på CENTER!
-  static bool first_run = true;
-  
-  if (first_run) {
-    last_joy_x = joy_x;
-    first_run = false;
-    // ✅ IKKE return her - la den beregne initial key!
-  }
-  
-  int16_t change = (int16_t)joy_x - (int16_t)last_joy_x;
-  
-  if (change > -100 && change < 100) {
-    return;
-  }
-  
-  last_joy_x = joy_x;
-  
-  uint8_t new_key = (joy_x * KEY_COUNT) / 4096;
-  if (new_key >= KEY_COUNT) new_key = KEY_COUNT - 1;
-  
-  if (scale_state.current_key != new_key) {
-    scale_state.current_key = (MusicalKey_t)new_key;
-    scale_state.current_note_freq = Calculate_Scale_Frequency(
-        scale_state.current_key, scale_state.current_scale,
-        scale_state.scale_position, current_octave_shift);
-    target_frequency_hz = scale_state.current_note_freq;
-  }
+    uint16_t joy_x = gSynthState.joy_x;
+    
+    // Husker om spaken er i midten (LÅS)
+    static bool joystick_is_centered = true;
+    
+    // Grenser for når vi mener spaken er dyttet
+    const uint16_t THRESHOLD_LEFT = 1000;  // Venstre sone
+    const uint16_t THRESHOLD_RIGHT = 3000; // Høyre sone
+    const uint16_t CENTER_MIN = 1800;      // Senter sone start
+    const uint16_t CENTER_MAX = 2300;      // Senter sone slutt
+
+    // 1. Hvis spaken er i midten -> Lås opp (gjør klar for nytt trykk)
+    if (joy_x > CENTER_MIN && joy_x < CENTER_MAX) {
+        joystick_is_centered = true;
+        return; 
+    }
+
+    // 2. Hvis vi ikke er i midten, men låsen fortsatt er på -> Vent
+    // (Dette hindrer at den bytter 100 ganger i sekundet mens du holder spaken ute)
+    if (!joystick_is_centered) {
+        return;
+    }
+
+    // 3. Sjekk retning
+    bool changed = false;
+
+    if (joy_x < THRESHOLD_LEFT) {
+        // Dytt mot VENSTRE -> Forrige Key
+        if (scale_state.current_key > 0) {
+            scale_state.current_key--;
+        } else {
+            scale_state.current_key = KEY_COUNT - 1; // Wrap around
+        }
+        changed = true;
+    } 
+    else if (joy_x > THRESHOLD_RIGHT) {
+        // Dytt mot HØYRE -> Neste Key
+        if (scale_state.current_key < KEY_COUNT - 1) {
+            scale_state.current_key++;
+        } else {
+            scale_state.current_key = 0; // Wrap around
+        }
+        changed = true;
+    }
+
+    // 4. Hvis vi endret noe: Oppdater lyden og sett på låsen
+    if (changed) {
+        joystick_is_centered = false; // Lås! Må tilbake til senter for å bytte igjen.
+        
+        scale_state.current_note_freq = Calculate_Scale_Frequency(
+            scale_state.current_key, scale_state.current_scale,
+            scale_state.scale_position, current_octave_shift);
+        target_frequency_hz = scale_state.current_note_freq;
+        
+        // (Valgfritt) Nullstill display-teller for å oppdatere skjermen raskere
+        // display_counter = 200000; 
+    }
 }
 
 //=========================================================
