@@ -26,7 +26,7 @@
 
 // SYSTICK (10ms)
 #define SYSTICK_RATE_HZ 100
-#define MCLK_FREQ_HZ 80000000UL
+#define MCLK_FREQ_HZ 160000000UL
 #define SYSTICK_LOAD_VALUE ((MCLK_FREQ_HZ / SYSTICK_RATE_HZ) - 1)
 #define BTN_DEBOUNCE_TICKS 5
 
@@ -174,9 +174,9 @@ volatile SynthState_t gSynthState;
 
 // ✅ GLOBAL phase_increment for debugging
 volatile uint32_t g_phase = 0;
-volatile uint32_t g_phase_increment = 236223201;
+volatile uint32_t g_phase_increment = 118111601; ;
 volatile uint32_t g_chord_phases[3] = {0};
-volatile uint32_t g_chord_increments[3] = {236223201, 236223201, 236223201};
+volatile uint32_t g_chord_increments[3] = {11811160, 11811160, 11811160};
 
 static Instrument_t current_instrument = INSTRUMENT_PIANO;
 static uint8_t current_preset = 0;
@@ -255,7 +255,7 @@ int main(void) {
 
   // ========== STATE INIT ==========
   memset((void *)&gSynthState, 0, sizeof(SynthState_t));
-  gSynthState.frequency = 440.0f;
+  gSynthState.frequency = 440;
   gSynthState.volume = 80;
   gSynthState.waveform = INSTRUMENTS[current_instrument].waveform;
   gSynthState.audio_playing = 1;
@@ -445,15 +445,15 @@ void TIMG7_IRQHandler(void) {
   gSynthState.timer_count++;
 
   if (g_phase_increment == 0) {
-    g_phase_increment = 236223201;
+    g_phase_increment = 118111601;
   }
 
   Process_Envelope();
   Process_Arpeggiator();
   Process_Portamento();
 
-  vibrato_phase += 41;
-  tremolo_phase += 33;
+  vibrato_phase += 45;
+  tremolo_phase += 38;
 
   if (gSynthState.audio_playing) {
     Generate_Audio_Sample();
@@ -536,7 +536,7 @@ static void Process_Portamento(void) {
 //=============================================================================
 static void Generate_Audio_Sample(void) {
   if (g_phase_increment == 0)
-    g_phase_increment = 236223201;
+  g_phase_increment = 118111601; 
 
   if (gSynthState.volume == 0 || envelope.amplitude == 0) {
     DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, 2048, DL_TIMER_CC_0_INDEX);
@@ -860,66 +860,105 @@ void Trigger_Note_Off(void) {
 // UPDATE PHASE INCREMENT
 //=============================================================================
 static void Update_Phase_Increment(void) {
-  if (base_frequency_hz == 0)
+  // ========== SIKKERHET ==========
+  if (base_frequency_hz == 0) {
     base_frequency_hz = 440;
-
-  int8_t idx = current_octave_shift + 12;
-  if (idx < 0)
-    idx = 0;
-  if (idx > 24)
-    idx = 24;
-
-  uint64_t bent_freq =
-      ((uint64_t)base_frequency_hz * PITCH_BEND_TABLE[idx]) >> 16;
-  if (bent_freq < FREQ_MIN_HZ)
-    bent_freq = FREQ_MIN_HZ;
-  if (bent_freq > FREQ_MAX_HZ)
-    bent_freq = FREQ_MAX_HZ;
-
-  if (bent_freq > 0 && bent_freq <= 8000) {
-    uint64_t temp = ((uint64_t)bent_freq << 32) / 8000ULL;
-    if (temp > 0) {
+  }
+    
+  // ========== BEREGN OKTAV-SHIFTED FREQUENCY ==========
+  // current_octave_shift: -12 (lav), 0 (mid), +12 (høy)
+  int8_t table_index = current_octave_shift + 12;  // Offset til tabell (0-24)
+  
+  // Clamp til gyldig område
+  if (table_index < 0) table_index = 0;
+  if (table_index > 24) table_index = 24;
+  
+  // Pitch bend ratio fra tabell (fixed-point 16.16)
+  uint32_t bend_ratio = PITCH_BEND_TABLE[table_index];
+  
+  // Beregn bent frequency: (base_freq * ratio) >> 16
+  uint64_t bent_freq_64 = ((uint64_t)base_frequency_hz * bend_ratio) >> 16;
+  uint32_t bent_freq = (uint32_t)bent_freq_64;
+  
+  // Clamp til gyldig frekvensområde
+  if (bent_freq < FREQ_MIN_HZ) bent_freq = FREQ_MIN_HZ;
+  if (bent_freq > FREQ_MAX_HZ) bent_freq = FREQ_MAX_HZ;
+  
+  // ========== BEREGN PHASE INCREMENT ==========
+  // Formula: phase_increment = (freq * 2^32) / sample_rate
+  // For 16 kHz: phase_increment = (freq * 4294967296) / 16000
+  
+  if (bent_freq > 0 && bent_freq <= 16000) {  // ✅ 16 kHz Nyquist limit
+    // Beregn phase increment (64-bit for presisjon)
+    uint64_t temp = ((uint64_t)bent_freq << 32) / 16000ULL;  // ✅ 16000 Hz
+    
+    if (temp > 0 && temp <= 0xFFFFFFFF) {
       g_phase_increment = (uint32_t)temp;
     } else {
-      g_phase_increment = 236223201;
+      // Fallback til 440Hz
+      g_phase_increment = 118111601;  // ✅ 440Hz @ 16kHz
     }
   } else {
-    g_phase_increment = 236223201;
+    // Frekvens utenfor gyldig område
+    g_phase_increment = 118111601;  // ✅ 440Hz @ 16kHz
   }
-
-  if (g_phase_increment == 0)
-    g_phase_increment = 236223201;
-
+  
+  // ========== EKSTRA SIKKERHET ==========
+  if (g_phase_increment == 0) {
+    g_phase_increment = 118111601;  // ✅ 440Hz @ 16kHz
+  }
+  
+  // ========== SYNKRONISER MED gSynthState ==========
+  gSynthState.phase_increment = g_phase_increment;
+  gSynthState.frequency = (float)bent_freq;
+    
+  // ========== AKKORD-MODUS (hvis aktivert) ==========
   if (chord_mode != CHORD_OFF) {
     const int8_t *intervals = CHORD_INTERVALS[chord_mode];
-    for (uint8_t v = 0; v < 3; v++) {
-      int8_t cidx = idx + intervals[v];
-      if (cidx < 0)
-        cidx = 0;
-      if (cidx > 24)
-        cidx = 24;
-
-      uint64_t cfreq =
-          ((uint64_t)base_frequency_hz * PITCH_BEND_TABLE[cidx]) >> 16;
-      if (cfreq < FREQ_MIN_HZ)
-        cfreq = FREQ_MIN_HZ;
-      if (cfreq > FREQ_MAX_HZ)
-        cfreq = FREQ_MAX_HZ;
-
-      if (cfreq > 0 && cfreq <= 8000) {
-        uint64_t ctemp = ((uint64_t)cfreq << 32) / 8000ULL;
-        g_chord_increments[v] =
-            (ctemp > 0) ? (uint32_t)ctemp : g_phase_increment;
+    
+    for (uint8_t voice = 0; voice < 3; voice++) {
+      // Beregn table index for hver stemme i akkorden
+      int8_t chord_table_index = table_index + intervals[voice];
+      
+      // Clamp
+      if (chord_table_index < 0) chord_table_index = 0;
+      if (chord_table_index > 24) chord_table_index = 24;
+      
+      // Hent ratio for denne stemmen
+      uint32_t chord_ratio = PITCH_BEND_TABLE[chord_table_index];
+      
+      // Beregn chord frequency
+      uint64_t chord_freq_64 = ((uint64_t)base_frequency_hz * chord_ratio) >> 16;
+      uint32_t chord_freq = (uint32_t)chord_freq_64;
+      
+      // Clamp
+      if (chord_freq < FREQ_MIN_HZ) chord_freq = FREQ_MIN_HZ;
+      if (chord_freq > FREQ_MAX_HZ) chord_freq = FREQ_MAX_HZ;
+      
+      // Beregn phase increment for denne stemmen
+      if (chord_freq > 0 && chord_freq <= 16000) {  // ✅ 16 kHz
+        uint64_t chord_temp = ((uint64_t)chord_freq << 32) / 16000ULL;  // ✅ 16000 Hz
+        
+        if (chord_temp > 0 && chord_temp <= 0xFFFFFFFF) {
+          g_chord_increments[voice] = (uint32_t)chord_temp;
+        } else {
+          g_chord_increments[voice] = g_phase_increment;
+        }
       } else {
-        g_chord_increments[v] = g_phase_increment;
+        g_chord_increments[voice] = g_phase_increment;
+      }
+      
+      // Sikkerhet
+      if (g_chord_increments[voice] == 0) {
+        g_chord_increments[voice] = g_phase_increment;
       }
     }
   } else {
-    g_chord_increments[0] = g_chord_increments[1] = g_chord_increments[2] =
-        g_phase_increment;
+    // Ingen akkord - alle stemmer bruker samme phase increment
+    g_chord_increments[0] = g_phase_increment;
+    g_chord_increments[1] = g_phase_increment;
+    g_chord_increments[2] = g_phase_increment;
   }
-
-  gSynthState.frequency = (float)bent_freq;
 }
 
 //=============================================================================
