@@ -13,7 +13,7 @@
 //=============================================================================
 // AUDIO CONFIGURATION
 //=============================================================================
-#define SAMPLE_RATE_HZ          16000
+#define SAMPLE_RATE_HZ          8000
 #define PWM_RESOLUTION          4096
 #define PWM_CENTER              2048
 #define WAVETABLE_SIZE          256

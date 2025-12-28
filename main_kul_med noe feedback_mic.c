@@ -390,8 +390,7 @@ int main(void) {
     // DMA
     if (gADC0_DMA_Complete) {
       gSynthState.joy_x = gADC0_DMA_Buffer[0];
-      gSynthState.joy_y = gADC0_DMA_Buffer[1];
-      gADC0_DMA_Complete = false;
+        gADC0_DMA_Complete = false;
       DL_DMA_enableChannel(DMA, DMA_CH1_CHAN_ID);
     }
 

@@ -103,6 +103,13 @@
                             </option>
                         </tool>
                     </fileInfo>
+                    <fileInfo id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.755142424.ti_msp_dl_config.syscfg" name="ti_msp_dl_config.syscfg" rcbsApplicability="disable" resourcePath="ti_msp_dl_config.syscfg" toolsToInvoke="com.ti.ccstudio.buildDefinitions.sysConfig.77132651.1213020760">
+                        <tool id="com.ti.ccstudio.buildDefinitions.sysConfig.77132651.1213020760" name="SysConfig" superClass="com.ti.ccstudio.buildDefinitions.sysConfig.77132651">
+                            <option id="com.ti.ccstudio.buildDefinitions.sysConfig.PRODUCTS.803073840" superClass="com.ti.ccstudio.buildDefinitions.sysConfig.PRODUCTS" valueType="stringList">
+                                <listOptionValue value="${COM_TI_MSPM0_SDK_INSTALL_DIR}/.metadata/product.json"/>
+                            </option>
+                        </tool>
+                    </fileInfo>
                     <sourceEntries>
                         <entry excluding="main_kul_med noe feedback_mic.c|main_FIXED_SENSITIVITY.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                     </sourceEntries>
