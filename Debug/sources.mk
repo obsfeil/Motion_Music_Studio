@@ -119,6 +119,7 @@ GEN_OPTS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
+lib/edumkii \
 ti/driverlib \
 ti/driverlib/m0p \
 ti/driverlib/m0p/sysctl \
