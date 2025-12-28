@@ -1,2 +1,7 @@
 Debug/
-Debug/
+.settings/
+.theia/
+.vscode/
+*.obj
+*.out
+*.bin
