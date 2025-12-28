@@ -41,20 +41,22 @@ const ProjectConfig = scripting.addModule("/ti/project_config/ProjectConfig");
 /**
  * Write custom configuration values to the imported modules.
  */
-ADC121.$name                 = "ADC_JOY";
-ADC121.sampleTime0           = "125 us";
-ADC121.sampCnt               = 1;
-ADC121.endAdd                = 1;
-ADC121.adcMem0chansel        = "DL_ADC12_INPUT_CHAN_2";
-ADC121.adcMem1chansel        = "DL_ADC12_INPUT_CHAN_5";
-ADC121.subChanID             = 2;
-ADC121.repeatMode            = true;
-ADC121.enabledDMATriggers    = ["DL_ADC12_DMA_MEM1_RESULT_LOADED"];
-ADC121.samplingOperationMode = "sequence";
-ADC121.enabledInterrupts     = ["DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED"];
-ADC121.adcPin2Config.$name   = "ti_driverlib_gpio_GPIOPinGeneric0";
-ADC121.peripheral.$assign    = "ADC0";
-ADC121.adcPin5Config.$name   = "ti_driverlib_gpio_GPIOPinGeneric6";
+ADC121.$name                      = "ADC_JOY";
+ADC121.sampleTime0                = "125 us";
+ADC121.sampCnt                    = 1;
+ADC121.endAdd                     = 1;
+ADC121.adcMem0chansel             = "DL_ADC12_INPUT_CHAN_2";
+ADC121.adcMem1chansel             = "DL_ADC12_INPUT_CHAN_5";
+ADC121.subChanID                  = 2;
+ADC121.repeatMode                 = true;
+ADC121.enabledDMATriggers         = ["DL_ADC12_DMA_MEM1_RESULT_LOADED"];
+ADC121.samplingOperationMode      = "sequence";
+ADC121.enabledInterrupts          = ["DL_ADC12_INTERRUPT_MEM1_RESULT_LOADED"];
+ADC121.adcPin2Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";
+ADC121.peripheral.$assign         = "ADC0";
+ADC121.peripheral.adcPin2.$assign = "boosterpack.2";
+ADC121.peripheral.adcPin5.$assign = "boosterpack.6";
+ADC121.adcPin5Config.$name        = "ti_driverlib_gpio_GPIOPinGeneric6";
 
 ADC122.$name                      = "ADC_ACCEL";
 ADC122.sampClkDiv                 = "DL_ADC12_CLOCK_DIVIDE_8";
@@ -296,8 +298,6 @@ ProjectConfig.genLibGaugeL2Version = "MATHACL";
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
-ADC121.peripheral.adcPin2.$suggestSolution   = "boosterpack.2";
-ADC121.peripheral.adcPin5.$suggestSolution   = "boosterpack.6";
 Board.peripheral.$suggestSolution            = "DEBUGSS";
 Board.peripheral.swclkPin.$suggestSolution   = "j25_expansion.16";
 Board.peripheral.swdioPin.$suggestSolution   = "j25_expansion.14";

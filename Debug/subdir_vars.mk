@@ -79,7 +79,4 @@ C_SRCS__QUOTED += \
 "./syscfg/ti_msp_dl_config.c" \
 "C:/ti/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/startup_system_files/ticlang/startup_mspm0g350x_ticlang.c" 
 
-SYSCFG_SRCS__QUOTED += \
-"../ti_msp_dl_config.syscfg" 
-
 
