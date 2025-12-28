@@ -21,12 +21,12 @@
 //=============================================================================
 // CONFIG
 //=============================================================================
-#define AUDIO_GAIN_BOOST 8 // ✅ Økt fra 4 til 8
+#define AUDIO_GAIN_BOOST 16 // ✅ Økt fra 4 til 8
 #define PORTAMENTO_SPEED 15
 
 // SYSTICK (10ms)
 #define SYSTICK_RATE_HZ 100
-#define MCLK_FREQ_HZ 160000000UL
+#define MCLK_FREQ_HZ 80000000UL  // ← Endre fra 160000000UL
 #define SYSTICK_LOAD_VALUE ((MCLK_FREQ_HZ / SYSTICK_RATE_HZ) - 1)
 #define BTN_DEBOUNCE_TICKS 5
 
@@ -176,7 +176,7 @@ volatile SynthState_t gSynthState;
 volatile uint32_t g_phase = 0;
 volatile uint32_t g_phase_increment = 118111601; ;
 volatile uint32_t g_chord_phases[3] = {0};
-volatile uint32_t g_chord_increments[3] = {11811160, 11811160, 11811160};
+volatile uint32_t g_chord_increments[3] = {118111601, 118111601, 118111601};
 
 static Instrument_t current_instrument = INSTRUMENT_PIANO;
 static uint8_t current_preset = 0;
@@ -246,6 +246,50 @@ static void Display_Update(void);
 static void Display_Waveform(void);
 static int16_t Low_Pass_Filter(int16_t new_sample);
 static void Debug_LED_Update(int8_t octave);
+
+static void Process_Accelerometer(void) {
+  // ========== ACCEL_Y: Oktav (tilt frem/tilbake) ==========
+  int16_t accel_y = gSynthState.accel_y;
+  int16_t deviation_y = accel_y - ACCEL_Y_NEUTRAL;
+  int8_t new_octave = 0;
+  
+  if (deviation_y < -ACCEL_Y_THRESHOLD) {
+    new_octave = -12;
+    #if ENABLE_DEBUG_LEDS
+    Debug_LED_Update(-1);
+    #endif
+  } else if (deviation_y > ACCEL_Y_THRESHOLD) {
+    new_octave = 12;
+    #if ENABLE_DEBUG_LEDS
+    Debug_LED_Update(1);
+    #endif
+  } else {
+    new_octave = 0;
+    #if ENABLE_DEBUG_LEDS
+    Debug_LED_Update(0);
+    #endif
+  }
+  
+  if (current_octave_shift != new_octave) {
+    current_octave_shift = new_octave;
+    Update_Phase_Increment();
+  }
+  
+  // ========== ACCEL_X: Volume (tilt venstre/høyre) - NYTT! ==========
+  #define ACCEL_X_NEUTRAL 2048
+  #define ACCEL_X_THRESHOLD 300
+  
+  int16_t accel_x = gSynthState.accel_x;
+  int16_t deviation_x = accel_x - ACCEL_X_NEUTRAL;
+  
+  if (deviation_x < -ACCEL_X_THRESHOLD) {
+    // Tilt venstre → Senk volum
+    if (gSynthState.volume > 20) gSynthState.volume -= 2;
+  } else if (deviation_x > ACCEL_X_THRESHOLD) {
+    // Tilt høyre → Øk volum
+    if (gSynthState.volume < 100) gSynthState.volume += 2;
+  }
+}
 
 //=============================================================================
 // MAIN
@@ -356,7 +400,7 @@ int main(void) {
 
     if (btn_s1.press_count != last_s1) {
       last_s1 = btn_s1.press_count;
-      Change_Instrument();
+      Change_Scale_Type();
       display_counter = 200000;
     }
 
@@ -378,7 +422,7 @@ int main(void) {
 
     // PROCESSING
     if (loop_counter % 5000 == 0) {
-      Process_Joystick();
+      Process_Musical_Controls();
       Process_Accelerometer();
     }
 
@@ -452,8 +496,8 @@ void TIMG7_IRQHandler(void) {
   Process_Arpeggiator();
   Process_Portamento();
 
-  vibrato_phase += 45;
-  tremolo_phase += 38;
+  vibrato_phase += 82;   // ← Endre fra 45 til 82 (for 16 kHz)
+  tremolo_phase += 67;   // ← Endre fra 38 til 67 (for 16 kHz)
 
   if (gSynthState.audio_playing) {
     Generate_Audio_Sample();
@@ -486,18 +530,25 @@ void ADC0_IRQHandler(void) {
 
 void ADC1_IRQHandler(void) {
   gSynthState.adc1_count++;
-  if (DL_ADC12_getPendingInterrupt(ADC_ACCEL_INST) ==
-      DL_ADC12_IIDX_MEM3_RESULT_LOADED) {
-    gSynthState.mic_level =
-        DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_0);
-    gSynthState.accel_x =
-        (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_1);
-    gSynthState.accel_y =
-        (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_2);
-    gSynthState.accel_z =
-        (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_3);
+  
+  // ✅ VIKTIG: Les ALLE 4 kanaler hver gang MEM3 er ferdig
+  // (MEM3 er siste i sekvensen, så da er alle klare)
+  if (DL_ADC12_getPendingInterrupt(ADC_ACCEL_INST) == DL_ADC12_IIDX_MEM3_RESULT_LOADED) {
+    // MEM0 = ACCEL_X (CHAN_6)
+    gSynthState.accel_x = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_0);
+    
+    // MEM1 = ACCEL_Y (CHAN_8)
+    gSynthState.accel_y = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_1);
+    
+    // MEM2 = ACCEL_Z (CHAN_5)
+    gSynthState.accel_z = (int16_t)DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_2);
+    
+    // MEM3 = MIC (CHAN_3)
+    gSynthState.mic_level = DL_ADC12_getMemResult(ADC_ACCEL_INST, DL_ADC12_MEM_IDX_3);
   }
 }
+
+
 
 //=============================================================================
 // FILTERS
