@@ -412,6 +412,10 @@ static uint16_t Calculate_Scale_Frequency(MusicalKey_t key, ScaleType_t scale,
   return (uint16_t)freq;
 }
 
+//=============================================================================
+// Process_Key_Selection() - NO C23 warnings
+//=============================================================================
+
 static void Process_Key_Selection(void) {
   uint16_t joy_x = gSynthState.joy_x;
   if (joy_x > 4095) joy_x = 4095;
@@ -419,15 +423,16 @@ static void Process_Key_Selection(void) {
   int16_t deviation = (int16_t)joy_x - 2048;
   
   switch (joy_x_state) {
-    case JS_IDLE:
-      // Wait for movement to activate
+    case JS_IDLE: {  // ✅ Add braces to fix C23 warning
+      // Wait for movement
       if (deviation < -200 || deviation > 200) {
         joy_x_state = JS_ACTIVE;
       }
       break;
+    }
       
-    case JS_ACTIVE:
-      // Track changes
+    case JS_ACTIVE: {  // ✅ Add braces
+      // Calculate new key
       uint8_t new_key = (joy_x * KEY_COUNT) / 4096;
       if (new_key >= KEY_COUNT) new_key = KEY_COUNT - 1;
       
@@ -444,10 +449,12 @@ static void Process_Key_Selection(void) {
         joy_x_state = JS_IDLE;
       }
       break;
+    }
+      
+    default:
+      break;
   }
 }
-
-
 
 static void Process_Scale_Position(void) {
   int16_t accel_x = gSynthState.accel_x;
@@ -510,6 +517,7 @@ static void Display_Scale_Info(void) {
 //=============================================================================
 int main(void) {
   SYSCFG_DL_init();
+
   memset((void *)&gSynthState, 0, sizeof(SynthState_t));
   gSynthState.frequency = 440;
   gSynthState.volume = 80;
@@ -649,7 +657,6 @@ if (gADC0_DMA_Complete) {
         arpeggiator.mode = ARP_OFF;
         scale_state.current_key = KEY_C;
         scale_state.current_scale = SCALE_MAJOR;
-        gSynthState.volume = 80;
         display_counter = 200000;
         break;
       default:
@@ -777,25 +784,56 @@ static void Process_Musical_Controls(void) {
     Process_Key_Selection();
     Process_Scale_Position();
     
+    // ✅ Initialize state on first run
+    static bool initialized = false;
+    
+    if (!initialized) {
+        // On first run, set state based on actual joystick position
+        int16_t joy_y = (int16_t)gSynthState.joy_y;
+        int16_t deviation = joy_y - 2048;
+        
+        // If joystick is near center, start in IDLE
+        if (deviation > -200 && deviation < 200) {
+            joy_y_state = JS_IDLE;
+            // Keep volume at 80% (set in main)
+        } else {
+            // If joystick is moved, start in ACTIVE
+            joy_y_state = JS_ACTIVE;
+        }
+        
+        initialized = true;
+    }
+    
     // Volume with Sample & Hold
     int16_t joy_y = (int16_t)gSynthState.joy_y;
     int16_t deviation = joy_y - 2048;
     
     switch (joy_y_state) {
-      case JS_IDLE:
+      case JS_IDLE: {
+        // Wait for movement
         if (deviation < -200 || deviation > 200) {
           joy_y_state = JS_ACTIVE;
         }
+        // Don't touch volume while in IDLE!
         break;
+      }
         
-      case JS_ACTIVE:
+      case JS_ACTIVE: {
+        // Update volume
         if (joy_y > 4095) joy_y = 4095;
-        gSynthState.volume = (joy_y * 100) / 4095;
-        if (gSynthState.volume > 100) gSynthState.volume = 100;
         
+        uint8_t new_vol = (joy_y * 100) / 4095;
+        if (new_vol > 100) new_vol = 100;
+        gSynthState.volume = new_vol;
+        
+        // Return to center? Lock!
         if (deviation > -200 && deviation < 200) {
           joy_y_state = JS_IDLE;
         }
+        break;
+      }
+        
+      default:
         break;
     }
 }
@@ -1282,69 +1320,9 @@ LCD_PrintString(90, 105, buf, LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
   snprintf(buf, sizeof(buf), "V:%d", gSynthState.volume);
   LCD_PrintString(70, 118, buf, LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
 }
-
-//=============================================================================
-// ALTERNATIVE: Minimal Display (no debug info)
-//=============================================================================
-
-static void Display_Update_Clean(void) {
-  const InstrumentProfile_t *inst = &INSTRUMENTS[current_instrument];
-  char buf[32];
-  
-  // Top bar
-  LCD_DrawRect(0, 0, 128, 16, inst->color);
-  LCD_PrintString(3, 4, inst->name, LCD_COLOR_WHITE, inst->color, FONT_SMALL);
-  LCD_PrintString(60, 4, PRESETS[current_preset].name, LCD_COLOR_BLACK, inst->color, FONT_SMALL);
-  
-  // Frequency line
-  LCD_DrawRect(0, 18, 128, 10, LCD_COLOR_BLACK);
-  snprintf(buf, sizeof(buf), "F:%d %s", base_frequency_hz, 
-           current_octave_shift == -12 ? "LOW" : (current_octave_shift == 12 ? "HI" : "MID"));
-  LCD_PrintString(3, 18, buf, LCD_COLOR_WHITE, LCD_COLOR_BLACK, FONT_SMALL);
-  
-  // Scale info
-  Display_Scale_Info();
-  
-  // Volume bar (bigger and cleaner)
-  LCD_DrawRect(3, 40, 122, 6, LCD_COLOR_DARKGRAY);
-  uint8_t bar_w = gSynthState.volume;
-  if (bar_w > 100) bar_w = 100;
-  LCD_DrawRect(3, 40, (bar_w * 122) / 100, 6, LCD_COLOR_GREEN);
-  
-  // Effects + Chord
-  LCD_DrawRect(0, 48, 128, 10, LCD_COLOR_BLACK);
-  LCD_PrintString(3, 48, effects_enabled ? "FX:ON" : "FX:OFF",
-                  effects_enabled ? LCD_COLOR_GREEN : LCD_COLOR_RED,
-                  LCD_COLOR_BLACK, FONT_SMALL);
-  
-  if (chord_mode != CHORD_OFF) {
-    const char *chord_names[] = {"", "MAJ", "MIN"};
-    snprintf(buf, sizeof(buf), "CH:%s", chord_names[chord_mode]);
-    LCD_PrintString(55, 48, buf, LCD_COLOR_MAGENTA, LCD_COLOR_BLACK, FONT_SMALL);
-  }
-  
-  if (arpeggiator.mode != ARP_OFF) {
-    LCD_PrintString(95, 48, "ARP", LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
-  }
-  
-  // Waveform
-#if ENABLE_WAVEFORM_DISPLAY
-  Display_Waveform();
-#endif
-  
-  // Bottom status
-  LCD_DrawRect(0, 118, 128, 10, LCD_COLOR_BLACK);
-  if (gSynthState.audio_playing) {
-    LCD_PrintString(3, 118, "PLAYING", LCD_COLOR_GREEN, LCD_COLOR_BLACK, FONT_SMALL);
-  } else {
-    LCD_PrintString(3, 118, "STOPPED", LCD_COLOR_RED, LCD_COLOR_BLACK, FONT_SMALL);
-  }
-  
-  snprintf(buf, sizeof(buf), "VOL:%d%%", gSynthState.volume);
-  LCD_PrintString(70, 118, buf, LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
-}
-
-
+// =============================================================================
+// DISPLAY WAVEFORM
+// =============================================================================
 #if ENABLE_WAVEFORM_DISPLAY
 static void Display_Waveform(void) {
   uint16_t yc = 85, ys = 25;
