@@ -18,7 +18,7 @@
 #define PWM_CENTER              2048
 #define WAVETABLE_SIZE          256
 
-#define FREQ_MIN_HZ             100
+#define FREQ_MIN_HZ             20
 #define FREQ_MAX_HZ             16000
 #define FREQ_DEFAULT_HZ         440
 #define VOLUME_DEFAULT          80
