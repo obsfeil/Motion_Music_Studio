@@ -407,65 +407,79 @@ static uint16_t Calculate_Scale_Frequency(MusicalKey_t key, ScaleType_t scale,
 
 
 //=============================================================================
-// Process_Key_Selection() - FIX: Beholder valget når du slipper spaken
+// Process_Key_Selection() - Implementert med tvungen retur til senter (LÅS)
 //=============================================================================
 static void Process_Key_Selection(void) {
     uint16_t joy_x = gSynthState.joy_x;
-    
-    // Husker om spaken er i midten (LÅS)
-    static bool joystick_is_centered = true;
-    
-    // Grenser for når vi mener spaken er dyttet
-    const uint16_t THRESHOLD_LEFT = 1000;  // Venstre sone
-    const uint16_t THRESHOLD_RIGHT = 3000; // Høyre sone
-    const uint16_t CENTER_MIN = 1800;      // Senter sone start
-    const uint16_t CENTER_MAX = 2300;      // Senter sone slutt
+    static bool joy_x_ready = true; // Statisk dørvakt
 
-    // 1. Hvis spaken er i midten -> Lås opp (gjør klar for nytt trykk)
+    const uint16_t THRESHOLD_LEFT = 1000;
+    const uint16_t THRESHOLD_RIGHT = 3000;
+    const uint16_t CENTER_MIN = 1800;
+    const uint16_t CENTER_MAX = 2300;
+
+    // 1. Reset dørvakten hvis spaken er i midten
     if (joy_x > CENTER_MIN && joy_x < CENTER_MAX) {
-        joystick_is_centered = true;
-        return; 
-    }
-
-    // 2. Hvis vi ikke er i midten, men låsen fortsatt er på -> Vent
-    // (Dette hindrer at den bytter 100 ganger i sekundet mens du holder spaken ute)
-    if (!joystick_is_centered) {
+        joy_x_ready = true;
         return;
     }
 
-    // 3. Sjekk retning
-    bool changed = false;
+    // 2. Hvis dørvakten er stengt, avbryt (dette hindrer løpske toner)
+    if (!joy_x_ready) return;
 
+    // 3. Sjekk for utslag
+    bool changed = false;
     if (joy_x < THRESHOLD_LEFT) {
-        // Dytt mot VENSTRE -> Forrige Key
-        if (scale_state.current_key > 0) {
-            scale_state.current_key--;
-        } else {
-            scale_state.current_key = KEY_COUNT - 1; // Wrap around
-        }
+        if (scale_state.current_key > 0) scale_state.current_key--;
+        else scale_state.current_key = (MusicalKey_t)(KEY_COUNT - 1);
         changed = true;
     } 
     else if (joy_x > THRESHOLD_RIGHT) {
-        // Dytt mot HØYRE -> Neste Key
-        if (scale_state.current_key < KEY_COUNT - 1) {
-            scale_state.current_key++;
-        } else {
-            scale_state.current_key = 0; // Wrap around
-        }
+        if (scale_state.current_key < (KEY_COUNT - 1)) scale_state.current_key++;
+        else scale_state.current_key = (MusicalKey_t)0;
         changed = true;
     }
 
-    // 4. Hvis vi endret noe: Oppdater lyden og sett på låsen
+    // 4. Ved endring: Oppdater frekvens og STENG dørvakten
     if (changed) {
-        joystick_is_centered = false; // Lås! Må tilbake til senter for å bytte igjen.
+        joy_x_ready = false; // Låst til spaken går til midten igjen
         
         scale_state.current_note_freq = Calculate_Scale_Frequency(
             scale_state.current_key, scale_state.current_scale,
             scale_state.scale_position, current_octave_shift);
-        target_frequency_hz = scale_state.current_note_freq;
         
-        // (Valgfritt) Nullstill display-teller for å oppdatere skjermen raskere
-        // display_counter = 200000; 
+        target_frequency_hz = scale_state.current_note_freq;
+    }
+}
+
+//=============================================================================
+// MUSICAL CONTROLS - FIX: Inkluderer stabil Volum-hold
+//=============================================================================
+static void Process_Musical_Controls(void) {
+    // ✅ VIKTIG: Kall Key-Selection funksjonen (Joy X)
+    Process_Key_Selection();
+    
+    // ✅ VIKTIG: Kall Scale-Position funksjonen (Accel X)
+    Process_Scale_Position();
+    
+    // ✅ VOLUM LOGIKK (Joy Y) - Beholder "Hold" som du liker
+    static uint16_t last_joy_y = 2048;
+    int16_t joy_y = (int16_t)gSynthState.joy_y;
+    int16_t change = joy_y - (int16_t)last_joy_y;
+    
+    // Hvis spaken flytter seg lite -> HOLD volumet
+    if (change > -150 && change < 150) {
+        return; 
+    }
+    
+    last_joy_y = (uint16_t)joy_y;
+    int16_t deviation = joy_y - 2048;
+    
+    // Bare endre volum hvis vi er utenfor dødsonen i midten
+    if (deviation < -300 || deviation > 300) {
+        uint8_t new_vol = (joy_y * 100) / 4095;
+        if (new_vol > 100) new_vol = 100;
+        gSynthState.volume = new_vol;
     }
 }
 
@@ -813,47 +827,6 @@ static void Process_Portamento(void) {
     base_frequency_hz = current_frequency_hz;
     Update_Phase_Increment();
   }
-}
-
-
-//=============================================================================
-// MUSICAL CONTROLS
-//=============================================================================
-static void Process_Musical_Controls(void) {
-    Process_Key_Selection();
-    Process_Scale_Position();
-    
-    // ✅ Simple deadzone hold for volume
-    static uint16_t last_joy_y = 0;
-    static bool first_run = true;
-    
-    // Initialize on first run
-    if (first_run) {
-        last_joy_y = gSynthState.joy_y;
-        first_run = false;
-        return;  // Skip first processing
-    }
-    
-    int16_t joy_y = (int16_t)gSynthState.joy_y;
-    int16_t change = joy_y - (int16_t)last_joy_y;
-    
-    // Deadzone: Only update if moved significantly
-    if (change > -100 && change < 100) {
-        return;  // ✅ HOLD - keep current volume!
-    }
-    
-    // Update last position
-    last_joy_y = (uint16_t)joy_y;
-    
-    // Calculate deviation from center
-    int16_t deviation = joy_y - 2048;
-    
-    // Only update volume if outside center zone
-    if (deviation < -200 || deviation > 200) {
-        if (joy_y > 4095) joy_y = 4095;
-        gSynthState.volume = (joy_y * 100) / 4095;
-        if (gSynthState.volume > 100) gSynthState.volume = 100;
-    }
 }
 
 //=============================================================================

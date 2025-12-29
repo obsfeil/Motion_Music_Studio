@@ -75,11 +75,31 @@
                                     <listOptionValue value="&quot;${PROJECT_ROOT}&quot;"/>
                                     <listOptionValue value="&quot;${PROJECT_BUILD_DIR}/syscfg&quot;"/>
                                     <listOptionValue value="&quot;${CG_TOOL_ROOT}/lib&quot;"/>
+                                    <listOptionValue value="C:/Users/obsfe/workspace_ccstheia_gammel/Motion_Music_studio/lib/edumkii"/>
+                                    <listOptionValue value="C:/Users/obsfe/workspace_ccstheia_gammel/Motion_Music_studio/lib/audio"/>
                                 </option>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.REREAD_LIBS.1590782332" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.REREAD_LIBS" value="true" valueType="boolean"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.DIAG_WRAP.973598613" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.DIAG_WRAP.off" valueType="enumerated"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.DISPLAY_ERROR_NUMBER.773213163" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.DISPLAY_ERROR_NUMBER" value="true" valueType="boolean"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.XML_LINK_INFO.1016723591" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.XML_LINK_INFO" value="${ProjName}_linkInfo.xml" valueType="string"/>
+                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.END_GROUP.87546080" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.END_GROUP" value="false" valueType="boolean"/>
+                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.START_GROUP.1542818336" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.START_GROUP" value="false" valueType="boolean"/>
+                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.UNDEFINE.141608535" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.UNDEFINE" valueType="stringList">
+                                    <listOptionValue value="d=Button_Init"/>
+                                    <listOptionValue value="d=Button_Update"/>
+                                    <listOptionValue value="d=Button_GetEvent"/>
+                                    <listOptionValue value="d=Joystick_Init"/>
+                                    <listOptionValue value="d=Joystick_Update"/>
+                                    <listOptionValue value="d=Accel_Init"/>
+                                    <listOptionValue value="d=Accel_Update"/>
+                                    <listOptionValue value="d=Envelope_Init"/>
+                                    <listOptionValue value="d=Envelope_Process"/>
+                                    <listOptionValue value="d=Audio_GenerateWaveform"/>
+                                    <listOptionValue value="d=Filter_LowPass"/>
+                                </option>
+                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.OTHER_FLAGS.1701595326" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.OTHER_FLAGS" valueType="stringList">
+                                    <listOptionValue value=""/>
+                                </option>
                                 <inputType id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exeLinker.inputType__CMD_SRCS" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exeLinker.inputType__CMD_SRCS"/>
                                 <inputType id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exeLinker.inputType__CMD2_SRCS" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exeLinker.inputType__CMD2_SRCS"/>
                                 <inputType id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exeLinker.inputType__GEN_CMDS" name="Generated Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exeLinker.inputType__GEN_CMDS"/>

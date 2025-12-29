@@ -73,18 +73,6 @@ void Audio_SetWaveform(Waveform_t waveform) {
     }
 }
 
-int16_t Audio_GenerateSample(void) {
-    // Get wavetable index from top 8 bits of phase
-    uint8_t index = (uint8_t)((phase_accumulator >> 24) & 0xFF);
-    
-    // Generate waveform
-    int16_t sample = Audio_GenerateWaveform(index, current_waveform);
-    
-    // Advance phase
-    phase_accumulator += phase_increment;
-    
-    return sample;
-}
 
 int16_t Audio_GenerateWaveform(uint8_t index, Waveform_t waveform) {
     switch (waveform) {
@@ -113,6 +101,20 @@ int16_t Audio_GenerateWaveform(uint8_t index, Waveform_t waveform) {
             return sine_table[index];
     }
 }
+
+int16_t Audio_GenerateSample(void) {
+    // Get wavetable index from top 8 bits of phase
+    uint8_t index = (uint8_t)((phase_accumulator >> 24) & 0xFF);
+    
+    // Generate waveform
+    int16_t sample = Audio_GenerateWaveform(index, current_waveform);
+    
+    // Advance phase
+    phase_accumulator += phase_increment;
+    
+    return sample;
+}
+
 
 uint32_t Audio_GetPhaseIncrement(void) {
     return phase_increment;
