@@ -43,6 +43,11 @@
                                     <listOptionValue value="&quot;${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/third_party/CMSIS/Core/Include&quot;"/>
                                     <listOptionValue value="&quot;${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/ti/iqmath/include&quot;"/>
                                     <listOptionValue value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
+                                    <listOptionValue value="&quot;${PROJECT_ROOT}/lib&quot;"/>
+                                    <listOptionValue value="&quot;${PROJECT_ROOT}/lib/edumkii&quot;"/>
+                                    <listOptionValue value="&quot;${PROJECT_ROOT}/lib/audio&quot;"/>
+                                    <listOptionValue value="&quot;${PROJECT_ROOT}/lib/edumkii&quot;"/>
+                                    <listOptionValue value="&quot;${PROJECT_ROOT}/lib/audio&quot;"/>
                                 </option>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.DEFINE.434638927" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.DEFINE" valueType="definedSymbols">
                                     <listOptionValue value="__MSPM0G3507__"/>
@@ -99,7 +104,6 @@
                                 <listOptionValue value="&quot;${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/third_party/CMSIS/Core/Include&quot;"/>
                                 <listOptionValue value="&quot;${COM_TI_MSPM0_SDK_INSTALL_DIR}/source/ti/iqmath/include&quot;"/>
                                 <listOptionValue value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
-                                <listOptionValue value="C:/ti/mspm0_sdk_2_09_00_01/source/ti/iqmath/lib/ticlang/m0p/mathacl/mspm0g1x0x_g3x0x"/>
                             </option>
                         </tool>
                     </fileInfo>
@@ -111,7 +115,7 @@
                         </tool>
                     </fileInfo>
                     <sourceEntries>
-                        <entry excluding="main_kul_med noe feedback_mic.c|main_FIXED_SENSITIVITY.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="example_main.c|main_kul_med noe feedback_mic.c|main_FIXED_SENSITIVITY.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                     </sourceEntries>
                 </configuration>
             </storageModule>

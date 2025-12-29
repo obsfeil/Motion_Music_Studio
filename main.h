@@ -1,97 +1,73 @@
-/*
- * main.h
+/**
+ * @file main.h
+ * @brief Header for v28 Single-File Synthesizer
  */
 
 #ifndef MAIN_H_
 #define MAIN_H_
 
-// --- Includes ---
 #include <stdint.h>
 #include <stdbool.h>
+#include "lib/audio/audio_engine.h"
 #include "ti_msp_dl_config.h"
 
 //=============================================================================
-// AUDIO CONFIGURATION
+// MODE TYPES
 //=============================================================================
-#define SAMPLE_RATE_HZ          8000
-#define PWM_RESOLUTION          4096
-#define PWM_CENTER              2048
-#define WAVETABLE_SIZE          256
-
-#define FREQ_MIN_HZ             20
-#define FREQ_MAX_HZ             8000
-#define FREQ_DEFAULT_HZ         440
-#define VOLUME_DEFAULT          80
-
-//=============================================================================
-// ENUMS (✅ DISSE MÅ KOMME FØRST!)
-//=============================================================================
-typedef enum {
-    WAVE_SINE = 0,
-    WAVE_SQUARE,
-    WAVE_SAWTOOTH,
-    WAVE_TRIANGLE,
-    WAVE_COUNT
-} Waveform_t;
-
 typedef enum {
     MODE_SYNTH = 0,
-    MODE_THEREMIN,
-    MODE_DRUMS,
-    MODE_COUNT
+    MODE_VOCODER,
+    MODE_EFFECTS
 } SynthMode_t;
 
 //=============================================================================
-// SYSTEM STATE STRUCTURE (✅ NÅ KAN DEN BRUKE Waveform_t!)
+// SYNTH STATE
 //=============================================================================
 typedef struct {
-    // Audio State
+    // Audio state
     float frequency;
     uint32_t phase_increment;
     uint8_t volume;
-    Waveform_t waveform;           // ← Nå er Waveform_t definert!
-    SynthMode_t mode;              // ← Nå er SynthMode_t definert!
-    volatile bool audio_playing;
-    volatile uint32_t phase_accumulator;
+    Waveform_t waveform;
+    SynthMode_t mode;
+    uint8_t audio_playing;
+    uint32_t phase_accumulator;
     
-    // Inputs
-    volatile uint16_t joy_x;
-    volatile uint16_t joy_y;
-    volatile uint16_t mic_level;
-    volatile int16_t accel_x;
-    volatile int16_t accel_y;
-    volatile int16_t accel_z;
+    // Input sensors
+    uint16_t joy_x;
+    uint16_t joy_y;
+    uint16_t mic_level;
+    int16_t accel_x;
+    int16_t accel_y;
+    int16_t accel_z;
     
     // Buttons
-    volatile uint8_t btn_s1_mkii;
-    volatile uint8_t btn_s2_mkii;
-    volatile uint8_t joy_pressed;
+    uint8_t btn_s1_mkii;
+    uint8_t btn_s2_mkii;
+    uint8_t joy_pressed;
     
     // Display flags
-    volatile bool display_update_needed;
-    volatile bool force_full_redraw;
+    uint8_t display_update_needed;
+    uint8_t force_full_redraw;
     
-    // Debug / Counters
-    volatile uint32_t audio_samples_generated;
-    volatile uint32_t cpu_idle_count;
-    volatile uint32_t interrupt_count;
-    volatile uint32_t adc0_count;
-    volatile uint32_t adc1_count;
-    volatile uint32_t timer_count;
-    
+    // Statistics
+    uint32_t audio_samples_generated;
+    uint32_t cpu_idle_count;
+    uint32_t interrupt_count;
+    uint32_t adc0_count;
+    uint32_t adc1_count;
+    uint32_t timer_count;
 } SynthState_t;
 
 //=============================================================================
-// GLOBAL VARIABLES (EXTERN)
+// GLOBAL STATE DECLARATION
 //=============================================================================
 extern volatile SynthState_t gSynthState;
-extern volatile uint32_t g_phase_increment;  
+
 //=============================================================================
-// PUBLIC FUNCTION PROTOTYPES
+// FREQUENCY LIMITS
 //=============================================================================
-void Change_Instrument(void);
-void Change_Preset(void);
-void Trigger_Note_On(void);
-void Trigger_Note_Off(void);
+#define FREQ_MIN_HZ 20
+#define FREQ_MAX_HZ 8000
 
 #endif /* MAIN_H_ */

@@ -1,0 +1,4 @@
+{
+    "C_Cpp_Runner.cStandard": "c23",
+    "C_Cpp_Runner.useLinkTimeOptimization": true
+}
