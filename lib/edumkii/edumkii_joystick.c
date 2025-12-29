@@ -1,105 +1,62 @@
 /**
  * @file edumkii_joystick.c
- * @brief EDUMKII Joystick Implementation
+ * @brief Joystick Implementation with Latching Logic
  */
 
 #include "edumkii_joystick.h"
+#include <stdint.h>
+#include <stdbool.h>
 
-//=============================================================================
-// CONSTANTS
-//=============================================================================
-#define JOYSTICK_CENTER 2048
-#define CENTER_DEADZONE 200  // For volume detection
-
-//=============================================================================
-// PUBLIC FUNCTIONS
-//=============================================================================
+// Statisk dørvakt som husker om vi har lov til å trigge nytt toneskifte
+static bool joy_x_ready = true;
 
 void Joystick_Init(Joystick_t *joy, uint16_t deadzone) {
-    joy->x = JOYSTICK_CENTER;
-    joy->y = JOYSTICK_CENTER;
+    joy->deadzone = deadzone;
+    joy->raw_x = 2048;
+    joy->raw_y = 2048;
     joy->x_changed = false;
     joy->y_changed = false;
-    joy->deadzone = deadzone;
-    joy->_last_x = JOYSTICK_CENTER;
-    joy->_last_y = JOYSTICK_CENTER;
-    joy->_first_run = true;
 }
 
 void Joystick_Update(Joystick_t *joy, uint16_t raw_x, uint16_t raw_y) {
-    // Initialize on first run
-    if (joy->_first_run) {
-        joy->_last_x = raw_x;
-        joy->_last_y = raw_y;
-        joy->x = raw_x;
-        joy->y = raw_y;
-        joy->_first_run = false;
-        joy->x_changed = false;
-        joy->y_changed = false;
-        return;
+    joy->raw_x = raw_x;
+    joy->raw_y = raw_y;
+
+    // --- JOY X LATCH LOGIC (Nøyaktig som v27) ---
+    // Sjekk om spaken er i midten (Dødsone)
+    if (raw_x > 1800 && raw_x < 2300) {
+        joy_x_ready = true; // Senter -> Klar for nytt dytt
     }
-    
-    // Check X axis deadzone
-    int16_t x_change = (int16_t)raw_x - (int16_t)joy->_last_x;
-    if (x_change < -(int16_t)joy->deadzone || x_change > (int16_t)joy->deadzone) {
-        joy->x = raw_x;
-        joy->_last_x = raw_x;
-        joy->x_changed = true;
-    } else {
-        joy->x_changed = false;
+
+    // Sett flagget true kun ved første dytt utenfor senter
+    joy->x_changed = false; 
+    if (joy_x_ready) {
+        if (raw_x < 1000 || raw_x > 3000) {
+            joy->x_changed = true;
+            joy_x_ready = false; // LÅS! Må tilbake til midten før x_changed blir true igjen
+        }
     }
-    
-    // Check Y axis deadzone
-    int16_t y_change = (int16_t)raw_y - (int16_t)joy->_last_y;
-    if (y_change < -(int16_t)joy->deadzone || y_change > (int16_t)joy->deadzone) {
-        joy->y = raw_y;
-        joy->_last_y = raw_y;
+
+    // --- JOY Y VOLUME LOGIC ---
+    // Sjekk om spaken er langt nok unna senter til å endre volum
+    int16_t deviation_y = (int16_t)raw_y - 2048;
+    if (deviation_y < -300 || deviation_y > 300) {
         joy->y_changed = true;
     } else {
         joy->y_changed = false;
     }
 }
 
-int16_t Joystick_GetX(Joystick_t *joy) {
-    return (int16_t)joy->x - JOYSTICK_CENTER;
-}
-
-int16_t Joystick_GetY(Joystick_t *joy) {
-    return (int16_t)joy->y - JOYSTICK_CENTER;
-}
-
-uint8_t Joystick_GetKeyIndex(Joystick_t *joy, uint8_t num_keys) {
-    uint16_t x = joy->x;
-    if (x > 4095) x = 4095;
-    
-    // Map X position to key index
-    uint8_t key = (x * num_keys) / 4096;
-    if (key >= num_keys) key = num_keys - 1;
-    
-    return key;
-}
-
 uint8_t Joystick_GetVolume(Joystick_t *joy) {
-    uint16_t y = joy->y;
-    if (y > 4095) y = 4095;
-    
-    // Check if in center deadzone
-    int16_t deviation = (int16_t)y - JOYSTICK_CENTER;
-    if (deviation > -CENTER_DEADZONE && deviation < CENTER_DEADZONE) {
-        return 255;  // Special value = no change
-    }
-    
-    // Map Y to volume 0-100%
-    uint8_t vol = (y * 100) / 4095;
+    // Returnerer volum 0-100 basert på Joy Y posisjon
+    uint32_t vol = ((uint32_t)joy->raw_y * 100) / 4095;
     if (vol > 100) vol = 100;
-    
-    return vol;
+    return (uint8_t)vol;
 }
 
-bool Joystick_IsCentered(Joystick_t *joy) {
-    int16_t x_dev = Joystick_GetX(joy);
-    int16_t y_dev = Joystick_GetY(joy);
-    
-    return (x_dev > -CENTER_DEADZONE && x_dev < CENTER_DEADZONE &&
-            y_dev > -CENTER_DEADZONE && y_dev < CENTER_DEADZONE);
+// Hjelpefunksjon for å finne ut hvilken vei vi dyttet
+int8_t Joystick_GetDirectionX(Joystick_t *joy) {
+    if (joy->raw_x < 1000) return -1; // Venstre
+    if (joy->raw_x > 3000) return 1;  // Høyre
+    return 0;
 }
