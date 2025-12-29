@@ -1,0 +1,104 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Motion_Music_studio",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "Motion_Music_studio",
+                "resourceId": "/Motion_Music_studio"
+            },
+            "executable": "${workspaceFolder}/Debug/Motion_Music_studio.out",
+            "targetConfig": "${workspaceFolder}/targetConfigs/MSPM0G3507.ccxml",
+            "connectionProperties": {
+                "JTAG Clock Frequency": "2000000",
+                "Debug Interface": "SWD",
+                "Supply voltage": "3.3"
+            },
+            "resetOnConnect": true,
+            "enableWaitForDebug": true,
+            "autoRunToMain": true,
+            "loadProgram": true,
+            "verifyProgram": true,
+            "retainGPIOsState": true,
+            "connectTimeout": 60000
+        },
+        {
+            "name": "Flash Motion_Music_studio (No Debug)",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "Motion_Music_studio",
+                "resourceId": "/Motion_Music_studio"
+            },
+            "executable": "${workspaceFolder}/Debug/Motion_Music_studio.out",
+            "targetConfig": "${workspaceFolder}/targetConfigs/MSPM0G3507.ccxml",
+            "connectionProperties": {
+                "JTAG Clock Frequency": "2000000",
+                "Debug Interface": "SWD"
+            },
+            "resetOnConnect": true,
+            "loadProgram": true,
+            "verifyProgram": true,
+            "disconnectAfterLoad": true
+        },
+        {
+            "name": "Debug Motion_Music_studio (1 MHz TCLK - Slow)",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "Motion_Music_studio",
+                "resourceId": "/Motion_Music_studio"
+            },
+            "executable": "${workspaceFolder}/Debug/Motion_Music_studio.out",
+            "targetConfig": "${workspaceFolder}/targetConfigs/MSPM0G3507.ccxml",
+            "connectionProperties": {
+                "JTAG Clock Frequency": "1000000",
+                "Debug Interface": "SWD",
+                "Supply voltage": "3.3"
+            },
+            "resetOnConnect": true,
+            "enableWaitForDebug": true,
+            "autoRunToMain": true,
+            "loadProgram": true,
+            "verifyProgram": true,
+            "retainGPIOsState": true,
+            "connectTimeout": 60000
+        },
+        {
+            "name": "Attach to Running Target",
+            "type": "ccs-debug",
+            "request": "attach",
+            "projectInfo": {
+                "name": "Motion_Music_studio",
+                "resourceId": "/Motion_Music_studio"
+            },
+            "targetConfig": "${workspaceFolder}/targetConfigs/MSPM0G3507.ccxml",
+            "connectionProperties": {
+                "JTAG Clock Frequency": "2000000",
+                "Debug Interface": "SWD"
+            },
+            "resetOnConnect": false,
+            "loadProgram": false
+        },
+        {
+            "name": "Motion_Music_studio",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "Motion_Music_studio",
+                "resourceId": "/Motion_Music_studio"
+            }
+        },
+        {
+            "name": "Motion_Music_studio (1)",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "Motion_Music_studio",
+                "resourceId": "/Motion_Music_studio/__ccs_3_compilerIncludes"
+            }
+        }
+    ]
+}
