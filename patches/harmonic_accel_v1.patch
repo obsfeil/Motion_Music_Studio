@@ -1,0 +1,206 @@
+/**
+ * PATCH: Harmonic Chord Progression with ACCEL_X
+ * Version: 1.0
+ * 
+ * CHANGES:
+ * - JOY_X: Selects key (C-B) and mode (Major/Minor)
+ * - ACCEL_X: Follows harmonic chord progression (I, ii, iii, IV, V, vi, vii°, V7)
+ * - S1 Long: Toggles between Major and Minor modes
+ * 
+ * ADD TO main.c after line 66 (after SCALE_COUNT definition):
+ */
+
+//=============================================================================
+// HARMONIC PROGRESSION SYSTEM
+//=============================================================================
+typedef enum {
+  MODE_MAJOR = 0,
+  MODE_MINOR = 1,
+  MODE_COUNT = 2
+} MusicalMode_t;
+
+// Harmonic function: I, ii, iii, IV, V, vi, vii°, V7
+typedef enum {
+  HARM_I = 0,    // Tonic (dur/moll)
+  HARM_ii,       // Supertonic (moll/dim)
+  HARM_iii,      // Mediant (moll/dur)
+  HARM_IV,       // Subdominant (dur/moll)
+  HARM_V,        // Dominant (dur/dur)
+  HARM_vi,       // Submediant (moll/dur)
+  HARM_vii,      // Leading tone (dim/dim)
+  HARM_V7,       // Dominant 7th
+  HARM_COUNT
+} HarmonicFunction_t;
+
+// Chord intervals from root (semitones)
+// Format: {root, third, fifth, seventh(if applicable)}
+static const int8_t HARMONIC_INTERVALS_MAJOR[HARM_COUNT][4] = {
+    {0, 4, 7, -1},   // I   - C major (C-E-G)
+    {2, 5, 9, -1},   // ii  - D minor (D-F-A)
+    {4, 7, 11, -1},  // iii - E minor (E-G-B)
+    {5, 9, 12, -1},  // IV  - F major (F-A-C)
+    {7, 11, 14, -1}, // V   - G major (G-B-D)
+    {9, 12, 16, -1}, // vi  - A minor (A-C-E)
+    {11, 14, 17, -1},// vii°- B dim   (B-D-F)
+    {7, 11, 14, 17}  // V7  - G7      (G-B-D-F)
+};
+
+static const int8_t HARMONIC_INTERVALS_MINOR[HARM_COUNT][4] = {
+    {0, 3, 7, -1},   // i   - C minor (C-Eb-G)
+    {2, 5, 8, -1},   // ii° - D dim   (D-F-Ab)
+    {3, 7, 10, -1},  // III - Eb major (Eb-G-Bb)
+    {5, 8, 12, -1},  // iv  - F minor (F-Ab-C)
+    {7, 11, 14, -1}, // V   - G major (G-B-D) - always major!
+    {8, 12, 15, -1}, // VI  - Ab major (Ab-C-Eb)
+    {11, 14, 17, -1},// vii°- B dim   (B-D-F)
+    {7, 11, 14, 17}  // V7  - G7      (G-B-D-F)
+};
+
+static const char* HARMONIC_NAMES_MAJOR[HARM_COUNT] = {
+    "I", "ii", "iii", "IV", "V", "vi", "vii°", "V7"
+};
+
+static const char* HARMONIC_NAMES_MINOR[HARM_COUNT] = {
+    "i", "ii°", "III", "iv", "V", "VI", "vii°", "V7"
+};
+
+/**
+ * NEW: Add these global variables after line 115 (after ScaleState_t):
+ */
+static MusicalMode_t current_mode = MODE_MAJOR;
+static HarmonicFunction_t current_harmony = HARM_I;
+
+/**
+ * REPLACE Process_Musical_Controls() function (around line 311):
+ */
+static void Process_Musical_Controls(void) {
+    // 1. Key selection (JOY_X) - Changed behavior
+    if (joystick.x_changed) {
+        if (joystick.raw_x < 1000) {
+            // Left - previous key
+            if (scale_state.current_key > 0) scale_state.current_key--;
+            else scale_state.current_key = (MusicalKey_t)(KEY_COUNT - 1);
+        } else if (joystick.raw_x > 3000) {
+            // Right - next key
+            if (scale_state.current_key < (KEY_COUNT - 1)) scale_state.current_key++;
+            else scale_state.current_key = (MusicalKey_t)0;
+        }
+        
+        // Update frequency based on current harmony
+        scale_state.current_note_freq = Calculate_Harmonic_Frequency(
+            scale_state.current_key, current_mode, current_harmony, current_octave_shift);
+        target_frequency_hz = scale_state.current_note_freq;
+        Update_Phase_Increment();
+    }
+
+    // 2. Volume (JOY_Y) - Unchanged
+    if (joystick.y_changed) {
+        gSynthState.volume = Joystick_GetVolume(&joystick);
+    }
+    
+    // 3. Harmonic progression (ACCEL_X) - NEW!
+    if (accel.x_changed) {
+        // Map accelerometer X to harmonic functions (0-7)
+        // accel.x range is typically 0-4095
+        uint8_t harm_pos = (uint8_t)((accel.x * HARM_COUNT) / 4096);
+        if (harm_pos >= HARM_COUNT) harm_pos = HARM_COUNT - 1;
+        
+        current_harmony = (HarmonicFunction_t)harm_pos;
+        
+        scale_state.current_note_freq = Calculate_Harmonic_Frequency(
+            scale_state.current_key, current_mode, current_harmony, current_octave_shift);
+        target_frequency_hz = scale_state.current_note_freq;
+        Update_Phase_Increment();
+    }
+}
+
+/**
+ * NEW: Add this helper function after Calculate_Scale_Frequency() (around line 370):
+ */
+static uint16_t Calculate_Harmonic_Frequency(MusicalKey_t key, MusicalMode_t mode,
+                                             HarmonicFunction_t harmony, int8_t octave_shift) {
+    uint16_t root_freq = ROOT_FREQUENCIES[key];
+    
+    // Get chord intervals based on mode
+    const int8_t* intervals = (mode == MODE_MAJOR) ? 
+        HARMONIC_INTERVALS_MAJOR[harmony] : 
+        HARMONIC_INTERVALS_MINOR[harmony];
+    
+    // Use root note of the chord
+    int8_t semitone = intervals[0] + octave_shift;
+    
+    // Use same calculation as original
+    const uint16_t semitone_ratio[25] = {
+        1000, 1059, 1122, 1189, 1260, 1335, 1414, 1498, 1587, 1682, 1782, 1888, 2000,
+        2119, 2245, 2378, 2520, 2670, 2828, 2997, 3175, 3364, 3564, 3775, 4000};
+
+    int8_t idx = semitone + 12;
+    if (idx < 0) idx = 0;
+    if (idx > 24) idx = 24;
+
+    uint32_t freq = ((uint32_t)root_freq * semitone_ratio[idx]) / 1000;
+    if (freq < 100) freq = 100;
+    if (freq > 2000) freq = 2000;
+
+    return (uint16_t)freq;
+}
+
+/**
+ * MODIFY Change_Instrument() function (around line 387) to toggle mode:
+ * Replace the S1 Long Press handler in main loop (around line 220):
+ */
+// OLD:
+//  } else if (s1_event == BTN_EVENT_LONG_PRESS) {
+//    Change_Instrument();
+//    display_counter = 200000;
+//  }
+
+// NEW:
+} else if (s1_event == BTN_EVENT_LONG_PRESS) {
+  // Toggle between Major and Minor mode
+  current_mode = (MusicalMode_t)((current_mode + 1) % MODE_COUNT);
+  
+  // Update frequency for new mode
+  scale_state.current_note_freq = Calculate_Harmonic_Frequency(
+      scale_state.current_key, current_mode, current_harmony, current_octave_shift);
+  target_frequency_hz = scale_state.current_note_freq;
+  Update_Phase_Increment();
+  
+  display_counter = 200000;
+}
+
+/**
+ * ADD to Display_Scale_Info() function (around line 670) to show harmony:
+ */
+static void Display_Scale_Info(void) {
+  char buf[32];
+  LCD_DrawRect(0, 28, 128, 10, LCD_COLOR_BLACK);
+  
+  // Show key and mode
+  const char* mode_name = (current_mode == MODE_MAJOR) ? "MAJ" : "MIN";
+  snprintf(buf, sizeof(buf), "%s %s", KEY_NAMES[scale_state.current_key], mode_name);
+  LCD_PrintString(3, 28, buf, LCD_COLOR_YELLOW, LCD_COLOR_BLACK, FONT_SMALL);
+  
+  // Show current harmonic function
+  const char** harm_names = (current_mode == MODE_MAJOR) ? 
+      HARMONIC_NAMES_MAJOR : HARMONIC_NAMES_MINOR;
+  snprintf(buf, sizeof(buf), "%s", harm_names[current_harmony]);
+  LCD_PrintString(85, 28, buf, LCD_COLOR_CYAN, LCD_COLOR_BLACK, FONT_SMALL);
+}
+
+/**
+ * SUMMARY OF CHANGES:
+ * 
+ * 1. Added harmonic progression system (I-vii°, V7)
+ * 2. JOY_X now selects key (C-B)
+ * 3. ACCEL_X follows harmonic functions (8 positions)
+ * 4. S1 Long toggles Major/Minor mode
+ * 5. Display shows key, mode, and current harmony
+ * 
+ * CONTROLS:
+ * - JOY_X: Select key (C, D, E, F, G, A, B)
+ * - S1 Long: Toggle Major/Minor mode
+ * - ACCEL_X: Navigate harmonies (I → ii → iii → IV → V → vi → vii° → V7)
+ * - ACCEL_Y: Octave shift (unchanged)
+ * - JOY_Y: Volume (unchanged)
+ */

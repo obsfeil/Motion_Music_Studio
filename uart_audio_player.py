@@ -18,7 +18,7 @@ import sys
 # Configuration - OPTIMIZED FOR 4 kHz
 BAUD_RATE = 921600
 SAMPLE_RATE = 4000      # ✅ Changed from 1000 to 4000
-BUFFER_SIZE = 200       # ✅ Optimized buffer
+BUFFER_SIZE = 400       # ✅ Optimized buffer
 UPSAMPLE_RATIO = 12     # ✅ 48000 / 4000 = 12
 
 def find_serial_port():
