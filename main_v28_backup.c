@@ -44,19 +44,17 @@
 //=============================================================================
 // CONFIGURATION
 //=============================================================================
-#define SAMPLE_RATE_HZ 16000
+#define SAMPLE_RATE_HZ 8000
 #define SYSTICK_RATE_HZ 100
-#define MCLK_FREQ_HZ 80000000UL
+#define MCLK_FREQ_HZ 160000000UL
 #define SYSTICK_LOAD_VALUE ((MCLK_FREQ_HZ / SYSTICK_RATE_HZ) - 1)
 #define PORTAMENTO_SPEED 25
 #define AUDIO_GAIN_BOOST 8
 #define FREQ_MIN_HZ 20
-#define FREQ_MAX_HZ 8000
+#define FREQ_MAX_HZ 16000
 
 #define ACCEL_Y_NEUTRAL 2849
 #define ACCEL_Y_THRESHOLD 300
-
-
 
 #define ENABLE_CHORD_MODE 1
 #define ENABLE_ARPEGGIATOR 1
@@ -774,7 +772,7 @@ static void Update_Phase_Increment(void) {
   if (bent_freq > FREQ_MAX_HZ) bent_freq = FREQ_MAX_HZ;
 
   if (bent_freq > 0 && bent_freq <= 8000) {
-    uint64_t temp = ((uint64_t)bent_freq << 32) / 16000ULL;
+    uint64_t temp = ((uint64_t)bent_freq << 32) / 8000ULL;
     if (temp > 0 && temp <= 0xFFFFFFFF)
       g_phase_increment = (uint32_t)temp;
     else
@@ -804,7 +802,7 @@ static void Update_Phase_Increment(void) {
       if (chord_freq > FREQ_MAX_HZ) chord_freq = FREQ_MAX_HZ;
 
       if (chord_freq > 0 && chord_freq <= 8000) {
-        uint64_t chord_temp = ((uint64_t)chord_freq << 32) / 16000ULL;
+        uint64_t chord_temp = ((uint64_t)chord_freq << 32) / 8000ULL;
         if (chord_temp > 0 && chord_temp <= 0xFFFFFFFF)
           g_chord_increments[voice] = (uint32_t)chord_temp;
         else

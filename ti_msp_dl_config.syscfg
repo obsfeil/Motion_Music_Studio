@@ -205,11 +205,11 @@ OPA1.cfg0MSELChannel = "RTOP";
 
 PWM1.$name                              = "PWM_AUDIO";
 PWM1.timerStartTimer                    = true;
-PWM1.timerCount                         = 4095;
 PWM1.ccIndex                            = [0];
 PWM1.pwmMode                            = "EDGE_ALIGN_UP";
 PWM1.retentionRestoreCnt                = true;
 PWM1.interrupts                         = ["ZERO_EVENT"];
+PWM1.timerCount                         = 2047;
 PWM1.PWM_CHANNEL_0.$name                = "ti_driverlib_pwm_PWMTimerCC0";
 PWM1.PWM_CHANNEL_0.dutyCycle            = 50;
 PWM1.ccp0PinConfig.direction            = scripting.forceWrite("OUTPUT");
