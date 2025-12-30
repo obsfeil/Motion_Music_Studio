@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-UART Audio Player for MSPM0 Synthesizer
+UART Audio Player for MSPM0 Synthesizer - OPTIMIZED
 Receives audio samples via UART and plays them in real-time
+
+IMPROVEMENTS:
+- 4 kHz sample rate (better quality)
+- Optimized buffer size
+- Better error handling
 """
 
 import serial
@@ -10,11 +15,11 @@ import numpy as np
 import struct
 import sys
 
-# Configuration
-SERIAL_PORT = 'COM5'  # Change to your port (Windows: COM3, Linux: /dev/ttyUSB0)
+# Configuration - OPTIMIZED FOR 4 kHz
 BAUD_RATE = 921600
-SAMPLE_RATE = 1000  # We're receiving decimated samples (1 kHz)
-BUFFER_SIZE = 100   # Number of samples to buffer
+SAMPLE_RATE = 4000      # ✅ Changed from 1000 to 4000
+BUFFER_SIZE = 200       # ✅ Optimized buffer
+UPSAMPLE_RATIO = 12     # ✅ 48000 / 4000 = 12
 
 def find_serial_port():
     """Find available serial ports"""
@@ -29,98 +34,151 @@ def find_serial_port():
         print("No serial ports found!")
         return None
     
-    # Try to find MSPM0 board
+    # Try to find Application/User UART
     for port in ports:
-        if "XDS" in port.description or "UART" in port.description:
+        if "Application/User UART" in port.description:
+            print(f"✅ Auto-selected: {port.device}")
             return port.device
     
     # Otherwise return first port
     return ports[0].device
 
 def receive_samples(ser, num_samples):
-    """Receive audio samples from UART"""
+    """Receive audio samples from UART with error handling"""
     samples = []
     
     for _ in range(num_samples):
-        # Read 2 bytes (16-bit sample)
-        data = ser.read(2)
-        
-        if len(data) != 2:
-            break
-        
-        # Convert to signed 16-bit integer (little-endian)
-        sample = struct.unpack('<h', data)[0]
-        samples.append(sample)
+        try:
+            # Read 2 bytes (16-bit sample, little-endian)
+            data = ser.read(2)
+            
+            if len(data) != 2:
+                # Not enough data, pad with silence
+                samples.append(0)
+                continue
+            
+            # Convert to signed 16-bit integer
+            sample = struct.unpack('<h', data)[0]
+            
+            # Sanity check (reject obvious noise)
+            if abs(sample) > 32000:
+                samples.append(0)  # Replace with silence
+            else:
+                samples.append(sample)
+                
+        except Exception:
+            samples.append(0)
     
     return np.array(samples, dtype=np.int16)
 
-def upsample_audio_simple(samples, ratio=48):
-    """Simple upsampling by repeating samples (no scipy needed)"""
-    upsampled = np.repeat(samples, ratio)
-    return upsampled
+def upsample_linear(samples, ratio=12):
+    """Linear interpolation upsampling (better quality than repeat)"""
+    if len(samples) < 2:
+        return np.repeat(samples, ratio)
+    
+    # Create time indices
+    x_old = np.arange(len(samples))
+    x_new = np.linspace(0, len(samples) - 1, len(samples) * ratio)
+    
+    # Linear interpolation
+    upsampled = np.interp(x_new, x_old, samples)
+    
+    return upsampled.astype(np.int16)
 
 def main():
     # Find serial port
     port = find_serial_port()
     if not port:
-        print("Please specify serial port manually")
+        print("❌ No port selected. Exiting.")
         return
     
-    print(f"\nOpening {port} at {BAUD_RATE} baud...")
+    print(f"\n🔌 Opening {port} at {BAUD_RATE} baud...")
     
     try:
-        # Open serial port
-        ser = serial.Serial(port, BAUD_RATE, timeout=1)
+        # Open serial port with larger buffer
+        ser = serial.Serial(
+            port, 
+            BAUD_RATE, 
+            timeout=0.1,
+            write_timeout=0.1
+        )
         
-        print("Connected! Starting audio playback...")
-        print("Press Ctrl+C to stop\n")
+        # Flush any old data
+        ser.reset_input_buffer()
         
-        # Create audio stream with upsampled rate
+        print("✅ Connected! Starting audio playback...")
+        print(f"📊 Sample rate: {SAMPLE_RATE} Hz → {SAMPLE_RATE * UPSAMPLE_RATIO} Hz")
+        print("🎵 Press Ctrl+C to stop\n")
+        
+        # Create audio stream
         stream = sd.OutputStream(
-            samplerate=48000,  # Upsampled to 48 kHz
+            samplerate=SAMPLE_RATE * UPSAMPLE_RATIO,  # 48 kHz
             channels=1,
             dtype='int16',
-            blocksize=BUFFER_SIZE * 48  # Larger buffer for upsampled data
+            blocksize=BUFFER_SIZE * UPSAMPLE_RATIO,
+            latency='low'
         )
         
         stream.start()
         
-        # Main loop
+        # Statistics
         sample_count = 0
+        error_count = 0
+        
+        # Main loop
         while True:
-            # Receive samples at 1 kHz
+            # Receive samples at 4 kHz
             samples = receive_samples(ser, BUFFER_SIZE)
             
             if len(samples) == 0:
+                error_count += 1
                 continue
             
-            # Upsample to 48 kHz (repeat each sample 48 times)
-            upsampled = upsample_audio_simple(samples, ratio=48)
+            # Upsample to 48 kHz using linear interpolation
+            upsampled = upsample_linear(samples, ratio=UPSAMPLE_RATIO)
             
             # Play audio
-            stream.write(upsampled)
+            try:
+                stream.write(upsampled)
+                sample_count += len(samples)
+            except Exception as e:
+                error_count += 1
             
-            # Print status
-            sample_count += len(samples)
-            sys.stdout.write(f"\rReceived: {sample_count} samples | "
-                           f"Latency: {stream.latency*1000:.1f}ms    ")
-            sys.stdout.flush()
+            # Print status (every 1000 samples)
+            if sample_count % 1000 == 0:
+                sys.stdout.write(
+                    f"\r🎵 Samples: {sample_count:6d} | "
+                    f"Errors: {error_count:3d} | "
+                    f"Latency: {stream.latency*1000:.0f}ms   "
+                )
+                sys.stdout.flush()
     
     except KeyboardInterrupt:
-        print("\n\nStopping...")
+        print("\n\n⏹️  Stopped by user")
+    
+    except serial.SerialException as e:
+        print(f"\n❌ Serial error: {e}")
     
     except Exception as e:
-        print(f"\nError: {e}")
+        print(f"\n❌ Error: {e}")
         import traceback
         traceback.print_exc()
     
     finally:
+        # Cleanup
         if 'stream' in locals():
             stream.stop()
             stream.close()
+            print("🔇 Audio stream closed")
+        
         if 'ser' in locals():
             ser.close()
-        print("Closed")
+            print("🔌 Serial port closed")
+        
+        print("\n✅ Done!")
 
 if __name__ == "__main__":
+    print("=" * 60)
+    print("   MSPM0 Synthesizer - UART Audio Player (OPTIMIZED)")
+    print("=" * 60)
     main()
