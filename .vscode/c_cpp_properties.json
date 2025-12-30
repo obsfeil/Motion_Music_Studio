@@ -1,36 +1,29 @@
 {
-    "configurations": [
-        {
-            "name": "MSPM0-TI",
-            "includePath": [
-                "${workspaceFolder}",
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/Debug/syscfg",
-                "${workspaceFolder}/ti/driverlib",
-                "C:/TI/mspm0_sdk_2_09_00_01/source",
-                "C:/TI/mspm0_sdk_2_09_00_01/source/ti",
-                "C:/TI/mspm0_sdk_2_09_00_01/source/ti/devices",
-                "C:/TI/mspm0_sdk_2_09_00_01/source/ti/devices/msp",
-                "C:/TI/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p"
-            ],
-            "compilerPath": "C:/ti/ti_cgt_arm_llvm_4.0.4.LTS/bin/tiarmclang.exe",
-            "cStandard": "c17",
-            "intelliSenseMode": "gcc-arm",
-            "defines": [
-                "GLOBAL_IQ=24",
-                "__MSPM0G__",
-                "CONFIG_MSPM0G3507",
-                "__ARM_ARCH_7EM__",
-                "__ARM_FEATURE_DSP=1"
-            ],
-            "compilerArgs": [
-                "-mcpu=cortex-m0plus",
-                "-mthumb"
-            ],
-            "forcedInclude": [
-                "C:/TI/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/mspm0g350x.h"
-            ]
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "windows-clang-x64",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "compilerPath": "clang",
+      "cStandard": "c17",
+      "intelliSenseMode": "windows-clang-x64",
+      "defines": [
+        "GLOBAL_IQ=24",
+        "__MSPM0G__",
+        "CONFIG_MSPM0G3507",
+        "__ARM_ARCH_7EM__",
+        "__ARM_FEATURE_DSP=1"
+      ],
+      "compilerArgs": [
+        "-mcpu=cortex-m0plus",
+        "-mthumb"
+      ],
+      "forcedInclude": [
+        "C:/TI/mspm0_sdk_2_09_00_01/source/ti/devices/msp/m0p/mspm0g350x.h"
+      ],
+      "cppStandard": "c++17"
+    }
+  ],
+  "version": 4
 }
