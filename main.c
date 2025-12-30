@@ -220,12 +220,27 @@ void Trigger_Note_Off(void);
 #if ENABLE_DEBUG_LEDS
 static void Debug_LED_Update(int8_t octave);
 #endif
-
+//==============================================
+// UART USB PC MIDI
+//==============================================
+static uint8_t uart_decimate_counter = 0;
+#define UART_DECIMATION_FACTOR 8  // Send every 8th sample
 //=============================================================================
 // MAIN
 //=============================================================================
 int main(void) {
   SYSCFG_DL_init();
+
+// TEST: Send "HELLO" via UART
+    for (int i = 0; i < 100; i++) {
+        DL_UART_transmitDataBlocking(UART_AUDIO_INST, 'H');
+        DL_UART_transmitDataBlocking(UART_AUDIO_INST, 'E');
+        DL_UART_transmitDataBlocking(UART_AUDIO_INST, 'L');
+        DL_UART_transmitDataBlocking(UART_AUDIO_INST, 'L');
+        DL_UART_transmitDataBlocking(UART_AUDIO_INST, 'O');
+        DL_UART_transmitDataBlocking(UART_AUDIO_INST, '\n');
+        delay_cycles(1600000); // Small delay
+    }
 
 memset((void *)&gSynthState, 0, sizeof(SynthState_t));
 gSynthState.frequency = 440;
@@ -684,11 +699,10 @@ static void Generate_Audio_Sample(void) {
       int16_t mod = 1000 + ((tremolo_lfo * inst->tremolo_depth) / 100);
       sample = (int16_t)(((int32_t)sample * mod) / 1000);
     }
-
-    g_phase += g_phase_increment;
+    g_phase += g_phase_increment;    
   }
 
-  // Apply envelope and volume
+  // ✅ CORRECT ORDER: Apply envelope and volume FIRST
   sample = (int16_t)(((int32_t)sample * amplitude) / 1000);
   sample = (int16_t)(((int32_t)sample * gSynthState.volume) / 100);
 
@@ -706,11 +720,28 @@ static void Generate_Audio_Sample(void) {
   }
 #endif
 
-  uint16_t pwm_val = Audio_SampleToPWM(sample, 2048, 4095);  // Library API
+  // ✅ CORRECT: Now calculate PWM with processed sample
+  uint16_t pwm_val = Audio_SampleToPWM(sample, 2048, 4095);
   DL_TimerG_setCaptureCompareValue(PWM_AUDIO_INST, pwm_val, DL_TIMER_CC_0_INDEX);
+  
+  // ✅ CORRECT: Send processed sample via UART
+  if (++uart_decimate_counter >= UART_DECIMATION_FACTOR) {
+    uart_decimate_counter = 0;
+    
+    // Send as 2 bytes (little-endian)
+    uint8_t low_byte = (uint8_t)(sample & 0xFF);
+    uint8_t high_byte = (uint8_t)((sample >> 8) & 0xFF);
+    
+    DL_UART_transmitDataBlocking(UART_AUDIO_INST, low_byte);
+    DL_UART_transmitDataBlocking(UART_AUDIO_INST, high_byte);
+  }
+  
+  // ✅ CORRECT: Increment counter only ONCE
   gSynthState.audio_samples_generated++;
 }
-
+//==============================================================================
+// CHORD GENERATION
+//==============================================================================
 static int16_t Generate_Chord_Sample(volatile uint32_t *phases, volatile uint32_t *increments) {
   const InstrumentProfile_t *inst = &INSTRUMENTS[current_instrument];
   int32_t mixed = 0;
