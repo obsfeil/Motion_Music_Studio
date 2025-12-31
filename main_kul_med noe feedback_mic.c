@@ -40,6 +40,16 @@
 #define ENABLE_WAVEFORM_DISPLAY 1
 #define ENABLE_DEBUG_LEDS 1
 
+
+#define Q15_SCALE 32768        // 2^15
+#define FLOAT_TO_Q15(x) ((int16_t)((x) * Q15_SCALE))
+#define Q15_TO_FLOAT(x) (((float)(x)) / Q15_SCALE)
+#define Q15_TO_INT16(x) (x)    // Q15 is already int16!
+
+// Convert phase (0 to UINT32_MAX) to Q15 angle (-1.0 to +1.0 = -π to +π)
+#define PHASE_TO_Q15(phase) ((int16_t)((phase) >> 16))
+
+
 //=============================================================================
 // DMA
 //=============================================================================

@@ -74,28 +74,35 @@ void Audio_SetWaveform(Waveform_t waveform) {
 }
 
 
+// Full 12-bit range for DAC12
+#define WAVE_AMPLITUDE 2048
+
 int16_t Audio_GenerateWaveform(uint8_t index, Waveform_t waveform) {
     switch (waveform) {
         case WAVE_SINE:
+            // Note: Main code should use MATHACL_Sine for hardware acceleration
+            // This is kept as fallback
             return sine_table[index];
             
         case WAVE_SQUARE:
-            // Square wave with soft edges
+            // Full 12-bit square wave with soft edges
             if (index < 118)
-                return 900;
-            if (index < 138)
-                return 900 - (int16_t)(((index - 118) * 1800) / 20);
-            return -900;
+                return WAVE_AMPLITUDE;
+            if (index < 138) {
+                // Soft edge transition
+                return WAVE_AMPLITUDE - (int16_t)(((index - 118) * (WAVE_AMPLITUDE * 2)) / 20);
+            }
+            return -WAVE_AMPLITUDE;
             
         case WAVE_SAWTOOTH:
-            // Linear ramp
-            return (int16_t)(((int32_t)index * 1800 / 256) - 900);
+            // Full 12-bit sawtooth (linear ramp)
+            return (int16_t)(((int32_t)index * (WAVE_AMPLITUDE * 2) / 256) - WAVE_AMPLITUDE);
             
         case WAVE_TRIANGLE:
-            // Triangle wave
+            // Full 12-bit triangle wave
             if (index < 128)
-                return (int16_t)(((int32_t)index * 1800 / 128) - 900);
-            return (int16_t)(900 - ((int32_t)(index - 128) * 1800 / 128));
+                return (int16_t)(((int32_t)index * (WAVE_AMPLITUDE * 2) / 128) - WAVE_AMPLITUDE);
+            return (int16_t)(WAVE_AMPLITUDE - ((int32_t)(index - 128) * (WAVE_AMPLITUDE * 2) / 128));
             
         default:
             return sine_table[index];
