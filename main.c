@@ -544,6 +544,29 @@ void Change_Scale_Type(void);
 void Trigger_Note_On(void);
 void Trigger_Note_Off(void);
 
+// Biquad Filter Forward Declarations
+typedef struct {
+    int32_t x1, x2;
+    int32_t y1, y2;
+    int32_t b0, b1, b2;
+    int32_t a1, a2;
+} BiquadFilter_t;
+
+static void BiquadFilter_Init(BiquadFilter_t *filter);
+static inline int16_t BiquadFilter_Process(BiquadFilter_t *filter, int16_t input);
+
+// Interpolator Forward Declarations
+typedef struct {
+    int16_t last_sample;
+    bool enabled;
+} Interpolator_t;
+
+static inline int16_t Interpolate_Linear(int16_t current, uint8_t fraction);
+
+// Global Instances
+static BiquadFilter_t g_biquad_filter;
+static Interpolator_t g_interpolator = {0, true};
+
 // DAC12 Helper Functions (defined later)
 static inline uint16_t Audio_SampleToDAC12(int16_t sample);
 static inline void Audio_WriteDAC12(int16_t sample);
@@ -1244,25 +1267,6 @@ void TIMG7_IRQHandler(void) {
 //=============================================================================
 
 /**
- * @brief Biquad filter state
- * 
- * Implements 2nd-order IIR filter using MATHACL for efficiency
- * Used for anti-aliasing at 48 kHz sample rate
- * Cutoff frequency: ~15 kHz (Nyquist-safe)
- */
-typedef struct {
-    int32_t x1, x2;  // Input history (Q15 fixed-point)
-    int32_t y1, y2;  // Output history (Q15 fixed-point)
-    
-    // Butterworth low-pass coefficients (Q15)
-    int32_t b0, b1, b2;  // Feedforward coefficients
-    int32_t a1, a2;      // Feedback coefficients
-} BiquadFilter_t;
-
-// Global biquad filter instance
-static BiquadFilter_t g_biquad_filter;
-
-/**
  * @brief Initialize biquad filter for 48 kHz sampling
  * 
  * Butterworth low-pass, fc = 15 kHz
@@ -1356,16 +1360,6 @@ static inline int16_t BiquadFilter_Process(BiquadFilter_t *filter, int16_t input
 //=============================================================================
 // LINEAR INTERPOLATION
 //=============================================================================
-
-/**
- * @brief Interpolation state
- */
-typedef struct {
-    int16_t last_sample;   // Previous sample for interpolation
-    bool enabled;          // Enable/disable interpolation
-} Interpolator_t;
-
-static Interpolator_t g_interpolator = {0, true};
 
 /**
  * @brief Linear interpolation between samples

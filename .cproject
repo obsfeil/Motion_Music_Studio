@@ -135,7 +135,7 @@
                         </tool>
                     </fileInfo>
                     <sourceEntries>
-                        <entry excluding="DOCS/ti_msp_dl_config.syscfg|main_v28_backup.c|uart_audio_env|example_main.c|main_kul_med noe feedback_mic.c|main_FIXED_SENSITIVITY.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="ti_msp_dl_config_backup.syscfg|main_v30_backup.c|DOCS/ti_msp_dl_config.syscfg|main_v28_backup.c|uart_audio_env|example_main.c|main_kul_med noe feedback_mic.c|main_FIXED_SENSITIVITY.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                     </sourceEntries>
                 </configuration>
             </storageModule>
