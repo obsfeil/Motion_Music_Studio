@@ -1,23 +1,11 @@
 /**
  * @file main.c
- * @brief MSPM0G3507 Synthesizer - v31.0 PROFESSIONAL AUDIO
- * @version 31.0
+ * @brief MSPM0G3507 Synthesizer - v29.3 GREENSLEEVES
+ * @version 29.3
  *
- * ✨ NEW v31.0: 48 kHz PROFESSIONAL AUDIO QUALITY
- * ✨ NEW: MATHACL biquad anti-aliasing filter
- * ✨ NEW: Linear interpolation for smoother output
- * ✨ NEW: OPA buffer for speaker output
- * ✅ 12-bit DAC12 output (4096 levels)
- * ✅ MATHACL hardware sine generation
- * ✅ 24-position harmonic progression system
- * ✅ MIDI output to PC (48 kHz, 8-voice polyphony)
- *
- * AUDIO IMPROVEMENTS v31.0:
- * - Sample rate: 48 kHz (3x better than v30)
- * - MATHACL biquad IIR filter (anti-aliasing)
- * - Linear interpolation (smoother waveforms)
- * - OPA unity-gain buffer (drives 8Ω speakers)
- * - Total SNR: ~78 dB (6 dB improvement)
+ * ✅ NEW: Greensleeves Mode - Authentic 16th century English melody
+ * ✅ NEW: 12-position harmonic progression system
+ * ✅ ENHANCED: Extended harmony (I-vii°, V7, inversions, 7th chords)
  *
  * BUTTON CONTROLS:
  * S1: Short=Instrument, Long=Major/Minor, Double=Effects
@@ -25,17 +13,18 @@
  * JOY_SEL: Short=GREENSLEEVES (🍀 Traditional Melody), Long=Reset
  * JOY_X: Select key (C-B) with deadzone hold
  * JOY_Y: Volume (0-100%) with deadzone hold
- * ACCEL_X: Harmonic progression (24 positions: vii↓ to I↑↑↑)
+ * ACCEL_X: Harmonic progression (24 positions: vii↓ to I↑↑↑ - smooth MIDI-standard semitone control)
  * ACCEL_Y: Octave shift (tilt forward/back)
  *
- * AUDIO OUTPUT:
- * - DAC12 (PA15) → OPA buffer → Speaker output
- * - Output pin: Check ti_msp_dl_config.syscfg for OPA_OUT pin
- * - Can drive 8Ω speakers directly (with OPA buffer)
- * - Recommended: 100Ω + 1µF RC filter on output
+ * GREENSLEEVES MODE:
+ * - Authentic traditional melody from 16th century England
+ * - Public domain - no copyright restrictions
+ * - 16-step sequence in A minor
+ * - Classic progression: Am-C-G-Am-E-Am
+ * - ~2 seconds per chord
+ * - STRINGS instrument (lute/fiddle-like)
  *
- * @date 2026-01-01
- * @author Professional Audio Upgrade
+ * @date 2025-12-30
  */
 
 #include "main.h"
@@ -163,11 +152,6 @@ static inline void MIDI_CreateProgramChange(uint8_t channel, uint8_t program,
 #define SYSTICK_LOAD_VALUE ((MCLK_FREQ_HZ / SYSTICK_RATE_HZ) - 1)
 #define PORTAMENTO_SPEED 25
 #define AUDIO_GAIN_BOOST 8
-
-// OPA GAIN COMPENSATION
-// Set to 2 if using OPA with 2x gain (DAC Output on PSEL)
-// Set to 1 if using OPA with 1x gain (IN0+ external pin) or no OPA
-#define OPA_GAIN_FACTOR 2  // Compensate for 2x OPA gain to prevent clipping
 #define FREQ_MIN_HZ 20
 #define FREQ_MAX_HZ 8000
 
@@ -565,13 +549,6 @@ int main(void) {
   DL_DAC12_enable(DAC0);
   delay_cycles(1000);  // Let DAC12 settle
   Audio_MuteDAC12();   // Set to midpoint
-
-  // Initialize biquad anti-aliasing filter for 48 kHz
-  BiquadFilter_Init(&g_biquad_filter);
-  
-  // Initialize interpolator
-  g_interpolator.enabled = true;
-  g_interpolator.last_sample = 0;
 
   memset((void *)&gSynthState, 0, sizeof(SynthState_t));
   gSynthState.frequency = 440;
@@ -1240,158 +1217,6 @@ void TIMG7_IRQHandler(void) {
 }
 
 //=============================================================================
-// MATHACL BIQUAD FILTER (Anti-Aliasing)
-//=============================================================================
-
-/**
- * @brief Biquad filter state
- * 
- * Implements 2nd-order IIR filter using MATHACL for efficiency
- * Used for anti-aliasing at 48 kHz sample rate
- * Cutoff frequency: ~15 kHz (Nyquist-safe)
- */
-typedef struct {
-    int32_t x1, x2;  // Input history (Q15 fixed-point)
-    int32_t y1, y2;  // Output history (Q15 fixed-point)
-    
-    // Butterworth low-pass coefficients (Q15)
-    int32_t b0, b1, b2;  // Feedforward coefficients
-    int32_t a1, a2;      // Feedback coefficients
-} BiquadFilter_t;
-
-// Global biquad filter instance
-static BiquadFilter_t g_biquad_filter;
-
-/**
- * @brief Initialize biquad filter for 48 kHz sampling
- * 
- * Butterworth low-pass, fc = 15 kHz
- * Coefficients calculated for fs = 48 kHz
- */
-static void BiquadFilter_Init(BiquadFilter_t *filter) {
-    // Clear state
-    filter->x1 = 0;
-    filter->x2 = 0;
-    filter->y1 = 0;
-    filter->y2 = 0;
-    
-    // Butterworth coefficients (Q15 format, scaled by 32768)
-    // fc = 15 kHz, fs = 48 kHz
-    filter->b0 = 16384;   // 0.5 * 32768
-    filter->b1 = 32768;   // 1.0 * 32768
-    filter->b2 = 16384;   // 0.5 * 32768
-    filter->a1 = -10486;  // -0.32 * 32768 (approx)
-    filter->a2 = 6554;    // 0.2 * 32768 (approx)
-}
-
-/**
- * @brief Process sample through biquad filter using MATHACL
- * 
- * @param filter Biquad filter state
- * @param input Input sample (16-bit)
- * @return Filtered output sample (16-bit)
- * 
- * Uses MATHACL MPY_32 for efficient fixed-point multiplication
- * Direct Form II Transposed structure for numerical stability
- */
-static inline int16_t BiquadFilter_Process(BiquadFilter_t *filter, int16_t input) {
-    // Convert input to Q15
-    int32_t x0 = (int32_t)input << 15;
-    
-    // Calculate feedforward
-    // w0 = x0 - a1*y1 - a2*y2
-    int32_t w0 = x0;
-    
-    // Use MATHACL for multiplication (faster than software)
-    // a1 * y1
-    DL_MathACL_operationConfig config = {
-        .opType = DL_MATHACL_OP_TYPE_MPY_32,
-        .qType = DL_MATHACL_Q_TYPE_Q31,
-        .opSign = DL_MATHACL_OPSIGN_SIGNED
-    };
-    
-    DL_MathACL_configOperation(MATHACL, &config, filter->a1, filter->y1);
-    DL_MathACL_waitForOperation(MATHACL);
-    int32_t temp = DL_MathACL_getResultOne(MATHACL);
-    w0 -= (temp >> 15);
-    
-    // a2 * y2
-    DL_MathACL_configOperation(MATHACL, &config, filter->a2, filter->y2);
-    DL_MathACL_waitForOperation(MATHACL);
-    temp = DL_MathACL_getResultOne(MATHACL);
-    w0 -= (temp >> 15);
-    
-    // Calculate output
-    // y0 = b0*w0 + b1*w1 + b2*w2
-    int32_t y0 = 0;
-    
-    // b0 * w0
-    DL_MathACL_configOperation(MATHACL, &config, filter->b0, w0);
-    DL_MathACL_waitForOperation(MATHACL);
-    temp = DL_MathACL_getResultOne(MATHACL);
-    y0 += (temp >> 15);
-    
-    // b1 * x1
-    DL_MathACL_configOperation(MATHACL, &config, filter->b1, filter->x1);
-    DL_MathACL_waitForOperation(MATHACL);
-    temp = DL_MathACL_getResultOne(MATHACL);
-    y0 += (temp >> 15);
-    
-    // b2 * x2
-    DL_MathACL_configOperation(MATHACL, &config, filter->b2, filter->x2);
-    DL_MathACL_waitForOperation(MATHACL);
-    temp = DL_MathACL_getResultOne(MATHACL);
-    y0 += (temp >> 15);
-    
-    // Update state
-    filter->x2 = filter->x1;
-    filter->x1 = w0;
-    filter->y2 = filter->y1;
-    filter->y1 = y0;
-    
-    // Convert back to 16-bit
-    return (int16_t)(y0 >> 15);
-}
-
-//=============================================================================
-// LINEAR INTERPOLATION
-//=============================================================================
-
-/**
- * @brief Interpolation state
- */
-typedef struct {
-    int16_t last_sample;   // Previous sample for interpolation
-    bool enabled;          // Enable/disable interpolation
-} Interpolator_t;
-
-static Interpolator_t g_interpolator = {0, true};
-
-/**
- * @brief Linear interpolation between samples
- * 
- * @param current Current sample
- * @param fraction Interpolation fraction (0-255)
- * @return Interpolated sample
- * 
- * Uses simple linear interpolation: y = y0 + (y1-y0) * fraction
- * Fraction is 8-bit for efficiency (0 = full last, 255 = full current)
- */
-static inline int16_t Interpolate_Linear(int16_t current, uint8_t fraction) {
-    if (!g_interpolator.enabled || fraction == 255) {
-        g_interpolator.last_sample = current;
-        return current;
-    }
-    
-    // Linear interpolation
-    int32_t delta = (int32_t)current - (int32_t)g_interpolator.last_sample;
-    int32_t result = (int32_t)g_interpolator.last_sample + ((delta * fraction) >> 8);
-    
-    g_interpolator.last_sample = current;
-    return (int16_t)result;
-}
-
-//=============================================================================
 // DAC12 AUDIO OUTPUT HELPERS
 //=============================================================================
 
@@ -1401,15 +1226,8 @@ static inline int16_t Interpolate_Linear(int16_t current, uint8_t fraction) {
  * @return DAC value (0 to 4095)
  */
 static inline uint16_t Audio_SampleToDAC12(int16_t sample) {
-    // OPA GAIN COMPENSATION
-    // If OPA has 2x gain, scale sample by 0.5 to prevent output clipping
-    // This ensures OPA output stays within 0-3.3V range
-    #if (OPA_GAIN_FACTOR == 2)
-        sample = sample / 2;  // Reduce amplitude by 50% for 2x OPA gain
-    #endif
-    
     // Convert signed sample to unsigned DAC value
-    // Sample range: -2048 to +2047 (or -1024 to +1023 with 2x compensation)
+    // Sample range: -2048 to +2047
     // DAC range:    0 to 4095
     int32_t dac_val = (int32_t)sample + 2048;
     
@@ -1509,14 +1327,6 @@ static void Generate_Audio_Sample(void) {
                                            base_frequency_hz);
   sample = Filter_LowPass(sample);
   sample = Filter_SoftClip(sample, 1600);
-  
-  // Apply MATHACL biquad anti-aliasing filter (48 kHz)
-  sample = BiquadFilter_Process(&g_biquad_filter, sample);
-  
-  // Apply linear interpolation for smoother output
-  // (Use phase LSBs for sub-sample interpolation)
-  uint8_t interp_frac = (uint8_t)(g_phase >> 24);
-  sample = Interpolate_Linear(sample, interp_frac);
 
 #if ENABLE_WAVEFORM_DISPLAY
   static uint8_t waveform_decimate_counter = 0;

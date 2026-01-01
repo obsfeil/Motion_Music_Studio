@@ -190,14 +190,12 @@ I2C2.sdaPinConfig.enableConfig = true;
 I2C2.sclPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric16";
 I2C2.sclPinConfig.enableConfig = true;
 
-OPA1.$name                     = "OPA_SPEAKER";
-OPA1.advBW                     = "HIGH";
-OPA1.cfg0OutputPin             = "ENABLED";
-OPA1.advRRI                    = true;
-OPA1.cfg0PSELChannel           = "DAC_OUT";
-OPA1.peripheral.$assign        = "OPA1";
-OPA1.peripheral.OutPin.$assign = "boosterpack.29";
-OPA1.OutPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric4";
+OPA1.$name              = "OPA_SPEAKER";
+OPA1.advBW              = "HIGH";
+OPA1.cfg0PSELChannel    = "DAC_OUT";
+OPA1.cfg0OutputPin      = "ENABLED";
+OPA1.advRRI             = true;
+OPA1.OutPinConfig.$name = "ti_driverlib_gpio_GPIOPinGeneric4";
 
 RTC.peripheral.$assign = "RTC";
 
@@ -304,4 +302,6 @@ Board.peripheral.swdioPin.$suggestSolution            = "j25_expansion.14";
 DMA.associatedChannels[1].peripheral.$suggestSolution = "DMA_CH2";
 GPIO1.associatedPins[0].pin.$suggestSolution          = "boosterpack.33";
 GPIO4.associatedPins[0].pin.$suggestSolution          = "boosterpack.39";
+OPA1.peripheral.$suggestSolution                      = "OPA1";
+OPA1.peripheral.OutPin.$suggestSolution               = "boosterpack.29";
 UART1.DMA_CHANNEL_TX.peripheral.$suggestSolution      = "DMA_CH1";

@@ -158,7 +158,8 @@ class AudioReceiver:
             channels=1,
             dtype='int16',
             blocksize=BUFFER_SIZE * self.upsample_ratio,
-            latency='low'
+            latency='low',
+            device=27
         )
         stream.start()
         
