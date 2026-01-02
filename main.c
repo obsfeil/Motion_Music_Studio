@@ -1483,12 +1483,22 @@ static void Generate_Audio_Sample(void) {
       sample = (sample * 2 + harmonic1) / 3;
     }
 
+    #if ENABLE_WAVEFORM_DISPLAY                                                       
+static uint8_t waveform_decimate_counter = 0;                                    
+if (++waveform_decimate_counter >= 40) {                                         
+     waveform_decimate_counter = 0;                                                
+  waveform_buffer[waveform_write_index++] = sample;                              
+   if (waveform_write_index >= 64)                                                
+     waveform_write_index = 0;                                                    
+  }                                     
+#endif        
+
     // Tremolo
     if (effects_enabled && inst->tremolo_depth > 0) {
       uint8_t trem_index = tremolo_phase >> 8;
       const int16_t *sine = Audio_GetSineTable(); // Library API
       int16_t tremolo_lfo = sine[trem_index];
-      int16_t mod = 1000 + ((tremolo_lfo * inst->tremolo_depth) / 100);
+      int16_t mod = 1000 + ((int32_t)tremolo_lfo * inst->tremolo_depth) / 100;  
       sample = (int16_t)(((int32_t)sample * mod) / 1000);
     }
     g_phase += g_phase_increment;
@@ -1498,29 +1508,6 @@ static void Generate_Audio_Sample(void) {
   sample = (int16_t)(((int32_t)sample * amplitude) / 1000);
   sample = (int16_t)(((int32_t)sample * gSynthState.volume) / 100);
 
-  // Apply filters (Library API)
-  sample = Filter_GainWithFreqCompensation(sample, AUDIO_GAIN_BOOST,
-                                           base_frequency_hz);
-  sample = Filter_LowPass(sample);
-  sample = Filter_SoftClip(sample, 1600);
-  
-  // Apply MATHACL biquad anti-aliasing filter (48 kHz)
-  sample = BiquadFilter_Process(&g_biquad_filter, sample);
-  
-  // Apply linear interpolation for smoother output
-  // (Use phase LSBs for sub-sample interpolation)
-  uint8_t interp_frac = (uint8_t)(g_phase >> 24);
-  sample = Interpolate_Linear(sample, interp_frac);
-
-#if ENABLE_WAVEFORM_DISPLAY
-  static uint8_t waveform_decimate_counter = 0;
-  if (++waveform_decimate_counter >= 125) {
-    waveform_decimate_counter = 0;
-    waveform_buffer[waveform_write_index++] = sample;
-    if (waveform_write_index >= 64)
-      waveform_write_index = 0;
-  }
-#endif
 
   // ✅ CORRECT: Write to DAC12 using helper
   Audio_WriteDAC12(sample);

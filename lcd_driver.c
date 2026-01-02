@@ -2,7 +2,7 @@
  * @file lcd_driver.c
  * @brief ST7735S LCD Driver Implementation - FIXED VERSION
  * @details Complete driver for CFAF128128B-0145T (128x128 TFT)
- * 
+ *
  * FIXES APPLIED:
  * 1. Removed all duplicate SPI sends
  * 2. Proper delays for LCD initialization
@@ -429,7 +429,7 @@ void LCD_DrawRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
         width = LCD_WIDTH - x;
     if (y + height > LCD_HEIGHT)
         height = LCD_HEIGHT - y;
-
+    
     LCD_SetWindow(x, y, x + width - 1, y + height - 1);
 
     uint8_t color_high = color >> 8;
