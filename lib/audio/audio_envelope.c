@@ -1,47 +1,51 @@
 /**
  * @file audio_envelope.c
  * @brief ADSR Envelope Implementation
+ * 
+ * ✨ UPDATED FOR 48 KHZ SAMPLE RATE (v31.0)
  */
 
 #include "audio_envelope.h"
 
 //=============================================================================
-// PREDEFINED ADSR PROFILES (for 8 kHz sample rate)
+// PREDEFINED ADSR PROFILES (for 48 kHz sample rate) ✨
 //=============================================================================
+// All sample counts are 3x compared to 16 kHz version
+// (48 kHz / 16 kHz = 3x)
 
 const ADSR_Profile_t ADSR_PIANO = {
-    .attack_samples = 80,      // 10ms attack
-    .decay_samples = 1600,     // 200ms decay
-    .sustain_level = 700,      // 70% sustain
-    .release_samples = 800     // 100ms release
+    .attack_samples = 480,       // 10ms attack  (160 * 3)
+    .decay_samples = 9600,       // 200ms decay  (3200 * 3)
+    .sustain_level = 700,        // 70% sustain  (Unchanged)
+    .release_samples = 4800      // 100ms release (1600 * 3)
 };
 
 const ADSR_Profile_t ADSR_ORGAN = {
-    .attack_samples = 0,       // Instant attack
-    .decay_samples = 0,        // No decay
-    .sustain_level = 1000,     // 100% sustain
-    .release_samples = 400     // 50ms release
+    .attack_samples = 0,         // Instant attack
+    .decay_samples = 0,          // No decay
+    .sustain_level = 1000,       // 100% sustain (Unchanged)
+    .release_samples = 2400      // 50ms release (800 * 3)
 };
 
 const ADSR_Profile_t ADSR_STRINGS = {
-    .attack_samples = 2400,    // 300ms attack
-    .decay_samples = 3200,     // 400ms decay
-    .sustain_level = 800,      // 80% sustain
-    .release_samples = 4000    // 500ms release
+    .attack_samples = 14400,     // 300ms attack (4800 * 3)
+    .decay_samples = 19200,      // 400ms decay  (6400 * 3)
+    .sustain_level = 800,        // 80% sustain  (Unchanged)
+    .release_samples = 24000     // 500ms release (8000 * 3)
 };
 
 const ADSR_Profile_t ADSR_BASS = {
-    .attack_samples = 160,     // 20ms attack
-    .decay_samples = 800,      // 100ms decay
-    .sustain_level = 900,      // 90% sustain
-    .release_samples = 800     // 100ms release
+    .attack_samples = 960,       // 20ms attack  (320 * 3)
+    .decay_samples = 4800,       // 100ms decay  (1600 * 3)
+    .sustain_level = 900,        // 90% sustain  (Unchanged)
+    .release_samples = 4800      // 100ms release (1600 * 3)
 };
 
 const ADSR_Profile_t ADSR_LEAD = {
-    .attack_samples = 40,      // 5ms attack
-    .decay_samples = 1200,     // 150ms decay
-    .sustain_level = 850,      // 85% sustain
-    .release_samples = 1600    // 200ms release
+    .attack_samples = 240,       // 5ms attack   (80 * 3)
+    .decay_samples = 7200,       // 150ms decay  (2400 * 3)
+    .sustain_level = 850,        // 85% sustain  (Unchanged)
+    .release_samples = 9600      // 200ms release (3200 * 3)
 };
 
 //=============================================================================

@@ -1,71 +1,76 @@
-# 🎵 MSPM0G3507 Synthesizer - Complete Fresh Start Project
+# 📂 Complete Project Structure
 
-## 📁 Project Structure
+This document outlines the actual structure of the **Motion Music Studio** project as of version 29.3.
+
+## 📁 Root Directory
 
 ```
-Motion_Music_Studio_Fresh/
-├── ti_msp_dl_config.syscfg          ✅ Modern SysConfig
-├── main.c                            ⏳ Creating now
-├── main.h                            ✅ DONE
-├── audio_synth.c/.h                  ⏳ Creating now
-├── sensor_input.c/.h                 ⏳ Creating now
-├── user_interface.c/.h               ⏳ Creating now  
-├── lcd/
-│   ├── lcd_driver.c/.h               ⏳ Creating now
-│   └── fonts.h                       ⏳ Creating now
-└── driver/
-    ├── hal_i2c.c/.h                  ⏳ Creating now
-    └── hal_opt3001.c/.h              ⏳ Creating now
+Motion_Music_studio/
+├── main.c
+├── main.h
+├── midi_handler.h
+├── ti_msp_dl_config.syscfg
+├── uart_audio_player.py
+├── lib/
+├── DOCS/
+├── ti/
+├── .cproject
+└── ... (IDE and config files)
 ```
 
-## ✅ What's Different (New vs Old)
+## Key Files & Directories
 
-### **SysConfig (.syscfg)**
-- ✅ Uses newest SDK API style
-- ✅ Simpler module naming
-- ✅ No retention/advanced features
-- ✅ Clean timer configuration
+### 📄 `main.c`
+-   **The Core of the Application.** This massive file contains almost all of the project's logic.
+-   **Responsibilities:**
+    -   The main application loop (`while(1)`).
+    -   Initialization of all hardware peripherals.
+    -   Reading and processing all inputs (buttons, joystick, accelerometer).
+    -   The main audio generation Interrupt Service Routine (`TIMG7_IRQHandler`).
+    -   The synthesis engine, including waveform generation, effects, and envelopes.
+    -   The musical logic for scales, chords, and the harmonic progression system.
+    -   The "Greensleeves" performance mode logic.
+    -   A **complete, self-contained MIDI protocol implementation** for sending messages over UART.
+    -   All LCD drawing and UI update logic.
 
-### **Source Files**
-- ✅ Correct struct members (joy_x, joy_y exist!)
-- ✅ Modern DriverLib API calls
-- ✅ No undefined timer constants
-- ✅ Proper includes
+### 📄 `main.h`
+-   Defines the global `SynthState_t` struct, which holds the volatile state of the system.
+-   Includes the necessary headers from the `lib/` directory to make them available to `main.c`.
 
-### **Architecture**
-- ✅ Simplified - easier to debug
-- ✅ Modular - easy to expand
-- ✅ Well-documented
-- ✅ Step-by-step testable
+### 📄 `ti_msp_dl_config.syscfg`
+-   **The Hardware Abstraction Layer.** This is a TI SysConfig file that defines the complete hardware configuration for the MSPM0G3507 MCU.
+-   It is the **source of truth** for all pin mappings, peripheral settings, and clock configurations.
+-   Generates `ti_msp_dl_config.c` and `ti_msp_dl_config.h` during the build process.
 
-## 🚀 Implementation Plan
+### 🐍 `uart_audio_player.py`
+-   A companion Python script that runs on a host PC.
+-   It connects to the device's serial port, receives the MIDI messages sent by `main.c`, and plays them through a high-quality, 8-voice polyphonic software synthesizer.
+-   This script is essential for using the device as a MIDI controller.
 
-### Phase 1: Basic Audio (30 min)
-1. Generate tone on PWM
-2. Joystick controls frequency
-3. Button starts/stops
+### ⚠️ `midi_handler.h` (Architectural Note)
+-   This header file contains a clean, well-structured implementation of the MIDI protocol.
+-   **Crucially, it is NOT USED by `main.c`.**
+-   The main application uses a redundant, copy-pasted implementation of the same MIDI logic. This is a significant architectural flaw that should be addressed in a future refactoring. The goal would be to remove the duplicate code from `main.c` and have it call the functions defined in this header.
 
-### Phase 2: Sensors (30 min)
-1. Add accelerometer pitch bend
-2. Add microphone input
-3. Add light sensor
+### 📁 `lib/` Directory
+-   Contains pre-written libraries for interfacing with hardware components.
+-   **`lib/audio/`**: A basic audio engine library.
+    -   `audio_engine.c/.h`: Provides waveform lookup tables (Sine, Saw, etc.) and a phase accumulator.
+    -   `audio_envelope.c/.h`: Provides an ADSR envelope generator.
+    -   `audio_filters.c/.h`: Provides simple audio filters like low-pass and soft clipping.
+-   **`lib/edumkii/`**: A driver library for the BOOSTXL-EDUMKII.
+    -   `edumkii.h`: Main include file.
+    -   `edumkii_accel.c/.h`: Accelerometer driver.
+    -   `edumkii_buttons.c/.h`: Button driver with debouncing.
+    -   `edumkii_joystick.c/.h`: Joystick driver.
 
-### Phase 3: Display (30 min)
-1. LCD initialization
-2. Show frequency/waveform
-3. Visual feedback
+### 📁 `DOCS/` Directory
+-   Contains all project documentation, including this file.
+-   Key documents include:
+    -   `README.md`: A high-level overview of the project.
+    -   `CHANGELOG.md`: A log of new features and changes.
+    -   `BUILD_INSTRUCTIONS.md`: Guide for building and running the project.
+    -   `Komplett_Pin_Map.md`: The definitive hardware pin map.
 
-### Phase 4: Polish (30 min)
-1. RGB LED indicators
-2. Multiple waveforms
-3. User presets
-
-## 📋 Next Steps
-
-1. Wait for all files to be created
-2. Import to CCS Theia
-3. Build
-4. Flash
-5. Test!
-
-Files being created now... ⏳
+### 📁 `ti/` Directory
+-   Contains the low-level **TI Driver Library** source files, which are part of the MSPM0 SDK. These files provide the APIs (e.g., `DL_GPIO_setPins`, `DL_ADC12_getMemResult`) used throughout the project to control the MCU's peripherals.
