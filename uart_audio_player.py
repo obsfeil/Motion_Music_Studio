@@ -15,6 +15,7 @@ import numpy as np
 import sys
 import struct
 import argparse
+import time
 
 # Configuration
 BAUD_RATE = 921600
@@ -36,7 +37,6 @@ def detect_protocol(ser):
     print("   (Play a note or move controls to generate data...)")
     
     # Wait for data with timeout
-    import time
     timeout = 3.0  # 3 second timeout
     start_time = time.time()
     test_bytes = []
@@ -57,7 +57,6 @@ def detect_protocol(ser):
     
     # MIDI detection logic
     # MIDI messages start with status byte (0x80-0xFF)
-    # Followed by 1-2 data bytes (0x00-0x7F)
     midi_patterns = 0
     
     for i in range(len(test_bytes) - 2):
@@ -91,7 +90,6 @@ def detect_protocol(ser):
         return "audio"
     else:
         # If uncertain but we see some data, default to MIDI
-        # (MIDI is more likely if firmware was recently updated)
         print("⚠️  Uncertain, defaulting to MIDI")
         return "midi"
 
@@ -117,64 +115,63 @@ def find_serial_port():
     return ports[0].device
 
 # ============================================================================
-# RAW AUDIO MODE
+# RAW AUDIO MODE (UPDATED FOR 25 kHz)
 # ============================================================================
 class AudioReceiver:
-    def __init__(self, sample_rate=4000):
+    def __init__(self, sample_rate=25000):
         self.sample_rate = sample_rate
-        self.upsample_ratio = 12  # 48kHz output
+        # Vi trenger ikke manuell upsample ratio lenger, OS fikser dette
         
     def receive_samples(self, ser, num_samples):
         """Receive audio samples from UART"""
+        # 1 sample = 2 bytes (16-bit)
+        expected_bytes = num_samples * 2
         samples = []
-        for _ in range(num_samples):
-            try:
-                data = ser.read(2)
-                if len(data) != 2:
-                    samples.append(0)
-                    continue
-                sample = struct.unpack('<h', data)[0]
-                if abs(sample) > 32000:
-                    samples.append(0)
-                else:
-                    samples.append(sample)
-            except Exception:
-                samples.append(0)
+        
+        try:
+            # Les nøyaktig antall bytes vi trenger
+            data = ser.read(expected_bytes)
+            
+            # Hvis bufferet er tomt eller ufullstendig, pad med nuller
+            if len(data) < expected_bytes:
+                padding = expected_bytes - len(data)
+                data += b'\x00' * padding
+            
+            # Konverter bytes til 16-bit signed integers (<h = little endian short)
+            count = len(data) // 2
+            samples = struct.unpack(f'<{count}h', data)
+            
+        except Exception:
+            # Ved feil, returner stillhet
+            samples = [0] * num_samples
+            
         return np.array(samples, dtype=np.int16)
-    
-    def upsample(self, samples):
-        """Linear interpolation upsampling"""
-        if len(samples) < 2:
-            return np.repeat(samples, self.upsample_ratio)
-        x_old = np.arange(len(samples))
-        x_new = np.linspace(0, len(samples) - 1, len(samples) * self.upsample_ratio)
-        upsampled = np.interp(x_new, x_old, samples)
-        return upsampled.astype(np.int16)
     
     def run(self, ser):
         """Run audio receiver"""
+        # Start lydstrøm med nøyaktig 25000 Hz
         stream = sd.OutputStream(
-            samplerate=self.sample_rate * self.upsample_ratio,
+            samplerate=self.sample_rate,
             channels=1,
             dtype='int16',
-            blocksize=BUFFER_SIZE * self.upsample_ratio,
-            latency='low',
-            device=27
+            blocksize=BUFFER_SIZE,
+            latency='low'
         )
         stream.start()
         
         sample_count = 0
-        print(f"🎵 RAW AUDIO Mode - {self.sample_rate} Hz → {self.sample_rate * self.upsample_ratio} Hz")
+        print(f"🎵 RAW AUDIO Mode - {self.sample_rate} Hz (Direct Playback)")
         
         try:
             while True:
+                # Les BUFFER_SIZE antall samples (ikke bytes)
                 samples = self.receive_samples(ser, BUFFER_SIZE)
+                
                 if len(samples) > 0:
-                    upsampled = self.upsample(samples)
-                    stream.write(upsampled)
+                    stream.write(samples)
                     sample_count += len(samples)
                     
-                    if sample_count % 1000 == 0:
+                    if sample_count % 5000 == 0:
                         sys.stdout.write(f"\r🎵 Samples: {sample_count:6d}   ")
                         sys.stdout.flush()
         finally:
@@ -182,7 +179,7 @@ class AudioReceiver:
             stream.close()
 
 # ============================================================================
-# MIDI MODE
+# MIDI MODE (Standard PC Synth @ 48kHz)
 # ============================================================================
 class Voice:
     """Single synthesizer voice"""
@@ -224,7 +221,7 @@ class Voice:
         
         # Simple ADSR
         attack_samples = int(0.01 * self.sample_rate)  # 10ms attack
-        release_samples = int(0.05 * self.sample_rate)  # 50ms release (faster!)
+        release_samples = int(0.05 * self.sample_rate)  # 50ms release
         
         envelopes = np.zeros(num_samples, dtype=np.float32)
         for i in range(num_samples):
@@ -236,7 +233,6 @@ class Voice:
             elif self.envelope_state == 'sustain':
                 self.envelope = 0.8
             elif self.envelope_state == 'release':
-                # Release from current level, not from 0.8!
                 if not hasattr(self, 'release_start_level'):
                     self.release_start_level = self.envelope
                 self.envelope -= self.release_start_level / release_samples
@@ -244,7 +240,7 @@ class Voice:
                     self.envelope = 0.0
                     self.active = False
             
-            envelopes[i] = max(0.0, self.envelope)  # Clamp to 0
+            envelopes[i] = max(0.0, self.envelope)
         
         return samples * envelopes * self.velocity * 0.3
 
@@ -276,7 +272,6 @@ class MIDISynthesizer:
         if controller == 0x07:  # Volume
             self.volume = value / 127.0
         elif controller == 123:  # All Notes Off - PANIC!
-            # Immediately kill all voices without release
             for voice in self.voices:
                 voice.active = False
                 voice.envelope = 0.0
@@ -403,7 +398,8 @@ def main():
             receiver = MIDIReceiver()
             receiver.run(ser)
         else:
-            receiver = AudioReceiver()
+            # Initierer med 25000 Hz for raw audio
+            receiver = AudioReceiver(sample_rate=25000)
             receiver.run(ser)
     
     except KeyboardInterrupt:
