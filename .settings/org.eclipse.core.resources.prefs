@@ -1,6 +1,9 @@
+=\=\=\=\=\=\=
+<<<<<<<=HEAD
+>>>>>>>=knapper
 eclipse.preferences.version=1
-<<<<<<< HEAD
-=======
+encoding//Debug/lib/audio/subdir_rules.mk=UTF-8
+encoding//Debug/lib/audio/subdir_vars.mk=UTF-8
 encoding//Debug/lib/edumkii/subdir_rules.mk=UTF-8
 encoding//Debug/lib/edumkii/subdir_vars.mk=UTF-8
 encoding//Debug/makefile=UTF-8
@@ -14,5 +17,4 @@ encoding//Debug/ti/driverlib/m0p/sysctl/subdir_rules.mk=UTF-8
 encoding//Debug/ti/driverlib/m0p/sysctl/subdir_vars.mk=UTF-8
 encoding//Debug/ti/driverlib/subdir_rules.mk=UTF-8
 encoding//Debug/ti/driverlib/subdir_vars.mk=UTF-8
->>>>>>> knapper
 encoding/<project>=UTF-8
