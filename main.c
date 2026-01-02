@@ -3,17 +3,17 @@
  * @brief MSPM0G3507 Synthesizer - v31.0 PROFESSIONAL AUDIO
  * @version 31.0
  *
- * ✨ NEW v31.0: 48 kHz PROFESSIONAL AUDIO QUALITY
+ * ✨ NEW v31.0: 25 kHz PROFESSIONAL AUDIO QUALITY
  * ✨ NEW: MATHACL biquad anti-aliasing filter
  * ✨ NEW: Linear interpolation for smoother output
  * ✨ NEW: OPA buffer for speaker output
  * ✅ 12-bit DAC12 output (4096 levels)
  * ✅ MATHACL hardware sine generation
  * ✅ 24-position harmonic progression system
- * ✅ MIDI output to PC (48 kHz, 8-voice polyphony)
+ * ✅ MIDI output to PC (25 kHz, 8-voice polyphony)
  *
  * AUDIO IMPROVEMENTS v31.0:
- * - Sample rate: 48 kHz (3x better than v30)
+ * - Sample rate: 25 kHz (3x better than v30)
  * - MATHACL biquad IIR filter (anti-aliasing)
  * - Linear interpolation (smoother waveforms)
  * - OPA unity-gain buffer (drives 8Ω speakers)
@@ -157,7 +157,7 @@ static inline void MIDI_CreateProgramChange(uint8_t channel, uint8_t program,
 //=============================================================================
 // CONFIGURATION
 //=============================================================================
-#define SAMPLE_RATE_HZ 16000
+#define SAMPLE_RATE_HZ 25000
 #define SYSTICK_RATE_HZ 100
 #define MCLK_FREQ_HZ 80000000UL
 #define SYSTICK_LOAD_VALUE ((MCLK_FREQ_HZ / SYSTICK_RATE_HZ) - 1)
@@ -169,13 +169,10 @@ static inline void MIDI_CreateProgramChange(uint8_t channel, uint8_t program,
 // Set to 1 if using OPA with 1x gain (IN0+ external pin) or no OPA
 #define OPA_GAIN_FACTOR 2  // Compensate for 2x OPA gain to prevent clipping
 #define FREQ_MIN_HZ 20
-#define FREQ_MAX_HZ 8000
+#define FREQ_MAX_HZ 12000
 
 #define ACCEL_Y_NEUTRAL 2849
 #define ACCEL_Y_THRESHOLD 300
-
-#define PWM_MAX_VALUE 2047 // 11-bit oppløsning (fjerner pipelyd)
-#define PWM_CENTER_VALUE 1023
 
 #define ENABLE_CHORD_MODE 1
 #define ENABLE_ARPEGGIATOR 1
@@ -489,7 +486,7 @@ static Arpeggiator_t arpeggiator = {0};
 static bool epic_mode_active = false;
 static uint8_t epic_sequence_step = 0;
 static uint32_t epic_step_counter = 0;
-static const uint32_t EPIC_STEPS_PER_NOTE = 32000; // ~2 seconds per note at 16kHz
+static const uint32_t EPIC_STEPS_PER_NOTE = SAMPLE_RATE_HZ * 2; // ~2 seconds per note at 16kHz
 
 // MIDI State
 static uint8_t midi_last_note = 0;
@@ -1267,10 +1264,10 @@ void TIMG7_IRQHandler(void) {
 //=============================================================================
 
 /**
- * @brief Initialize biquad filter for 48 kHz sampling
+ * @brief Initialize biquad filter for 25 kHz sampling
  * 
  * Butterworth low-pass, fc = 15 kHz
- * Coefficients calculated for fs = 48 kHz
+ * Coefficients calculated for fs = 25 kHz
  */
 static void BiquadFilter_Init(BiquadFilter_t *filter) {
     // Clear state
@@ -1280,12 +1277,12 @@ static void BiquadFilter_Init(BiquadFilter_t *filter) {
     filter->y2 = 0;
     
     // Butterworth coefficients (Q15 format, scaled by 32768)
-    // fc = 15 kHz, fs = 48 kHz
-    filter->b0 = 16384;   // 0.5 * 32768
-    filter->b1 = 32768;   // 1.0 * 32768
-    filter->b2 = 16384;   // 0.5 * 32768
-    filter->a1 = -10486;  // -0.32 * 32768 (approx)
-    filter->a2 = 6554;    // 0.2 * 32768 (approx)
+    // fc = 15 kHz, fs = 25 kHz
+    filter->b0 = 14235;   // 0.434 * 32768
+    filter->b1 = 28470;   // 0.869 * 32768
+    filter->b2 = 14235;   // 0.434 * 32768
+    filter->a1 = 16970;   // 0.518 * 32768 (NB: Positivt tall er riktig her!)
+    filter->a2 = 7200;    // 0.220 * 32768
 }
 
 /**
@@ -1626,15 +1623,15 @@ static void Update_Phase_Increment(void) {
   if (bent_freq > FREQ_MAX_HZ)
     bent_freq = FREQ_MAX_HZ;
 
-  if (bent_freq > 0 && bent_freq <= 8000) {
-    uint64_t temp = ((uint64_t)bent_freq << 32) / 16000ULL;
+if (bent_freq > 0 && bent_freq <= 8000) {
+    // Endret fra 16000ULL til SAMPLE_RATE_HZ
+    uint64_t temp = ((uint64_t)bent_freq << 32) / SAMPLE_RATE_HZ; 
+    
     if (temp > 0 && temp <= 0xFFFFFFFF)
       g_phase_increment = (uint32_t)temp;
     else
       g_phase_increment = 118111601;
-  } else {
-    g_phase_increment = 118111601;
-  }
+}
 
   if (g_phase_increment == 0)
     g_phase_increment = 118111601;
@@ -1663,7 +1660,7 @@ static void Update_Phase_Increment(void) {
         chord_freq = FREQ_MAX_HZ;
 
       if (chord_freq > 0 && chord_freq <= 8000) {
-        uint64_t chord_temp = ((uint64_t)chord_freq << 32) / 16000ULL;
+        uint64_t chord_temp = ((uint64_t)chord_freq << 32) / SAMPLE_RATE_HZ;
         if (chord_temp > 0 && chord_temp <= 0xFFFFFFFF)
           g_chord_increments[voice] = (uint32_t)chord_temp;
         else

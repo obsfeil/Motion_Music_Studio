@@ -11,41 +11,41 @@
 // PREDEFINED ADSR PROFILES (for 48 kHz sample rate) ✨
 //=============================================================================
 // All sample counts are 3x compared to 16 kHz version
-// (48 kHz / 16 kHz = 3x)
+// (25 kHz / 16 kHz = 3x)
 
 const ADSR_Profile_t ADSR_PIANO = {
-    .attack_samples = 480,       // 10ms attack  (160 * 3)
-    .decay_samples = 9600,       // 200ms decay  (3200 * 3)
-    .sustain_level = 700,        // 70% sustain  (Unchanged)
-    .release_samples = 4800      // 100ms release (1600 * 3)
+    .attack_samples = 250,       // 10ms  (0.010 * 25000)
+    .decay_samples = 5000,       // 200ms (0.200 * 25000)
+    .sustain_level = 700,        // 70%   (Uendret - nivå er ikke tidsavhengig)
+    .release_samples = 2500      // 100ms (0.100 * 25000)
 };
 
 const ADSR_Profile_t ADSR_ORGAN = {
-    .attack_samples = 0,         // Instant attack
+    .attack_samples = 0,         // Instant
     .decay_samples = 0,          // No decay
-    .sustain_level = 1000,       // 100% sustain (Unchanged)
-    .release_samples = 2400      // 50ms release (800 * 3)
+    .sustain_level = 1000,       // 100%
+    .release_samples = 1250      // 50ms  (0.050 * 25000)
 };
 
 const ADSR_Profile_t ADSR_STRINGS = {
-    .attack_samples = 14400,     // 300ms attack (4800 * 3)
-    .decay_samples = 19200,      // 400ms decay  (6400 * 3)
-    .sustain_level = 800,        // 80% sustain  (Unchanged)
-    .release_samples = 24000     // 500ms release (8000 * 3)
+    .attack_samples = 7500,      // 300ms (0.300 * 25000)
+    .decay_samples = 10000,      // 400ms (0.400 * 25000)
+    .sustain_level = 800,        // 80%
+    .release_samples = 12500     // 500ms (0.500 * 25000)
 };
 
 const ADSR_Profile_t ADSR_BASS = {
-    .attack_samples = 960,       // 20ms attack  (320 * 3)
-    .decay_samples = 4800,       // 100ms decay  (1600 * 3)
-    .sustain_level = 900,        // 90% sustain  (Unchanged)
-    .release_samples = 4800      // 100ms release (1600 * 3)
+    .attack_samples = 500,       // 20ms  (0.020 * 25000)
+    .decay_samples = 2500,       // 100ms (0.100 * 25000)
+    .sustain_level = 900,        // 90%
+    .release_samples = 2500      // 100ms (0.100 * 25000)
 };
 
 const ADSR_Profile_t ADSR_LEAD = {
-    .attack_samples = 240,       // 5ms attack   (80 * 3)
-    .decay_samples = 7200,       // 150ms decay  (2400 * 3)
-    .sustain_level = 850,        // 85% sustain  (Unchanged)
-    .release_samples = 9600      // 200ms release (3200 * 3)
+    .attack_samples = 125,       // 5ms   (0.005 * 25000)
+    .decay_samples = 3750,       // 150ms (0.150 * 25000)
+    .sustain_level = 850,        // 85%
+    .release_samples = 5000      // 200ms (0.200 * 25000)
 };
 
 //=============================================================================
